@@ -30,7 +30,7 @@ $view_variable = [];
 $url = $_GET['u'];
 if (!$url)
 {
-    header('Refresh: 0; url=/beejee_test/?u=home-index');
+    header('Refresh: 0; url=/?u=home-index');
 }
 
 $delemiter = strpos($url, '-');
