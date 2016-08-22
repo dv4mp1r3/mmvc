@@ -3,8 +3,6 @@
 namespace app\controllers;
 use app\models;
 
-require_once dirname(__FILE__).'/../models/Review.php';
-
 class HomeController extends BaseController 
 {
     public function __construct() {

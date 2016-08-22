@@ -4,8 +4,6 @@ namespace app\models;
 
 use app\models\DBHelper;
 
-require_once dirname(__FILE__).'/DBHelper.php';
-
 class DBTable extends BaseModel {
     // prop = ['name' => ['is_dirty' => false, 'schema' => 'integer', 'value' => 1]]
     private $properties;

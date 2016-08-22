@@ -1,8 +1,6 @@
 <?php
 namespace app\models;
 
-require_once dirname(__FILE__).'/DBTable.php';
-
 /** 
  * Модель отзыва
  * @property integer id 
@@ -21,9 +19,10 @@ class Review extends DBTable
     public function loadFromPost()
     {
         unset($_POST['action']);
+        $schema = $this->getSchema();
         foreach ($_POST as $key => $value) 
         {
-            if (isset(self::$schema[$key]))
+            if (isset($schema[$key]))
             {
                 $this->__set($key, htmlspecialchars($value));
             }           
