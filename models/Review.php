@@ -28,4 +28,9 @@ class Review extends DBTable
             }           
         }
     }
+    
+    public function save() {
+        $this->is_changed_by_admin = true;
+        parent::save();
+    }
 }
