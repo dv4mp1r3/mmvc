@@ -2,11 +2,9 @@
 
 namespace app\controllers;
 
-global $base_path;
-
 class BaseController 
 {
-    protected $rules;
+    public $rules;
     protected $name;
     
     public function __construct() {
@@ -36,8 +34,9 @@ class BaseController
     {
         $this->renderDoctype();
         echo '<html>';
-        $this->renderHeader();     
-        require_once dirname(__FILE__).'/../views/'.$this->name.'/'.$view.'.php';
+        $this->renderHeader();  
+        
+        require_once ROOT_DIR.'/views/'.$this->name.'/'.$view.'.php';
         echo '</html>';
     } 
 
