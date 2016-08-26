@@ -8,7 +8,7 @@ class AccessChecker {
     
     /**
      * Проверка доступа к action для текущего пользователя
-     * @param BaseControllers $controller
+     * @param BaseController $controller
      * @param string $actionName
      */
     public static function checkAccess($controller, $actionName)
@@ -56,10 +56,8 @@ class AccessChecker {
             if (in_array('user_hash', $value))
             {
                 return $key;
-            }
-            
-        }
-        
+            }            
+        }       
         // Если ничего не найдено - возвращаем guest
         return '?';
     }
