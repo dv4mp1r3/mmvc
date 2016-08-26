@@ -7,10 +7,13 @@ $config = ['db' =>
                 'host' => 'localhost',
                 'schema' => 'beejee',
             ],
-           'admin' =>
-           [
-               'username' => 'admin',
-               'password' => '123',
-           ],
+            'users' => [
+                'admin' =>
+                [
+                    'username' => 'admin',
+                    'password' => '123',
+                    'user_hash' => '24wejdslkfjsdfh2k3h5qwd',
+                ], 
+            ],
     ];
 

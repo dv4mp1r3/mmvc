@@ -9,7 +9,7 @@ class HomeController extends BaseController
         parent::__construct();
         $this->rules = [
             'index' => [
-                'access' => '*',    
+                'granted' => '*',
             ],
         ];
     }

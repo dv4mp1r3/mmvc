@@ -31,10 +31,12 @@ class Router {
     protected $ctrlName;
 
 
-    public function __construct() 
+    public function __construct($url = null) 
     {
-        $url = $_GET['u'];
-        if (!$url)
+        if ($url === null)
+            $url = $_GET['u'];
+            
+        if ($url === null)
         {
             header('Refresh: 0; url=/?u=home-index');
             exit();
@@ -52,26 +54,14 @@ class Router {
         $this->ctrlName = 'app\\controllers\\'.ucfirst($ctrl).'Controller';
     }
     
-    protected function checkAccess()
-    {
-        $username = $this->getUsername();
-        
-        return true;
-    }
-    
     protected function callAction()
     {
         call_user_func(array($this->controller, 'action'.ucfirst($this->action)));
     }
     
-    private function getUsername()
-    {
-        return '';
-    }
-    
     public function route()
     {
-        if ($this->checkAccess())
+        if (AccessChecker::checkAccess($this->controller, $this->action))
         {
             $this->callAction();
         }

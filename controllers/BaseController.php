@@ -4,7 +4,16 @@ namespace app\controllers;
 
 class BaseController 
 {
+    /**
+     * массив правил
+     * @var array 
+     */
     public $rules;
+    
+    /**
+     * Имя контроллера без постфикса Controller
+     * @var string 
+     */
     protected $name;
     
     public function __construct() {
@@ -39,5 +48,10 @@ class BaseController
         require_once ROOT_DIR.'/views/'.$this->name.'/'.$view.'.php';
         echo '</html>';
     } 
+    
+    public function getName()
+    {
+        return $this->name;
+    }
 
 }
