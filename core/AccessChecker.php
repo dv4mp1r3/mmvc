@@ -18,14 +18,14 @@ class AccessChecker {
             return true;
         }
 
-        $access_grated = false;
+        $access_granted = false;
         $access_denied = false;
         
         $username = self::getUsername();
         
         if (isset($rules[$actionName]['granted']))
         {
-            $access_grated = self::accessResult($rules[$actionName]['granted'], $username);
+            $access_granted = self::accessResult($rules[$actionName]['granted'], $username);
         }        
         
         if (isset($rules[$actionName]['denied']))
@@ -33,14 +33,14 @@ class AccessChecker {
             $access_denied = self::accessResult($rules[$actionName]['denied'], $username);
         }
         
-        if ($access_grated && $access_denied)
+        if ($access_granted && $access_denied)
         {          
             $ctrlName = $controller->getName();
             throw new \LogicException("Access denied and granted at same time for action $ctrlName-$actionName");
         }
         
         // Правило явно не определено - разрешить доступ
-        return $access_grated && !$access_denied;
+        return $access_granted && !$access_denied;
     }
     
     /**
