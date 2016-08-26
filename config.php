@@ -5,7 +5,7 @@ $config = ['db' =>
                 'username' => 'root',
                 'password' => '',
                 'host' => 'localhost',
-                'schema' => 'beejee',
+                'schema' => 'test',
             ],
             'users' => [
                 'admin' =>
