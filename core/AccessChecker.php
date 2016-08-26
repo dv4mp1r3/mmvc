@@ -45,9 +45,15 @@ class AccessChecker {
     
     /**
      * Получение имени текущего пользователя
+     * @return string
      */
     public static function getUsername()
     {
+        if (!isset($_COOKIE['user_hash']))
+        {
+            return '?';
+        }
+        
         $user_hash = $_COOKIE['user_hash'];
         global $config;
         

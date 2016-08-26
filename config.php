@@ -5,7 +5,7 @@ $config = ['db' =>
                 'username' => 'root',
                 'password' => '',
                 'host' => 'localhost',
-                'schema' => 'test',
+                'schema' => 'mmvc_test',
             ],
             'users' => [
                 'admin' =>
