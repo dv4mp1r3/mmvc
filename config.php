@@ -15,5 +15,8 @@ $config = ['db' =>
                     'user_hash' => '24wejdslkfjsdfh2k3h5qwd',
                 ], 
             ],
+            'template' => [
+                'class' => 'app\\core\\ViewTemplate',
+            ],
     ];
 
