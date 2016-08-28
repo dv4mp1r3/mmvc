@@ -1,7 +1,6 @@
 <?php
 
 namespace app\controllers;
-use app\core\ViewTemplate;
 
 class BaseController 
 {
@@ -22,7 +21,6 @@ class BaseController
         $tmp = substr($classname, strrpos($classname, '\\') + 1);
         $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));
     }
-
 
     public function render($view)
     {

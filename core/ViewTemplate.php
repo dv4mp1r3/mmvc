@@ -17,7 +17,6 @@ class ViewTemplate {
         echo '<!DOCTYPE html>';
     }
 
-
     protected function header()
     {
         echo '<head>
@@ -46,10 +45,10 @@ class ViewTemplate {
     public function doHtml()
     {
         $this->doctype();
-        echo '<html>';
+        echo '<html><body>';
         $this->header();
         $this->content();
         $this->footer();
-        echo '</hmtl>';
+        echo '</body></hmtl>';
     }
 }

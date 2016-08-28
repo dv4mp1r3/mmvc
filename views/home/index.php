@@ -2,7 +2,6 @@
 namespace app\views;
 global $view_variable;
 ?>
-<body>
 <script>
     $(document).ready(function() {
         var form = $('#review_upload');
@@ -73,10 +72,3 @@ global $view_variable;
         <div id="review_thanks" style="display: none;">Thanks for review. It was sent</div>
     </div>
 </div>
-</body>
-
-
-
-
-
-
