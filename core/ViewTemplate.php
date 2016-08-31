@@ -2,16 +2,17 @@
 
 namespace app\core;
 
-class ViewTemplate {
-    
+class ViewTemplate
+{
     private $name;
     private $view;
-    
-    public function __construct($ctrl, $view) {
+
+    public function __construct($ctrl, $view)
+    {
         $this->name = $ctrl;
         $this->view = $view;
     }
-    
+
     protected function doctype()
     {
         echo '<!DOCTYPE html>';
@@ -27,21 +28,21 @@ class ViewTemplate {
         <script src="js/my.js"></script>
         </head>';
     }
-    
-    protected function footer() {
+
+    protected function footer()
+    {
         
     }
-    
+
     public function content($params = null)
     {
-        if (isset($params))
-        {
-            global  $view_variable;
+        if (isset($params)) {
+            global $view_variable;
             $view_variable = $params;
         }
         require_once ROOT_DIR.'/views/'.$this->name.'/'.$this->view.'.php';
     }
-    
+
     public function doHtml()
     {
         $this->doctype();
