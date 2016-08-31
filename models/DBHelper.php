@@ -104,6 +104,11 @@ class DBHelper extends BaseModel
     
     public static function getSchema($table_name)
     {
+        if (!isset(self::$schema) || !isset(self::$schema[$table_name]))
+        {
+            return null;
+        }
+        
         return self::$schema[$table_name];
     }
 }

@@ -10,7 +10,8 @@ class DBTable extends BaseModel {
     private $is_new;
     private $table_name;
     private $first_load = true;
-   
+      
+    public static $schema;
     /**
      * Создание новой записи либо выбор существующей из таблицы
      * @param integer $id PK записи для выгрузки существующий (опционально)
@@ -30,11 +31,10 @@ class DBTable extends BaseModel {
                 query("SELECT * FROM $this->table_name WHERE id=$id"); 
             
             $this->fillProperties(mysqli_fetch_array($db_result));            
-            $this->getSchema($this->table_name);
+            DBHelper::parseSchema($this->table_name);           
         }
         $this->first_load = false;
     }
-    
     /**
      * Получение схемы таблицы для записи
      * @return array
@@ -195,7 +195,7 @@ class DBTable extends BaseModel {
         if (!DBHelper::isConnected())
             DBHelper::createConnection();
         
-        if (DBHelper::getSchema($table_name) !== null)
+        if (DBHelper::getSchema($table_name) === null)
             DBHelper::parseSchema ($table_name);
         
         $db_result = DBHelper::$connection->query("SELECT * FROM $table_name WHERE $criteria"); 
@@ -219,5 +219,31 @@ class DBTable extends BaseModel {
                 $this->properties[$key]['is_dirty'] = false;
             }
         }
-    }  
+    }
+    
+    /**
+     * Удаление записи из таблицы
+     * @return boolean
+     */
+    public function delete()
+    {       
+        $query = "DELETE from $this->table_name WHERE id=$this->id";
+        if (DBHelper::$connection->query($query))
+        {
+            return true;
+        }
+        
+        throw new \Exception("Can't delete row from $this->table_name "
+                . "with id $this->id. Error: ".
+            DBHelper::$connection->error);
+    }
+    
+    /**
+     * Сериализация объекта
+     * @return string
+     */
+    public function __toString() 
+    {
+        return $this->table_name.' '.json_encode($this->properties);
+    }
 }

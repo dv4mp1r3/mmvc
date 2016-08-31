@@ -29,11 +29,13 @@ class HomeController extends BaseController
     
     public function actionIndex()
     {   
-        $reviews = models\Review::findByCriteria("is_approved=1");
+        $reviews = models\Review::findByCriteria("is_approved=0");
         global $view_variable;
         $view_variable = $reviews;
         $this->render('index');    
         
         $review = new models\Review(1);
+        
+        var_dump($reviews);
     }
 }
