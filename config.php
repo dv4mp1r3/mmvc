@@ -16,7 +16,7 @@ $config = ['db' =>
                 ], 
             ],
             'template' => [
-                'class' => 'app\\core\\ViewTemplate',
+                'file' => ROOT_DIR.'/assets/template/master.php',
             ],
     ];
 
