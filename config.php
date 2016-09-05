@@ -1,5 +1,8 @@
 <?php
 
+define('DEBUG', false);
+define('ROOT_DIR', dirname(__FILE__));
+
 $config = ['db' => 
             [
                 'username' => 'root',

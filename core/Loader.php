@@ -1,11 +1,6 @@
 <?php
 
 namespace app\core;
-
-use app\controllers;
-use app\models;
-use app\views;
-
 /**
  * Автоматическая подгрузка нужных файлов
  */
@@ -21,7 +16,8 @@ class Loader
             // обрезаем app\ в начале пути
             $classname = substr($classname, strlen($baseNamespace));
         }
-        $filename = ROOT_DIR.'/'.str_replace('\\', '/', $classname).'.php';
+        $filename = ROOT_DIR.DIRECTORY_SEPARATOR.
+            str_replace('\\', DIRECTORY_SEPARATOR, $classname).'.php';
         require_once $filename;
     }
 

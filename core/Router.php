@@ -2,7 +2,7 @@
 
 namespace app\core;
 
-use app\controllers;
+use app\core\ExceptionHandler;
 
 class Router
 {
@@ -30,19 +30,45 @@ class Router
      */
     protected $ctrlName;
 
-    public function __construct($url = null)
+    /**
+     * обработчик исключений
+     * @var app\core\ExceptionHandler
+     */
+    protected $exceptionHandler;
+
+    /**
+     * Конструктор роутера (обработка ссылок, выдача нужной страницы в зависимости от url)
+     * @param app\core\ExceptionHandler $exh - обработчик исключений
+     * @param string $url
+     * @throws Exception
+     */
+    public function __construct($exh = null, $url = null)
     {
+        if ($exh === null) {
+            $exh = new ExceptionHandler();
+        } else if (!($exh instanceof ExceptionHandler)) {
+            throw new \Exception('First parameter of Router->construct() must be'
+            .'istance of app\\core\\ExceptionHandler');
+        }
+
+        $this->exceptionHandler = $exh;
+
         if ($url === null) {
             $url = $_GET['u'];
         }
 
-        if ($url === null) {
-            header('Refresh: 0; url=/?u=home-index');
-            exit();
-        }
+        try {
+            if ($url === null) {
+                throw new \Exception('$url is not defined');
+            }
 
-        $this->parseUrl($url);
-        $this->controller = new $this->ctrlName();
+            throw new \Exception('Test Excpetion');
+
+            $this->parseUrl($url);
+            $this->controller = new $this->ctrlName();
+        } catch (\Exception $ex) {
+            $this->exceptionHandler->doException($ex);
+        }
     }
 
     protected function parseUrl($url)
