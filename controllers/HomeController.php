@@ -26,7 +26,7 @@ class HomeController extends BaseController
         $review = new models\Review();
         $review->loadFromPost();
         $review->save();
-
+        
         echo json_encode(['error' => 'ok']);
     }
 

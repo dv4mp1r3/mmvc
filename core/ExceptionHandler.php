@@ -12,7 +12,9 @@ class ExceptionHandler extends \Exception
         echo $ex->message.PHP_EOL;
         echo '<br>';
         echo $ex->getTraceAsString();
-       
+
+        
+
         exit();
     }
 }
