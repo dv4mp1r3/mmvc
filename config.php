@@ -21,5 +21,7 @@ $config = ['db' =>
             'template' => [
                 'file' => ROOT_DIR.'/assets/template/master.php',
             ],
+            'logpath' => ROOT_DIR.'/log/main.log',
+            'timezone' => 'Etc/GMT-3',
     ];
 

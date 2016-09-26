@@ -46,7 +46,7 @@ class Router
             throw new \Exception('$url is not defined');
         }
 
-        //throw new \Exception('Test Exception');
+        throw new \Exception('Test Exception');
 
         $this->parseUrl($url);
         $this->controller = new $this->ctrlName();

@@ -7,7 +7,6 @@ use app\core\AccessChecker;
 
 class HomeController extends BaseController
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -18,10 +17,6 @@ class HomeController extends BaseController
         ];
     }
 
-    /**
-     * 
-     * @param array $data
-     */
     public function actionUpload()
     {
         $review = new models\Review();

@@ -2,4 +2,4 @@
 
 ?>
 
-Base Exception page
+Oops! Something wrong
