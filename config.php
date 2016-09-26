@@ -1,6 +1,6 @@
 <?php
 
-define('DEBUG', false);
+define('DEBUG', true);
 define('ROOT_DIR', dirname(__FILE__));
 
 $config = ['db' => 

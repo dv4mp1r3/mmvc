@@ -31,44 +31,25 @@ class Router
     protected $ctrlName;
 
     /**
-     * обработчик исключений
-     * @var app\core\ExceptionHandler
-     */
-    protected $exceptionHandler;
-
-    /**
      * Конструктор роутера (обработка ссылок, выдача нужной страницы в зависимости от url)
      * @param app\core\ExceptionHandler $exh - обработчик исключений
      * @param string $url
      * @throws Exception
      */
-    public function __construct($exh = null, $url = null)
+    public function __construct($url = null)
     {
-        if ($exh === null) {
-            $exh = new ExceptionHandler();
-        } else if (!($exh instanceof ExceptionHandler)) {
-            throw new \Exception('First parameter of Router->construct() must be'
-            .'istance of app\\core\\ExceptionHandler');
-        }
-
-        $this->exceptionHandler = $exh;
-
         if ($url === null) {
             $url = $_GET['u'];
         }
 
-        try {
-            if ($url === null) {
-                throw new \Exception('$url is not defined');
-            }
-
-            throw new \Exception('Test Excpetion');
-
-            $this->parseUrl($url);
-            $this->controller = new $this->ctrlName();
-        } catch (\Exception $ex) {
-            $this->exceptionHandler->doException($ex);
+        if ($url === null) {
+            throw new \Exception('$url is not defined');
         }
+
+        //throw new \Exception('Test Exception');
+
+        $this->parseUrl($url);
+        $this->controller = new $this->ctrlName();
     }
 
     protected function parseUrl($url)
@@ -81,6 +62,15 @@ class Router
 
     protected function callAction()
     {
+        if ($this->action === null)
+        {
+            throw new \Exception('Router->action is null');
+        }
+        if ($this->controller === null &&
+            !($this->controller instanceof \app\controllers\BaseController))
+        {
+            throw new \Exception('Router->controller is null or not instance of BaseController');
+        }
         call_user_func(array($this->controller, 'action'.ucfirst($this->action)));
     }
 

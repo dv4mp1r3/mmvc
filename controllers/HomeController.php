@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models;
+use app\core\AccessChecker;
 
 class HomeController extends BaseController
 {
@@ -12,7 +13,7 @@ class HomeController extends BaseController
         parent::__construct();
         $this->rules = [
             'index' => [
-                'granted' => '*',
+            AccessChecker::RULE_GRANTED => AccessChecker::USER_ALL,
             ],
         ];
     }

@@ -1,0 +1,5 @@
+<?php
+
+?>
+
+Base Exception page

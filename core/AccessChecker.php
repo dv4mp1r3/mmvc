@@ -6,7 +6,11 @@ use app\controllers\BaseController;
 
 class AccessChecker
 {
+    const USER_ANONYMOUS = '?';
+    const USER_ALL = '*';
 
+    const RULE_DENIED = 'denied';
+    const RULE_GRANTED = 'granted';
     /**
      * Проверка доступа к action для текущего пользователя
      * @param BaseController $controller
@@ -24,13 +28,13 @@ class AccessChecker
 
         $username = self::getUsername();
 
-        if (isset($rules[$actionName]['granted'])) {
-            $access_granted = self::accessResult($rules[$actionName]['granted'],
+        if (isset($rules[$actionName][self::RULE_GRANTED])) {
+            $access_granted = self::accessResult($rules[$actionName][self::RULE_GRANTED],
                     $username);
         }
 
-        if (isset($rules[$actionName]['denied'])) {
-            $access_denied = self::accessResult($rules[$actionName]['denied'],
+        if (isset($rules[$actionName][self::RULE_DENIED])) {
+            $access_denied = self::accessResult($rules[$actionName][self::RULE_DENIED],
                     $username);
         }
 
@@ -50,7 +54,7 @@ class AccessChecker
     public static function getUsername()
     {
         if (!isset($_COOKIE['user_hash'])) {
-            return '?';
+            return self::USER_ANONYMOUS;
         }
 
         $user_hash = $_COOKIE['user_hash'];
@@ -62,7 +66,7 @@ class AccessChecker
             }
         }
         // Если ничего не найдено - возвращаем guest
-        return '?';
+        return self::USER_ANONYMOUS;
     }
 
     /**
@@ -73,13 +77,13 @@ class AccessChecker
      */
     protected static function accessResult($rules, $username)
     {
-        if ($rules === '*') {
+        if ($rules === self::USER_ALL) {
             return true;
         }
 
         if (is_array($rules) &&
             (in_array($username, $rules) ||
-            in_array('*', $rules)
+            in_array(self::USER_ALL, $rules)
             )
         ) {
             return true;

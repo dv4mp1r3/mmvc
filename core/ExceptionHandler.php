@@ -1,20 +1,30 @@
 <?php
 namespace app\core;
 
-class ExceptionHandler extends \Exception
+use app\controllers\ErrorController;
+
+class ExceptionHandler
 {
     /**
      * функция обработки исключений
      * @param \Exception $ex
      */
-    public function doException($ex)
+    public static function doException($ex)
     {
-        echo $ex->message.PHP_EOL;
-        echo '<br>';
-        echo $ex->getTraceAsString();
-
-        
-
+        $err_ctrl = new ErrorController();
+        if (DEBUG === false)
+        {
+            $err_ctrl->actionBase();
+        }
+        else
+        {
+            $err_ctrl->actionDetails($ex);
+        }
         exit();
+    }
+
+    public static function doError($errLevel, $errMsg)
+    {
+        
     }
 }

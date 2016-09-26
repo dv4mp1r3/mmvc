@@ -14,7 +14,6 @@ namespace app\models;
  */
 class Review extends DBTable
 {
-
     /**
      * Загрузка атрибутов модели из $_POST
      */
