@@ -16,8 +16,9 @@ class ErrorController extends BaseController
             ],
         ];
     }
+
     /**
-     *
+     * Вывод детальной информации об исключении
      * @param \Exception $ex
      */
     public function actionDetails($ex)
@@ -27,6 +28,9 @@ class ErrorController extends BaseController
         $this->render('details');
     }
 
+    /**
+     * Вывод детальной информации об ошибке
+     */
     public function actionBase()
     {
         $this->render('base');

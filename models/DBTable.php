@@ -6,12 +6,25 @@ use app\models\DBHelper;
 
 class DBTable extends BaseModel
 {
+    const JOIN_TYPE_RIGHT = 'RIGHT';
+    const JOIN_TYPE_LEFT = 'LEFT';
+    const JOIN_TYPE_INNER = 'INNER';
+    
     // prop = ['name' => ['is_dirty' => false, 'schema' => 'integer', 'value' => 1]]
     private $properties;
     private $is_new;
     private $table_name;
     private $first_load = true;
     public static $schema;
+
+    // текущий сгенерированный запрос через методы select, where, update, join
+    // затирается после выполнения запроса
+    private $sql_query;
+
+    // присутствует ли join с таблицей внутри запроса $sql_query
+    // устанавливается в true при вызове join
+    // затирается после выполнения запроса
+    private $sql_is_join;
 
     /**
      * Создание новой записи либо выбор существующей из таблицы
@@ -33,6 +46,8 @@ class DBTable extends BaseModel
             $this->fillProperties(mysqli_fetch_array($db_result));
             DBHelper::parseSchema($this->table_name);
         }
+        $this->sql_query = "";
+        $this->sql_is_join = false;
         $this->first_load = false;
     }
 
@@ -79,7 +94,7 @@ class DBTable extends BaseModel
                 $values .= $delemiter;
             }
             $this->properties[$key]['is_dirty'] = false;
-            $values .= "'".htmlspecialchars($data['value'])."'";
+            $values .= "'".$this->serializeProperty($data["value"], $data["type"])."'";
         }
         $q = "INSERT INTO $this->table_name ($props) VALUES ($values);";
         return $q;
@@ -89,6 +104,7 @@ class DBTable extends BaseModel
      * Создание запроса для обновления данных для существующей записи
      * Вызывается при сохранении (метод save())
      * @return string готовый запрос UPDATE $table_name SET (values) WHERE id=$id;
+     * @throws Exception выбрасывается, если у объекта нет измененных свойств
      */
     private function buildUpdateQuerty()
     {
@@ -102,7 +118,7 @@ class DBTable extends BaseModel
             if (strlen($values) > 0) {
                 $values .= ', ';
             }
-            $value = htmlspecialchars($data['value']);
+            $value = $this->serializeProperty($data["value"], $data["type"]);
             $values .= "`$key`='$value'";
 
             $this->properties[$key]['is_dirty'] = false;
@@ -174,35 +190,8 @@ class DBTable extends BaseModel
         }
     }
 
-    /**
-     * Выборка всех записей из таблицы по критерию
-     * @param string $criteria заключительная часть запроса к базе, следующая после WHERE
-     * @return \ArrayObject 
-     */
-    public static function findByCriteria($criteria)
-    {
-        $result_array = new \ArrayObject();
-        $classname    = get_called_class();
-        $table_name   = substr($classname, strrpos($classname, '\\') + 1);
-        if (!DBHelper::isConnected()) {
-            DBHelper::createConnection();
-        }
-
-        if (DBHelper::getSchema($table_name) === null) {
-            DBHelper::parseSchema($table_name);
-        }
-
-        $db_result = DBHelper::$connection->query("SELECT * FROM $table_name WHERE $criteria");
-
-        while ($row = mysqli_fetch_assoc($db_result)) {
-            $review = new Review();
-            $review->fillProperties($row);
-            $result_array->append($review);
-        }
-        return $result_array;
-    }
-
-    protected function fillProperties($props)
+    
+    protected function fillProperties($props, $ignore_schema = false)
     {
         foreach ($props as $key => $value) {
             if (DBHelper::isPropertyExists($this->table_name, $key)) {
@@ -215,6 +204,7 @@ class DBTable extends BaseModel
     /**
      * Удаление записи из таблицы
      * @return boolean
+     * @throws Exception выбрасывается если невозможно удалить запись из таблицы
      */
     public function delete()
     {
@@ -235,5 +225,155 @@ class DBTable extends BaseModel
     public function __toString()
     {
         return $this->table_name.' '.json_encode($this->properties);
+    }
+
+    /**
+     * Приведение свойства объекта к строке для записи в БД
+     * @param mixed $value значение объекта
+     * @param string $type название типа данных в строковом представлении
+     * @return string строковое представление типа данных
+     * @throws Exception генерируется если передаваемый тип неизвестен
+     * Или если передан тип set, но $variable не массив
+     */
+    private function serializeProperty($value, $type)
+    {
+        $type = strtolower($type);
+        switch ($type) {
+            case 'integer':
+                return (string)intval($value);
+            case 'string':
+            case 'enum':
+                return $this->filterString($value);
+            case 'double':
+                return (string)floatval($value);
+            case 'set':
+                if (is_array($value))
+                    return "(".implode (", ", $value).")";
+                throw new Exception("Variable 'value' is not array.");
+            case 'bit':
+                return boolval($value) ? "1" : "0";
+            default:
+                throw new Exception("Unknown type $type.");
+        }
+    }
+
+    /**
+     * Инициализация процедуры выборки объектов из БД
+     * Начало генерации запроса SELECT
+     * @param array $values массив с именами полей
+     * например ['field_1', field_2]
+     * или ['tableName.field_1', 'tableName.field_2']
+     * или ['field_1 f1', 'field_2 f2']
+     * @param string $from переопределить выборку из таблицы
+     * например, если для таблицы нужно указать алиас
+     * @return \app\models\DBTable объект, в рамках которого вызывался метод select
+     * со сгенерированным началом запроса
+     */
+    public static function select($values = "*", $from = null)
+    {
+        $classname = get_called_class();
+        $obj = new $classname();
+        if (!is_array($values))
+        {
+            $obj->sql_query = "SELECT * ";
+        }
+        else
+        {
+            $fields = explode(", ", $values);
+            $obj->sql_query = "SELECT ".self::filterString($fields)." ";
+        }
+            
+        $obj->sql_query .= "FROM " . ($from === null ? $obj->table_name : $from);
+        return $obj;
+    }
+
+    /**
+     * Указание критерия для запроса (используется при вызове select или update)
+     * @param string $where критерий запроса, который описывает блок WHERE
+     * @return \app\models\DBTable объект, в рамках которого был дополнен запрос
+     */
+    public function where($where)
+    {
+        $this->sql_query .=  " WHERE $where ";
+        return $this;
+    }
+
+    /**
+     * Инициализация процедуры обновления данных в БД
+     * @param array $values массив key=>value [string=>mixed]
+     * @return \app\models\DBTable
+     */
+    public static function update($values)
+    {
+        $classname = get_called_class();
+        $obj = new $classname();
+        $obj->sql_query = '';
+        return $obj;
+    }
+
+    /**
+     * Объединение с другой таблицей при вызове select
+     * @param string $type тип объединения (объявлены внутри app\models\DBTable)
+     * @param string $table_name имя таблицы, с которой происходит объединение
+     * @param string $on критерий объединения
+     * используется только для объединений с типами DBTable::JOIN_TYPE_LEFT и
+     * DBTable::JOIN_TYPE_RIGHT
+     * @return \app\models\DBTable
+     */
+    public function join($type , $table_name, $on = null)
+    {
+        $this->sql_query .= "$type JOIN $table_name ON $on";
+        $this->sql_is_join = true;
+        return $this;
+    }
+
+    /**
+     * Выполнение запроса, сгенерированного ранее для объекта
+     * через вызовы методов select, update, where, join
+     * @return \ArrayObject 
+     */
+    public function execute()
+    {
+        $result_array = new \ArrayObject();
+        
+        $classname    = get_called_class();
+        $table_name   = substr($classname, strrpos($classname, '\\') + 1);
+
+        if (!DBHelper::isConnected()) {
+            DBHelper::createConnection();
+        }
+
+        if ($this->sql_is_join !== false && DBHelper::getSchema($table_name) === null) {
+            DBHelper::parseSchema($table_name);
+        }
+
+        $this->sql_query .= ";";
+        $db_result = DBHelper::$connection->query($this->sql_query);
+
+        $ignore_schema = $this->sql_is_join;
+
+        while ($row = mysqli_fetch_assoc($db_result))
+        {
+            $obj = new $classname();
+            $obj->is_new = false;
+            $obj->fillProperties($row, $ignore_schema);
+            $result_array->append($obj);
+        }
+                
+        $this->sql_query = "";
+        $this->sql_is_join = false;
+        
+        return $result_array;
+    }
+
+    /**
+     * Фильтрация строки, используемая для работы с БД и/или
+     * вывода на страницу
+     * @param type $value
+     * @return type
+     */
+    private static function filterString($value)
+    {
+        return mysql_escape_string(htmlspecialchars($value));
     }
 }

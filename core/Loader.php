@@ -6,6 +6,7 @@ namespace app\core;
  */
 class Loader
 {
+    protected static $required_files = array();
 
     public static function load($classname)
     {
@@ -18,7 +19,12 @@ class Loader
         }
         $filename = ROOT_DIR.DIRECTORY_SEPARATOR.
             str_replace('\\', DIRECTORY_SEPARATOR, $classname).'.php';
-        require_once $filename;
+
+        if (!in_array($filename, self::$required_files))
+        {
+            require_once $filename;
+            array_push(self::$required_files, $filename);
+        }       
     }
 
     private static function beginsAt($str, $substr)
@@ -32,5 +38,14 @@ class Loader
         define('MMVC_CTRL_VIEW', $viewName);
 
         require_once $masterPath;
+    }
+
+    /**
+     * Возврат всех загруженных скриптов на момент вызова функции
+     * @return array required_files
+     */
+    public static function getReqiredFiles()
+    {
+        return self::$required_files;
     }
 }

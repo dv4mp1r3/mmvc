@@ -104,4 +104,14 @@ class DBHelper extends BaseModel
 
         return self::$schema[$table_name];
     }
+
+    /**
+     * Выполнение произвольного sql-запроса
+     * @param string $sql_query
+     * @return mixed
+     */
+    public static function execute($sql_query)
+    {
+        return self::$connection->query($sql_query);
+    }
 }

@@ -2,8 +2,6 @@
 
 namespace app\core;
 
-use app\core\ExceptionHandler;
-
 class Router
 {
     /**
@@ -32,7 +30,6 @@ class Router
 
     /**
      * Конструктор роутера (обработка ссылок, выдача нужной страницы в зависимости от url)
-     * @param app\core\ExceptionHandler $exh - обработчик исключений
      * @param string $url
      * @throws Exception
      */
@@ -45,8 +42,6 @@ class Router
         if ($url === null) {
             throw new \Exception('$url is not defined');
         }
-
-        throw new \Exception('Test Exception');
 
         $this->parseUrl($url);
         $this->controller = new $this->ctrlName();
