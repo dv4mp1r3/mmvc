@@ -8,7 +8,7 @@ $config = ['db' =>
                 'username' => 'root',
                 'password' => '',
                 'host' => 'localhost',
-                'schema' => 'mmvc_test',
+                'schema' => 'mmvc',
             ],
             'users' => [
                 'admin' =>
@@ -21,7 +21,7 @@ $config = ['db' =>
             'template' => [
                 'file' => ROOT_DIR.'/assets/template/master.php',
             ],
-            'logpath' => ROOT_DIR.'/log/main.log',
+            'logpath' => ROOT_DIR.PATH_SEPARATOR.'log'.PATH_SEPARATOR.'main.log',
             'timezone' => 'Etc/GMT-3',
     ];
 

@@ -28,7 +28,7 @@ class HomeController extends BaseController
 
     public function actionIndex()
     {
-        $reviews       = models\Review::select()->where('is_approved=0')->execute();
+        $reviews       = models\Video::select()->execute();
         global $view_variable;
         $view_variable = $reviews;
 
