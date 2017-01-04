@@ -28,10 +28,12 @@ class HomeController extends BaseController
 
     public function actionIndex()
     {
-        $reviews       = models\Video::select()->execute();
+        $reviews       = models\Video::select(['user.name', 'video.url'])->
+                join(models\Video::JOIN_TYPE_LEFT, 'user', 'user.id = video.user_id')->
+                execute();
         global $view_variable;
         $view_variable = $reviews;
-
+        var_dump($reviews);
         //$this->render('index'); 
     }
 
