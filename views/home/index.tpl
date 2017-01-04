@@ -9,7 +9,7 @@
     </head>
     <body>
         <div>
-            {$name}
+            {$reviews[0].url}
         </div>
     </body>
 </html>

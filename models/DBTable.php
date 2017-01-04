@@ -387,4 +387,28 @@ class DBTable extends BaseModel
     {
         return mysql_escape_string(htmlspecialchars($value));
     }
+    
+    /**
+     * Представление объекта в виде массива $object['attribute'] = $value
+     * @return array
+     */
+    public function asArray()
+    {       
+        $data = array();
+        foreach ($this->properties as $key => $property) 
+        {
+            $data[$key] = $property['value'];
+        }
+        
+        return count($data) > 0 ? $data : null;
+    }
+    
+    /**
+     * Представление массива в виде json строки
+     * @return string
+     */
+    public function asJson()
+    {
+        return json_encode(self::asArray());
+    }
 }

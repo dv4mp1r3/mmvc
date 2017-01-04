@@ -31,8 +31,12 @@ class HomeController extends BaseController
         $reviews = models\Video::select(['user.name', 'video.url'])->
                 join(models\Video::JOIN_TYPE_LEFT, 'user', 'user.id = video.user_id')->
                 execute();  
-        
-        $this->appendVariable('review', $reviews[0]);
+        $data = array();
+        foreach ($reviews as $review) 
+        {
+            array_push($data, $review->asArray());
+        }
+        $this->appendVariable('reviews', $data);
         $this->appendVariable('name', 'admin');
         $this->render('index'); 
     }
