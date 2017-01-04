@@ -60,7 +60,8 @@ class DBHelper extends BaseModel
     {
         if (!self::isConnected()) self::createConnection();
 
-        $result = self::$connection->query("DESCRIBE $table_name");
+        $query = "DESCRIBE $table_name";
+        $result = self::$connection->query($query);
         while ($row    = mysqli_fetch_array($result)) {
             self::$schema[$table_name][$row['Field']] = [
                     'type' => self::getType($row['Type']),

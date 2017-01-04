@@ -32,8 +32,7 @@ class HomeController extends BaseController
         global $view_variable;
         $view_variable = $reviews;
 
-        var_dump($reviews);
-        $this->render('index'); 
+        //$this->render('index'); 
     }
 
     public function actionInfo()

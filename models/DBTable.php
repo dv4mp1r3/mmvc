@@ -348,6 +348,15 @@ class DBTable extends BaseModel
         }
 
         $this->sql_query .= ";";
+
+        /**
+         * Получаем схему, если ее нет в скрипте
+         */
+        if (DBHelper::getSchema($table_name) === null)
+        {
+            DBHelper::parseSchema($table_name);
+        }
+        
         $db_result = DBHelper::$connection->query($this->sql_query);
 
         $ignore_schema = $this->sql_is_join;
