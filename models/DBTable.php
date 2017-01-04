@@ -194,7 +194,8 @@ class DBTable extends BaseModel
     protected function fillProperties($props, $ignore_schema = false)
     {
         foreach ($props as $key => $value) {
-            if (DBHelper::isPropertyExists($this->table_name, $key)) {
+            if (DBHelper::isPropertyExists($this->table_name, $key) 
+                    || $ignore_schema === true) {
                 $this->__set($key, $value);
                 $this->properties[$key]['is_dirty'] = false;
             }
