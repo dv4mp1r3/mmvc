@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\core\Loader;
+use Smarty;
 
 class BaseController
 {
@@ -24,13 +25,15 @@ class BaseController
      * @var string
      */
     protected $masterPage;
+    
+    protected $smarty;
 
     public function __construct($masterPage = null)
     {
         $classname  = get_called_class();
         $tmp        = substr($classname, strrpos($classname, '\\') + 1);
         $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));
-
+        $this->smarty = new Smarty();
         if ($masterPage === null) {
             global $config;
             $this->masterPage = $config['template']['file'];
@@ -43,7 +46,8 @@ class BaseController
      */
     public function render($view)
     {
-        Loader::loadView($this->masterPage, $this->name, $view);
+        $this->smarty->display("views/$this->name/$view.tpl");
+//        /Loader::loadView($this->masterPage, $this->name, $view);
     }
 
     /**
@@ -67,5 +71,15 @@ class BaseController
         }
 
         throw new \Exception("File not found ($filename)");
+    }
+    
+    /**
+     * Добавление переменной в шаблон
+     * @param string $name имя
+     * @param mixed $value
+     */
+    public function appendVariable($name, $value)
+    {
+        $this->smarty->assign($name, $value);
     }
 }

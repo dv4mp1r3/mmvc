@@ -2,7 +2,6 @@
 
 namespace app\views;
 
-global $view_variable;
 ?>
 <script>
     $(document).ready(function () {
