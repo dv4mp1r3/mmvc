@@ -28,15 +28,17 @@ class HomeController extends BaseController
 
     public function actionIndex()
     {
-        $reviews = models\Video::select(['user.name', 'video.url'])->
+        $videos = models\Video::select(['user.name', 'video.url'])->
                 join(models\Video::JOIN_TYPE_LEFT, 'user', 'user.id = video.user_id')->
                 execute();  
         $data = array();
-        foreach ($reviews as $review) 
+        foreach ($videos as &$video) 
         {
-            array_push($data, $review->asArray());
+            $element = $video->asArray();
+            $element['unique_id'] = $video->getVideoId();
+            array_push($data, $element);
         }
-        $this->appendVariable('reviews', $data);
+        $this->appendVariable('videos', $data);
         $this->appendVariable('name', 'admin');
         $this->render('index'); 
     }
