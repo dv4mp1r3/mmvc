@@ -280,7 +280,7 @@ class DBTable extends BaseModel
         }
         else
         {
-            $fields = explode(", ", $values);
+            $fields = implode(", ", $values);
             $obj->sql_query = "SELECT ".self::filterString($fields)." ";
         }
             
@@ -323,7 +323,7 @@ class DBTable extends BaseModel
      */
     public function join($type , $table_name, $on = null)
     {
-        $this->sql_query .= "$type JOIN $table_name ON $on";
+        $this->sql_query .= " $type JOIN $table_name ON $on";
         $this->sql_is_join = true;
         return $this;
     }
@@ -357,7 +357,6 @@ class DBTable extends BaseModel
         {
             DBHelper::parseSchema($table_name);
         }
-        
         $db_result = DBHelper::$connection->query($this->sql_query);
 
         $ignore_schema = $this->sql_is_join;
@@ -385,5 +384,29 @@ class DBTable extends BaseModel
     private static function filterString($value)
     {
         return mysql_escape_string(htmlspecialchars($value));
+    }
+    
+    /**
+     * Представление объекта в виде массива $object['attribute'] = $value
+     * @return array
+     */
+    public function asArray()
+    {       
+        $data = array();
+        foreach ($this->properties as $key => $property) 
+        {
+            $data[$key] = $property['value'];
+        }
+        
+        return count($data) > 0 ? $data : null;
+    }
+    
+    /**
+     * Представление массива в виде json строки
+     * @return string
+     */
+    public function asJson()
+    {
+        return json_encode(self::asArray());
     }
 }

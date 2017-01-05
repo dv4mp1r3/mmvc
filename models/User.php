@@ -5,10 +5,9 @@ namespace app\models;
 /**
  * Модель загруженного в сервис видео
  * @property integer id
- * @property string $url
- * @property string $user_id
+ * @property string $name
  */
-class Video extends DBTable
+class User extends DBTable
 {
     /**
      * Загрузка атрибутов модели из $_POST
