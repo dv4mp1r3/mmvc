@@ -357,8 +357,6 @@ class DBTable extends BaseModel
         {
             DBHelper::parseSchema($table_name);
         }
-        
-        var_dump($this->sql_query);
         $db_result = DBHelper::$connection->query($this->sql_query);
 
         $ignore_schema = $this->sql_is_join;
