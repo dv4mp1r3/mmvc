@@ -13,15 +13,24 @@
 
     <body>
         <div class="container">
-            
-            <div class="row div-vertical">
-                <form class="frm-vertical" method="post" action="?">
+
+            <div class="row">
+                <form id="frm-upload" action="index.php?u=home-upload" method="post">
                     <input name="video.url" placeholder="Ссылка на видео">
                     <input name="user.name" placeholder="Кто добавил">
                     <input type="submit" value="Добавить">
                 </form>
             </div>
+
+            <div class="row">
+                <a id="btn_skip" class="btn btn-primary" target="_blank" href="#">Пропустить текущее</a>
+            </div>
             
+            <div class="row">
+                <video id="webm_player" src="{$videos[0].url}" type="video/webm" controls>
+                </video>
+            </div>
+
             <div class="row">
                 <div class="col-lg-12">
                     <h1 class="page-header">Список загруженных видео
@@ -32,20 +41,17 @@
             {foreach from=$videos item=video}
                 <div class="row">
                     <div class="col-md-7">
-                        <a target="_blank" href="{$video.url}">
-                            <img class="img-responsive" src="http://img.youtube.com/vi/{$video.unique_id}/hqdefault.jpg" alt="">
+                        <a video-id="{$video.id}" orig-url="{$video.url}" class="btn btn-primary btn-remove-video" href="#">
+                            Удалить из списка
                         </a>
-                    </div>
-                    <div class="col-md-5">
-                        <h3>Добавлено: </h3>
-                        <h4>{$video.name}</h4>
-                       
-                        <a class="btn btn-primary" target="_blank" href="{$video.url}">Открыть в новой вкладке <span class="glyphicon glyphicon-chevron-right"></span></a>
+                        <p>Добавил: {$video.username}</p>
+                        <canvas id="canvas-{$video.id}">
+                        </canvas>
                     </div>
                 </div>
                 <hr>
             {/foreach}
-            
+
             <footer>
                 <div class="row">
                     <div class="col-lg-12">
@@ -55,8 +61,69 @@
             </footer>
 
         </div>
-        <script src="js/jquery.js"></script>
-        <script src="js/bootstrap.min.js"></script>
+        <script src="assets/js/jquery.js"></script>
+        <script src="assets/js/bootstrap.min.js"></script>
+
+        {literal}
+            <script>
+                var playlist = {/literal}{$video_urls}{literal};
+                var curVideo = 0;
+                var videoPlayer = document.getElementById('webm_player');
+                videoPlayer.onended = function ()
+                {
+                    nextVideo();
+                }
+
+                function nextVideo()
+                {
+                    ++curVideo;
+                    if (curVideo < playlist.length)
+                    {
+                        videoPlayer.src = playlist[curVideo];
+                        return playlist.length - (curVideo + 1) !== 0;
+                    }
+                    return false;
+                }
+
+                $(document).ready(function () {
+                    for (i = 1; i <= playlist.length; i++)
+                    {
+                        var currentCanvas = document.getElementById('canvas-' + i);
+                        if (currentCanvas)
+                        {
+                            currentCanvas.getContext('2d').drawImage(videoPlayer, 0, 0);
+                        }
+                    }
+
+                    $("#btn_skip").click(function () {
+                        if (!nextVideo())
+                        {
+                            $(this).removeClass('btn-primary');
+                            $(this).removeClass('btn-disabled');
+                            $(this).css('cursor', 'arrow');
+                        }
+                        return false;
+                    });
+
+                    $("#frm-upload").submit(function (e) {
+
+                        //e.preventDefault();
+                        $.ajax({
+                            type: "POST",
+                            url: "index.php?u=home-upload",
+                            data: $("#frm-upload").serialize(),
+                            dataType: 'json',
+                            success: function (data)
+                            {
+                                console.log(data); 
+                            }
+                        });
+                        
+                    })
+                });
+
+            </script>
+        {/literal}
 
     </body>
 

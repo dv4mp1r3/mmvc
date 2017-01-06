@@ -23,12 +23,6 @@ class Video extends DBTable
             }
         }
     }
-
-    public function save()
-    {
-        $this->is_changed_by_admin = true;
-        parent::save();
-    }
     
     /**
      * Возвращение уникального идентификатора видео 

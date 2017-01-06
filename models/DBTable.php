@@ -15,7 +15,6 @@ class DBTable extends BaseModel
     private $is_new;
     private $table_name;
     private $first_load = true;
-    public static $schema;
 
     // текущий сгенерированный запрос через методы select, where, update, join
     // затирается после выполнения запроса
@@ -42,9 +41,9 @@ class DBTable extends BaseModel
             }
             $db_result = DBHelper::$connection->
                 query("SELECT * FROM $this->table_name WHERE id=$id");
-
-            $this->fillProperties(mysqli_fetch_array($db_result));
+            
             DBHelper::parseSchema($this->table_name);
+            $this->fillProperties(mysqli_fetch_array($db_result));     
         }
         $this->sql_query = "";
         $this->sql_is_join = false;
@@ -94,7 +93,7 @@ class DBTable extends BaseModel
                 $values .= $delemiter;
             }
             $this->properties[$key]['is_dirty'] = false;
-            $values .= "'".$this->serializeProperty($data["value"], $data["type"])."'";
+            $values .= "'".$this->serializeProperty($data["value"], DBHelper::getTypeName($this->table_name, $key))."'";
         }
         $q = "INSERT INTO $this->table_name ($props) VALUES ($values);";
         return $q;
@@ -156,11 +155,12 @@ class DBTable extends BaseModel
     {
         $query = '';
         if ($this->is_new) {
+            DBHelper::parseSchema($this->table_name);
             $query = $this->buildInsertQuery();
         } else {
             $query = $this->buildUpdateQuerty();
         }
-
+        
         if (DBHelper::$connection === null) {
             DBHelper::createConnection();
         }
@@ -241,9 +241,12 @@ class DBTable extends BaseModel
         $type = strtolower($type);
         switch ($type) {
             case 'integer':
+            case 'int':
                 return (string)intval($value);
             case 'string':
             case 'enum':
+            case 'tinytext':
+            case 'mediumtext':
                 return $this->filterString($value);
             case 'double':
                 return (string)floatval($value);
@@ -254,7 +257,7 @@ class DBTable extends BaseModel
             case 'bit':
                 return boolval($value) ? "1" : "0";
             default:
-                throw new Exception("Unknown type $type.");
+                throw new \Exception("Unknown type $type.");
         }
     }
 
@@ -331,7 +334,8 @@ class DBTable extends BaseModel
     /**
      * Выполнение запроса, сгенерированного ранее для объекта
      * через вызовы методов select, update, where, join
-     * @return \ArrayObject 
+     * @return mixed если данные есть то ArrayObject 
+     * или app\models\DBTable в зависимости от количества найденных объектов или null 
      */
     public function execute()
     {
@@ -359,6 +363,9 @@ class DBTable extends BaseModel
         }
         $db_result = DBHelper::$connection->query($this->sql_query);
 
+        if ($db_result === false)
+            return null;
+        
         $ignore_schema = $this->sql_is_join;
 
         while ($row = mysqli_fetch_assoc($db_result))
@@ -372,7 +379,12 @@ class DBTable extends BaseModel
         $this->sql_query = "";
         $this->sql_is_join = false;
         
-        return $result_array;
+        if ($result_array->count() > 1)
+            return $result_array;
+        else if ($result_array->count() == 1)
+            return $result_array[0];
+        
+        return null;
     }
 
     /**
