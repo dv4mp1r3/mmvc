@@ -118,7 +118,7 @@ class DBTable extends BaseModel
                 $values .= ', ';
             }
             $value = $this->serializeProperty($data["value"], $data["type"]);
-            $values .= "`$key`='$value'";
+            $values .= "`$key`=$value";
 
             $this->properties[$key]['is_dirty'] = false;
             $new_values++;
@@ -247,7 +247,8 @@ class DBTable extends BaseModel
             case 'enum':
             case 'tinytext':
             case 'mediumtext':
-                return $this->filterString($value);
+            case 'varchar':
+                return "'".$this->filterString($value)."'";
             case 'double':
                 return (string)floatval($value);
             case 'set':
@@ -283,8 +284,12 @@ class DBTable extends BaseModel
         }
         else
         {
+            foreach ($values as &$value) 
+            {
+                $value = self::filterString($value);
+            }
             $fields = implode(", ", $values);
-            $obj->sql_query = "SELECT ".self::filterString($fields)." ";
+            $obj->sql_query = "SELECT $fields ";
         }
             
         $obj->sql_query .= "FROM " . ($from === null ? $obj->table_name : $from);
@@ -311,7 +316,19 @@ class DBTable extends BaseModel
     {
         $classname = get_called_class();
         $obj = new $classname();
-        $obj->sql_query = '';
+        
+        DBHelper::parseSchema($obj->table_name);
+        $set = '';
+        foreach ($values as $key => $value) 
+        {
+            if (strlen($set) > 0) {
+                $set .= ', ';
+            }
+            $value = $obj->serializeProperty($value, 
+                    DBHelper::getTypeName($obj->table_name, $key));
+            $set .= "`$key`=$value";
+        }
+        $obj->sql_query = "UPDATE $obj->table_name SET $set ";
         return $obj;
     }
 
@@ -362,10 +379,12 @@ class DBTable extends BaseModel
             DBHelper::parseSchema($table_name);
         }
         $db_result = DBHelper::$connection->query($this->sql_query);
-
-        if ($db_result === false)
-            return null;
         
+        if (is_bool($db_result))
+        {
+            return $db_result === false ? null : $db_result;
+        }           
+            
         $ignore_schema = $this->sql_is_join;
 
         while ($row = mysqli_fetch_assoc($db_result))

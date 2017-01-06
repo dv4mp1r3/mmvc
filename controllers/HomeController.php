@@ -5,56 +5,38 @@ namespace app\controllers;
 use app\models;
 use app\core\AccessChecker;
 
-class HomeController extends BaseController
-{
-    public function __construct()
-    {
-        parent::__construct();
+class HomeController extends BaseController {
+
+    public function __construct() {
         $this->rules = [
             'index' => [
-            AccessChecker::RULE_GRANTED => AccessChecker::USER_ALL,
+                AccessChecker::RULE_GRANTED => AccessChecker::USER_ALL,
+            ],
+            'info' => [
+                AccessChecker::RULE_GRANTED => AccessChecker::USER_ALL,
             ],
         ];
+        parent::__construct();
     }
 
-    public function actionUpload()
-    {
-        try
-        {
-            $user = models\User::select('id')->where('name = "'.$_POST['user_name'].'"')->execute();
-            if ($user === null)
-            {
-                $user = new models\User();
-                $user->name = $_POST['user_name'];
-                $user->save();
-            }
-
-            $video = new models\Video();
-            $video->url = $_POST['video_url'];
-            $video->user_id = $user->id;
-            $video->save();
-
-            $result = ['url' => $video->url, 'id' => $video->id, 'username' => $user->name];
-            
-            echo json_encode(['error' => 0, 'data' => json_encode($result)]);
-        } 
-        catch (\Exception $ex) 
-        {
-            echo json_encode(['error' => 1, 
-                'data' => $ex->getTraceAsString()]);
+    public function actionIndex() {
+        $isOBS = isset($_REQUEST['obs']) && $_REQUEST['obs'] === 'true';
+        $isAdmin = isset($_REQUEST['admin']) && $_REQUEST['admin'] === 'true';
+        if ($isAdmin === true) {
+            $_SESSION['auth'] = true;
+        } else {
+            unset($_SESSION['auth']);
         }
-        
-    }
 
-    public function actionIndex()
-    {
-        $videos = models\Video::select(['user.name username', 'video.url', 'video.id'])->
+
+        $videos = models\Video::select(['user.name username', 'video.url', 'video.id', 'video.is_viewed'])->
                 join(models\Video::JOIN_TYPE_LEFT, 'user', 'user.id = video.user_id')->
-                execute();  
+                where('video.is_viewed = 0')->
+                execute();
         $data = array();
+
         $video_urls = array();
-        foreach ($videos as &$video) 
-        {
+        foreach ($videos as &$video) {
             $element = $video->asArray();
             $element['unique_id'] = $video->getVideoId();
             array_push($data, $element);
@@ -62,11 +44,14 @@ class HomeController extends BaseController
         }
         $this->appendVariable('videos', $data);
         $this->appendVariable('video_urls', json_encode($video_urls));
-        $this->render('index'); 
+        $this->appendVariable('isAdmin', $isAdmin);
+        $this->appendVariable('isOBS', $isOBS);
+        $this->appendVariable('year', date('Y'));
+        $this->render('index');
     }
 
-    public function actionInfo()
-    {
+    public function actionInfo() {
         phpinfo();
     }
+
 }
