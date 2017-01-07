@@ -5,33 +5,54 @@ function nextVideo(isAdmin)
     current_webm.removeClass('webm-current');
     current_webm = current_webm.next('div#playlist div.row');
     current_webm.addClass('webm-current');
-    
-    if (isAdmin)
-        $.ajax({
-            type: "POST",
-            url: "/mmvc/video/update",
-            data: {url: playlist[curVideo], video_id: curVideo + 1},
-            dataType: 'json',
-            success: function (data)
-            {
-                console.log(data);
-            }
-        });
+       
     ++curVideo;
     if (curVideo < playlist.length)
     {
-        videoPlayer.src = playlist[curVideo];
-        if (isAdmin)
-            videoPlayer.play();
+        videoPlayer.src = playlist[curVideo]
         return playlist.length - (curVideo + 1) !== 0;
     }
     return false;
 }
 
+function addNew(html, url)
+{
+    $('div#playlist').append(html);
+    playlist.push(url);
+}
+
+function getNewWebm()
+{
+    var ids = $('div.hidden-for-obs .col-md-7 a.btn-remove-video').map(function(){
+                return $(this).attr('video_id')
+            }).get().join(',');
+    console.log('tick: '+ids);        
+    $.ajax({
+            type: "POST",
+            url: "/mmvc/video/getnew",
+            data: {old_ids: ids},
+            dataType: 'json',
+            success: function (data)
+            {
+                console.log(data);
+                if (data.error === 0 && data.data.length > 0)
+                {
+                    $('h1.page-header').html('Список загруженных видео');
+                    for (i = 0; i < data.data.length; i++)
+                    {
+                        addNew(data.data[i].html, data.data[i].url);
+                    }
+                }
+            }
+        });
+}
+
 $(document).ready(function () {
     current_webm = $('div#playlist div.row').first();
     current_webm.addClass('webm-current');
-    
+        
+    var timerId = setInterval(getNewWebm, 5000);
+    //getNewWebm();
     for (i = 0; i < playlist.length; i++)
     {
         var currentCanvas = document.getElementById('canvas-' + (i + 1));
@@ -66,8 +87,7 @@ $(document).ready(function () {
             success: function (data)
             {
                 $('h1.page-header').html('Список загруженных видео');
-                $('div#playlist').append(data.data.html);
-                playlist.push(data.data.url);
+                addNew(data.data.html, data.data.url);
                 if (span === null)
                     span = $('span#ico-status');
                 span.removeClass('glyphicon-remove');

@@ -380,7 +380,7 @@ class DBTable extends BaseModel
             DBHelper::parseSchema($table_name);
         }
         $db_result = DBHelper::$connection->query($this->sql_query);
-        
+
         if (is_bool($db_result))
         {
             return $db_result === false ? null : $db_result;
@@ -399,12 +399,7 @@ class DBTable extends BaseModel
         $this->sql_query = "";
         $this->sql_is_join = false;
         
-        if ($result_array->count() > 1)
-            return $result_array;
-        else if ($result_array->count() == 1)
-            return $result_array[0];
-        
-        return null;
+        return $result_array;
     }
 
     /**

@@ -26,12 +26,15 @@ class VideoController extends BaseController
         {
             $name = mysql_escape_string($_POST['user_name']);
             $user = models\User::select('id')->where('name = "'.$name.'"')->execute();
-            if ($user === null)
+
+            if (count($user) == 0)
             {
                 $user = new models\User();
                 $user->name = $name;
                 $user->save();
             }
+            else
+                $user = $user[0];
 
             $video = new models\Video();
             $video->url = mysql_escape_string($_POST['video_url']);
@@ -72,12 +75,12 @@ class VideoController extends BaseController
     public function actionUpdate()
     {
         if (isset($_POST['video_id']))
-            return $this->actionHide($_POST['video_id']);
+            return $this->actionHide($_POST['video_id'], true);
         
         echo json_encode(['error' => 1, 'data' => 'Wrong API parameters']);
     }
     
-    private function actionHide($id)
+    private function actionHide($id, $current = false)
     {
         if (!isset($_SESSION['auth']) || $_SESSION['auth'] !== true)
         {
@@ -87,13 +90,60 @@ class VideoController extends BaseController
         
         try
         {
-            $result = models\Video::update(['is_viewed' => 1])->where('id ='.  intval($id))->execute();      
+            $result = models\Video::update(['is_viewed' => 1])->where('id ='.  intval($id))->execute();
+            $_SESSION['obs'] = ['id' => $id, 'current' => $current, 'error' => intval(!$result)];
             echo json_encode(['error' => intval(!$result)]);
         } 
         catch (\Exception $ex) 
         {
             echo json_encode(['error' => 1, 'data' => $ex->getMessage()]);
         } 
+    }
+    
+    public function actionGetnew()
+    {
+        if (!isset($_POST['old_ids']))
+        {
+            echo json_encode (['error' => 1, 'data' => '']);
+            return;
+        }
+        
+        $in_array = mysql_escape_string($_POST['old_ids']);
+        $videos = models\Video::select(['video.id video_id', 'video.url url', 'user.name username'])->
+                join(models\Video::JOIN_TYPE_LEFT, 'user', 'user.id = video.user_id')->
+                where("video.id not in ($in_array) and video.is_viewed=0")->execute();
+        
+        $v_res = ['error' => 0, 'data' => []];
+        if (!is_bool($videos))
+            foreach ($videos as $video) 
+            {
+                $params = ['isAdmin' => isset($_SESSION['auth']) && $_SESSION['auth'] === true,
+                    'video' => [
+                        'url' => htmlspecialchars($video->url), 
+                        'id' => intval($video->video_id), 
+                        'username' => htmlspecialchars($video->username),
+                    ],
+                ];
+                array_push($v_res['data'], [               
+                    'html' => $this->getHtmlContent('views/home/webm_block.tpl', $params),
+                    'url' => htmlspecialchars($video->url), 
+                    ]);
+            }
+        
+        echo json_encode($v_res);
+    }
+    
+    public function actionObs()
+    {
+        if (isset($_REQUEST['obs']) && $_REQUEST['obs'] === true)
+        {
+           // $_SESSION['obs']['error'] = 0;
+            echo json_encode($_SESSION['obs']);
+            unset($_SESSION['obs']);
+            return;
+        }
+        
+        echo json_encode(['error' => 1, 'data' => 'Access level error']);
     }
 }
 

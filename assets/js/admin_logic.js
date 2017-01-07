@@ -17,15 +17,27 @@ var remove_click = function (video_id) {
         });
        
     };
-
+       
 $(document).ready(function () {
     $("#btn_skip").click(function () {
-        if (!nextVideo(true))
-        {
-            $(this).removeClass('btn-primary');
-            $(this).removeClass('btn-disabled');
-            $(this).css('cursor', 'arrow');
-        }
+        $.ajax({
+            type: "POST",
+            url: "/mmvc/video/update",
+            data: {url: playlist[curVideo], video_id: curVideo + 1},
+            dataType: 'json',
+            success: function (data)
+            {                
+                console.log(data);
+                if (!nextVideo(true))
+                {
+                    $(this).removeClass('btn-primary');
+                    $(this).removeClass('btn-disabled');
+                    $(this).css('cursor', 'arrow');
+                    videoPlayer.play();
+                }
+            }
+        });
+        
         return false;
     });
 });

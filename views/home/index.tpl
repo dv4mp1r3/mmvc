@@ -35,7 +35,7 @@
             {/if}
 
             <div class="row">
-                <video id="webm_player" src="{$videos[0].url}" type="video/webm" {if $isOBS == false}controls{/if}>
+                <video id="webm_player" src="{$videos[0].url}" type="video/webm" {if $isOBS == false}controls{else}autoplay{/if}>
                 </video>
             </div>
 
@@ -78,6 +78,7 @@
         </script>
         <script src="{$www_root}/assets/js/user_logic.js"></script>
         {if $isAdmin}<script src="{$www_root}/assets/js/admin_logic.js"></script>{/if}
+        {if $isOBS}<script src="{$www_root}/assets/js/obs_logic.js"></script>{/if}
         {literal}
         <script>              
             videoPlayer.onended = function ()
