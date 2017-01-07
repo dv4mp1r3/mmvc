@@ -5,7 +5,7 @@ var remove_click = function (video_id) {
         var dom_element = $('a[video_id='+video_id+']');
         $.ajax({
             type: "POST",
-            url: "index.php?u=video-remove",
+            url: "/mmvc/video/remove",
             data: {video_id: video_id},
             dataType: 'json',
             success: function (data)

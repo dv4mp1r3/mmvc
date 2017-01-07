@@ -7,8 +7,7 @@
         {/if}
         <p>Добавил: {$video.username}</p>
         <p>Ссылка: <a href="{$video.url}" target="_blank">{$video.url}</a></p>
-        <canvas id="canvas-{$video.id}">
-        </canvas>
+        {*<canvas id="canvas-{$video.id}">
+        </canvas>*}
     </div>
 </div>
-<hr>

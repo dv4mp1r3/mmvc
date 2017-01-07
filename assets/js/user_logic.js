@@ -1,10 +1,15 @@
 var span = null;
+var current_webm = null;
 function nextVideo(isAdmin)
 {
+    current_webm.removeClass('webm-current');
+    current_webm = current_webm.next('div#playlist div.row');
+    current_webm.addClass('webm-current');
+    
     if (isAdmin)
         $.ajax({
             type: "POST",
-            url: "index.php?u=video-update",
+            url: "/mmvc/video/update",
             data: {url: playlist[curVideo], video_id: curVideo + 1},
             dataType: 'json',
             success: function (data)
@@ -16,12 +21,17 @@ function nextVideo(isAdmin)
     if (curVideo < playlist.length)
     {
         videoPlayer.src = playlist[curVideo];
+        if (isAdmin)
+            videoPlayer.play();
         return playlist.length - (curVideo + 1) !== 0;
     }
     return false;
 }
 
 $(document).ready(function () {
+    current_webm = $('div#playlist div.row').first();
+    current_webm.addClass('webm-current');
+    
     for (i = 0; i < playlist.length; i++)
     {
         var currentCanvas = document.getElementById('canvas-' + (i + 1));
@@ -50,7 +60,7 @@ $(document).ready(function () {
         
         $.ajax({
             type: "POST",
-            url: "index.php?u=video-upload",
+            url: "/mmvc/video/upload",
             data: $("#frm-upload").serialize(),
             dataType: 'json',
             success: function (data)

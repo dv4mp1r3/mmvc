@@ -42,3 +42,8 @@ input.input-text
 {
     color: green;
 }
+
+.webm-current
+{
+    background-color: darkgray;
+}
