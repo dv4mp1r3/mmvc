@@ -28,7 +28,6 @@ class HomeController extends BaseController {
             unset($_SESSION['auth']);
         }
 
-
         $videos = models\Video::select(['user.name username', 'video.url', 'video.id', 'video.is_viewed'])->
                 join(models\Video::JOIN_TYPE_LEFT, 'user', 'user.id = video.user_id')->
                 where('video.is_viewed = 0')->
@@ -47,6 +46,7 @@ class HomeController extends BaseController {
         $this->appendVariable('isAdmin', $isAdmin);
         $this->appendVariable('isOBS', $isOBS);
         $this->appendVariable('year', date('Y'));
+        $this->appendVariable('www_root', $this->getHttpRootPath());
         $this->render('index');
     }
 

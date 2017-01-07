@@ -7,10 +7,10 @@
         <meta name="description" content="Добро пожаловать, снова">
         <meta name="author" content="dv4mp1r3">
         <title>WebMDJ</title>
-        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="assets/css/1-col-portfolio.css" rel="stylesheet">
+        <link href="{$www_root}/assets/css/bootstrap.min.css" rel="stylesheet">
+        <link href="{$www_root}/assets/css/1-col-portfolio.css" rel="stylesheet">
         {if $isOBS}
-            <link href="assets/css/obs.css" rel="stylesheet">
+            <link href="{$www_root}/assets/css/obs.css" rel="stylesheet">
         {/if}
     </head>
 
@@ -68,17 +68,16 @@
 
         </div>
         
-        <script src="assets/js/jquery.js"></script>
-        <script src="assets/js/bootstrap.min.js"></script>
-        <script src="assets/js/jquery.maskedinput.min"></script>
+        <script src="{$www_root}/assets/js/jquery.js"></script>
+        <script src="{$www_root}/assets/js/bootstrap.min.js"></script>
         <script>
             var playlist = {$video_urls};
             var curVideo = 0;
             var videoPlayer = document.getElementById('webm_player'); 
             videoPlayer.volume = 0.5;
         </script>
-        <script src="assets/js/user_logic.js"></script>
-        {if $isAdmin}<script src="assets/js/admin_logic.js"></script>{/if}
+        <script src="{$www_root}/assets/js/user_logic.js"></script>
+        {if $isAdmin}<script src="{$www_root}/assets/js/admin_logic.js"></script>{/if}
         {literal}
         <script>              
             videoPlayer.onended = function ()

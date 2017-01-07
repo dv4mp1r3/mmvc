@@ -93,4 +93,9 @@ class BaseController
         
         return $sm->fetch($template);
     }
+    
+    public function getHttpRootPath()
+    {
+        return 'http://'.$_SERVER['HTTP_HOST'].str_replace("/index.php", "", $_SERVER['PHP_SELF']);
+    }
 }
