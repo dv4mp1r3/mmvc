@@ -20,7 +20,7 @@
                     <input type="submit" value="Добавить">
                 </form>
             </div>
-            {if $isAdmin}
+            {if $isAdmin and count($videos)}
                 <div class="row">
                     <a id="btn_skip" class="btn btn-primary" target="_blank" href="#">Пропустить текущее</a>
                 </div>
@@ -33,26 +33,22 @@
 
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Список загруженных видео
+                    <h1 class="page-header">
+                        {if count($videos)}
+                            Список загруженных видео
+                        {else}
+                            Список пуст
+                        {/if}
                     </h1>
                 </div>
             </div>
 
-            {foreach from=$videos item=video}
-                <div class="row">
-                    <div class="col-md-7">
-                        {if $isAdmin}
-                            <a video_id="{$video.id}" orig_url="{$video.url}" class="btn btn-primary btn-remove-video" href="#">
-                            Удалить из списка
-                            </a>
-                        {/if}
-                        <p>Добавил: {$video.username}</p>
-                        <canvas id="canvas-{$video.id}">
-                        </canvas>
-                    </div>
-                </div>
-                <hr>
-            {/foreach}
+            <div id="playlist" class="row">
+                {foreach from=$videos item=video}
+                    {include file="views/home/webm_block.tpl" video=$video isAdmin=$isAdmin}  
+
+                {/foreach}
+            </div>
 
             <footer>
                 <div class="row">

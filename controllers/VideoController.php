@@ -24,31 +24,39 @@ class VideoController extends BaseController
     {
         try
         {
-            $user = models\User::select('id')->where('name = "'.$_POST['user_name'].'"')->execute();
+            $name = mysql_escape_string($_POST['user_name']);
+            $user = models\User::select('id')->where('name = "'.$name.'"')->execute();
             if ($user === null)
             {
                 $user = new models\User();
-                $user->name = $_POST['user_name'];
+                $user->name = $name;
                 $user->save();
             }
 
             $video = new models\Video();
-            $video->url = $_POST['video_url'];
+            $video->url = mysql_escape_string($_POST['video_url']);
             $video->user_id = $user->id;
             $video->save();
+            
+            $params = ['isAdmin' => true,
+                'video' => [
+                    'url' => htmlspecialchars($video->url), 
+                    'id' => intval($video->id), 
+                    'username' => htmlspecialchars($user->name),
+                ],
+            ];
 
-            $result = [
+            $result = [               
+                'html' => $this->getHtmlContent('views/home/webm_block.tpl', $params),
                 'url' => htmlspecialchars($video->url), 
-                'id' => intval($video->id), 
-                'username' => htmlspecialchars($user->name)
                 ];
             
-            echo json_encode(['error' => 0, 'data' => json_encode($result)]);
+            echo json_encode(['error' => 0, 'data' => $result]);
         } 
         catch (\Exception $ex) 
         {
             echo json_encode(['error' => 1, 
-                'data' => $ex->getTraceAsString()]);
+                'data' => $ex->getMessage()]);
         }
         
     }

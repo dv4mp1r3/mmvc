@@ -82,4 +82,15 @@ class BaseController
     {
         $this->smarty->assign($name, $value);
     }
+    
+    public function getHtmlContent($template, $params)
+    {
+        $sm = new Smarty();
+        foreach ($params as $key => $value) 
+        {
+            $sm->assign($key, $value);  
+        }
+        
+        return $sm->fetch($template);
+    }
 }

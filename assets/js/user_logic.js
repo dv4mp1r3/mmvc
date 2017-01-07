@@ -44,6 +44,9 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (data)
             {
+                $('h1.page-header').html('Список загруженных видео');
+                $('div#playlist').append(data.data.html);
+                playlist.push(data.data.url);
                 console.log(data);
             }
         });

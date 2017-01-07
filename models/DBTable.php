@@ -93,7 +93,8 @@ class DBTable extends BaseModel
                 $values .= $delemiter;
             }
             $this->properties[$key]['is_dirty'] = false;
-            $values .= "'".$this->serializeProperty($data["value"], DBHelper::getTypeName($this->table_name, $key))."'";
+            $value  = $this->serializeProperty($data["value"], DBHelper::getTypeName($this->table_name, $key));            
+            $values .= "'".  str_replace("'", "", $value)."'";
         }
         $q = "INSERT INTO $this->table_name ($props) VALUES ($values);";
         return $q;
@@ -173,7 +174,7 @@ class DBTable extends BaseModel
         if ($this->is_new) {
             $this->id = DBHelper::$connection->insert_id;
         }
-        //var_dump($query);
+
         $this->is_new = false;
     }
 
