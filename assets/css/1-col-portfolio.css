@@ -17,3 +17,28 @@ video#webm_player
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+div.current-button
+{
+    margin-top: 15px;
+}
+
+div.form-row
+{
+    margin-right: 0px !important;
+    margin-left: 0px !important;
+}
+
+input.input-text
+{
+    width: 600px;
+}
+
+.glyphicon-remove
+{
+    color: red;
+}
+.glyphicon-ok
+{
+    color: green;
+}

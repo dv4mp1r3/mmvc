@@ -4,6 +4,9 @@ namespace app\core;
 
 class Router
 {
+    const ROUTE_TYPE_DEFAULT = 0, // по умолчанию обрабатывается $_GET['u']
+            ROUTE_TYPE_FRIENDLY = 1; //ЧПУ
+    
     /**
      * контроллер для передачи ему управления
      * @var BaseController 
@@ -33,7 +36,7 @@ class Router
      * @param string $url
      * @throws Exception
      */
-    public function __construct($url = null)
+    public function __construct($url = null, $route_type = Router::ROUTE_TYPE_DEFAULT)
     {
         if ($url === null) {
             $url = $_GET['u'];
@@ -53,6 +56,12 @@ class Router
         $ctrl           = htmlspecialchars(substr($url, 0, $delemiter));
         $this->action   = htmlspecialchars(substr($url, $delemiter + 1));
         $this->ctrlName = 'app\\controllers\\'.ucfirst($ctrl).'Controller';
+    }
+    
+    protected function parseUrlFriendly()
+    {
+        $url = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['REQUEST_URI']);
+        var_dump($url);
     }
 
     protected function callAction()

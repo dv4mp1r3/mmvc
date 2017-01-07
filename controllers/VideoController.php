@@ -38,7 +38,7 @@ class VideoController extends BaseController
             $video->user_id = $user->id;
             $video->save();
             
-            $params = ['isAdmin' => true,
+            $params = ['isAdmin' => isset($_SESSION['auth']) && $_SESSION['auth'] === true,
                 'video' => [
                     'url' => htmlspecialchars($video->url), 
                     'id' => intval($video->id), 
