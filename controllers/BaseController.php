@@ -82,4 +82,20 @@ class BaseController
     {
         $this->smarty->assign($name, $value);
     }
+    
+    public function getHtmlContent($template, $params)
+    {
+        $sm = new Smarty();
+        foreach ($params as $key => $value) 
+        {
+            $sm->assign($key, $value);  
+        }
+        
+        return $sm->fetch($template);
+    }
+    
+    public function getHttpRootPath()
+    {
+        return 'http://'.$_SERVER['HTTP_HOST'].str_replace("/index.php", "", $_SERVER['PHP_SELF']);
+    }
 }

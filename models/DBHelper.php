@@ -78,7 +78,10 @@ class DBHelper extends BaseModel
      */
     private static function getType($type)
     {
-        return substr($type, 0, strpos($type, '('));
+        $pos = strpos($type, '(');
+        if ($pos > 0)
+            return substr($type, 0, $pos); 
+        return $type;
     }
 
     /**
@@ -114,5 +117,18 @@ class DBHelper extends BaseModel
     public static function execute($sql_query)
     {
         return self::$connection->query($sql_query);
+    }
+    
+    /** 
+     * Получение имени типа из загруженной ранее схемы
+     * @param string $table_name
+     * @param string $field
+     */
+    public static function getTypeName($table_name, $field)
+    {
+        if (!isset(self::$schema[$table_name]))
+            throw new \Exception("Schema for table $table_name is not loaded yet");
+
+        return self::$schema[$table_name][$field]['type'];
     }
 }
