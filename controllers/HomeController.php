@@ -20,7 +20,7 @@ class HomeController extends BaseController {
     }
 
     public function actionIndex() {
-        var_dump($_COOKIE);
+        //var_dump($_COOKIE);
         $isOBS = isset($_REQUEST['obs']) && $_REQUEST['obs'] === 'true';
         $isAdmin = isset($_REQUEST['admin']) && $_REQUEST['admin'] === 'true';
         if ($isAdmin === true) {

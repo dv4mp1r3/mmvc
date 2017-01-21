@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="Добро пожаловать, снова">
         <meta name="author" content="dv4mp1r3">
-        <title>WebMDJ</title>
+        <title>{if $isOBS == false}WebMDJ{else}OBS{/if}</title>
         <link href="{$www_root}/assets/css/bootstrap.min.css" rel="stylesheet">
         <link href="{$www_root}/assets/css/1-col-portfolio.css" rel="stylesheet">
         {if $isOBS}
@@ -35,7 +35,7 @@
             {/if}
 
             <div class="row">
-                <video id="webm_player" src="{$videos[0].url}" type="video/webm" {if $isOBS == false}controls{else}autoplay{/if}>
+                <video id="webm_player" src="{$videos[0].url}" type="video/webm" {if $isOBS == false}controls{else} controls autoplay{/if}>
                 </video>
             </div>
 
@@ -70,11 +70,9 @@
         
         <script src="{$www_root}/assets/js/jquery.js"></script>
         <script src="{$www_root}/assets/js/bootstrap.min.js"></script>
-        <script>
-            var playlist = {$video_urls};
-            var curVideo = 0;
+        <script id="playlist_settings">
             var videoPlayer = document.getElementById('webm_player'); 
-            videoPlayer.volume = 0.5;
+            videoPlayer.volume = 0.0;
         </script>
         <script src="{$www_root}/assets/js/user_logic.js"></script>
         {if $isAdmin}<script src="{$www_root}/assets/js/admin_logic.js"></script>{/if}

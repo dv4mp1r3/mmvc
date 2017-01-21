@@ -3,27 +3,24 @@ var current_webm = null;
 function nextVideo(isAdmin)
 {
     current_webm.removeClass('webm-current');
-    current_webm = current_webm.next('div#playlist div.row');
+    current_webm = current_webm.next('div#playlist div.row_video');
     current_webm.addClass('webm-current');
-       
-    ++curVideo;
-    if (curVideo < playlist.length)
-    {
-        videoPlayer.src = playlist[curVideo]
-        return playlist.length - (curVideo + 1) !== 0;
-    }
-    return false;
+    
+    var newUrl = current_webm.attr('orig_url')   
+    videoPlayer.src = current_webm.attr('orig_url');
+    console.log('new url: '+newUrl);
+    
+    return true;
 }
 
 function addNew(html, url)
 {
     $('div#playlist').append(html);
-    playlist.push(url);
 }
 
 function getNewWebm()
 {
-    var ids = $('div.hidden-for-obs .col-md-7 a.btn-remove-video').map(function(){
+    var ids = $('div.row_video').map(function(){
                 return $(this).attr('video_id')
             }).get().join(',');
     console.log('tick: '+ids);        
@@ -52,19 +49,8 @@ $(document).ready(function () {
     current_webm.addClass('webm-current');
         
     var timerId = setInterval(getNewWebm, 5000);
-    //getNewWebm();
-    for (i = 0; i < playlist.length; i++)
-    {
-        var currentCanvas = document.getElementById('canvas-' + (i + 1));
-        if (currentCanvas)
-        {
-            $("#webm_player").attr('src', playlist[i]);
-            var vp = document.getElementById('webm_player');
-            currentCanvas.getContext('2d').drawImage(vp, 0, 0);
-        }
 
-    }
-    $("#webm_player").attr('src', playlist[0]);
+    $("#webm_player").attr('src', current_webm.attr('orig_url'));
 
     $("#frm-upload").submit(function (e) {
         e.preventDefault();

@@ -23,7 +23,7 @@ $(document).ready(function () {
         $.ajax({
             type: "POST",
             url: "/mmvc/video/update",
-            data: {url: playlist[curVideo], video_id: curVideo + 1},
+            data: {url: current_webm.attr('orig_url'), video_id: current_webm.attr('video_id')},
             dataType: 'json',
             success: function (data)
             {                
@@ -33,7 +33,6 @@ $(document).ready(function () {
                     $(this).removeClass('btn-primary');
                     $(this).removeClass('btn-disabled');
                     $(this).css('cursor', 'arrow');
-                    videoPlayer.play();
                 }
             }
         });

@@ -1,4 +1,4 @@
-<div class="hidden-for-obs row">
+<div video_id="{$video.id}" orig_url="{$video.url}" class="hidden-for-obs row row_video">
     <div class="col-md-7">
         {if $isAdmin}
             <a video_id="{$video.id}" orig_url="{$video.url}" class="btn btn-primary btn-remove-video" onclick="remove_click({$video.id})">

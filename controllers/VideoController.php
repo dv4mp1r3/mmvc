@@ -135,15 +135,15 @@ class VideoController extends BaseController
     
     public function actionObs()
     {
-        if (isset($_REQUEST['obs']) && $_REQUEST['obs'] === true)
-        {
-           // $_SESSION['obs']['error'] = 0;
+        if (isset($_REQUEST['obs']) && boolval($_REQUEST['obs']) === true)
+        { 
             echo json_encode($_SESSION['obs']);
             unset($_SESSION['obs']);
+            $_SESSION['obs']['error'] = 0;
             return;
         }
         
-        echo json_encode(['error' => 1, 'data' => 'Access level error']);
+        echo json_encode(['error' => 1, 'data' => 'Access level error', 'debug' => $_REQUEST]);
     }
 }
 
