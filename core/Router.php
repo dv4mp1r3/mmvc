@@ -113,13 +113,13 @@ class Router
         {
             throw new \Exception('Router->controller is null or not instance of BaseController');
         }
-        call_user_func(array($this->controller, 'action'.ucfirst($this->action)));
+        return call_user_func(array($this->controller, 'action'.ucfirst($this->action)));
     }
 
     public function route()
     {
         if (AccessChecker::checkAccess($this->controller, $this->action)) {
-            $this->callAction();
+            echo $this->callAction();
         }
     }
 }

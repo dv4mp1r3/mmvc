@@ -34,9 +34,8 @@ class BaseController
         $tmp        = substr($classname, strrpos($classname, '\\') + 1);
         $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));
         $this->smarty = new Smarty();
-        if ($masterPage === null) {
-            global $config;
-            $this->masterPage = $config['template']['file'];
+        if ($masterPage !== null) {
+            $this->masterPage = $masterPage;
         }
     }
 

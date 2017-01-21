@@ -33,7 +33,7 @@
                     <a id="btn_skip" class="btn btn-primary" target="_blank" href="#">Пропустить текущее</a>
                 </div>
             {/if}
-
+            
             <div class="row">
                 <video id="webm_player" src="{$videos[0].url}" type="video/webm" {if $isOBS == false}controls{else} controls autoplay{/if}>
                 </video>

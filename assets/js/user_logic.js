@@ -39,6 +39,12 @@ function getNewWebm()
                     {
                         addNew(data.data[i].html, data.data[i].url);
                     }
+                    
+                    if (data['video_settings'] !== undefined)
+                    {
+                        console.log(data['video_settings']);
+                    }
+                    
                 }
             }
         });
