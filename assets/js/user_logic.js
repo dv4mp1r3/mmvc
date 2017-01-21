@@ -38,13 +38,7 @@ function getNewWebm()
                     for (i = 0; i < data.data.length; i++)
                     {
                         addNew(data.data[i].html, data.data[i].url);
-                    }
-                    
-                    if (data['video_settings'] !== undefined)
-                    {
-                        console.log(data['video_settings']);
-                    }
-                    
+                    }     
                 }
             }
         });

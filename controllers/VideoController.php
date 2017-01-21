@@ -58,10 +58,8 @@ class VideoController extends BaseController
                 [
                     'error' => 0, 
                     'data' => $result,
-                    'video_settings' => $_SESSION['video_settings'],
                 ]
             );
-            unset($_SESSION['video_settings']);
             
             return  $json_result;
         } 
@@ -100,7 +98,6 @@ class VideoController extends BaseController
         {
             $result = models\Video::update(['is_viewed' => 1])->where('id ='.  intval($id))->execute();
             $_SESSION['obs'] = ['id' => $id, 'current' => $current, 'error' => intval(!$result)];
-            $_SESSION['video_settings'] = $_SESSION['obs'];
             return json_encode(['error' => intval(!$result)]);
         } 
         catch (\Exception $ex) 
