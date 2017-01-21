@@ -148,7 +148,7 @@ class VideoController extends BaseController
             return $json_result;
         }
         
-        return json_encode(['error' => 1, 'data' => 'Access level error', 'debug' => $_REQUEST]);
+        return json_encode(['error' => 1, 'data' => 'Access level error']);
     }
 }
 
