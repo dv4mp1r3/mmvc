@@ -23,10 +23,15 @@ class Video extends DBTable
             }
         }
     }
-
-    public function save()
+    
+    /**
+     * Возвращение уникального идентификатора видео 
+     * https://www.youtube.com/watch?v=pFBUh3hKKDg -> pFBUh3hKKDg
+     * @return string
+     */
+    public function getVideoId()
     {
-        $this->is_changed_by_admin = true;
-        parent::save();
+        $pos = strpos($this->url, "v=");
+        return substr($this->url, $pos+2);
     }
 }
