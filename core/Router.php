@@ -56,6 +56,10 @@ class Router
         $this->controller = new $this->ctrlName();
     }
 
+    /**
+     * Обработка урл вида index.php?u=ctrlName-view
+     * @param string $url значение $_GET['u']
+     */
     protected function parseUrl($url)
     {
         $delemiter      = strpos($url, '-');
@@ -64,6 +68,11 @@ class Router
         $this->ctrlName = 'app\\controllers\\'.ucfirst($ctrl).'Controller';
     }
     
+    /**
+     * Обработка урл вида index/ctrlName/view/paramName/paramValue...
+     * строка разбивается на пары (параметр-значение)
+     * @throws \Exception если количество пар = 0
+     */
     protected function parseUrlFriendly()
     {
         $dir = str_replace(DIRECTORY_SEPARATOR, '/', ROOT_DIR);
@@ -102,6 +111,12 @@ class Router
         }
     }
 
+    /**
+     * Обработка и вызов нужного действия для контроллера
+     * @return string результат выполнения действия (шаблон страницы, json для ajax
+     * и т.д.)
+     * @throws \Exception выбрасывается если не найдено действие или контроллер
+     */
     protected function callAction()
     {
         if ($this->action === null)
@@ -116,6 +131,10 @@ class Router
         return call_user_func(array($this->controller, 'action'.ucfirst($this->action)));
     }
 
+    /**
+     * Передача управления контроллеру
+     * после обработки урла в конструкторе
+     */
     public function route()
     {
         if (AccessChecker::checkAccess($this->controller, $this->action)) {

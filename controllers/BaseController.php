@@ -82,6 +82,14 @@ class BaseController
         $this->smarty->assign($name, $value);
     }
     
+    /**
+     * Получение части html-контента
+     * рекомендуется использовать для ajax-запросов
+     * когда, например, нужно получить готовые div с данными
+     * @param string $template путь к шаблону в папке views
+     * @param array $params массив параметров ($key => $value) для шаблона
+     * @return string
+     */
     public function getHtmlContent($template, $params)
     {
         $sm = new Smarty();
@@ -93,6 +101,10 @@ class BaseController
         return $sm->fetch($template);
     }
     
+    /**
+     * Получение доменного имени 
+     * @return string
+     */
     public function getHttpRootPath()
     {
         return 'http://'.$_SERVER['HTTP_HOST'].str_replace("/index.php", "", $_SERVER['PHP_SELF']);
