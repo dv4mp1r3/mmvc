@@ -32,14 +32,6 @@ class Loader
         return strpos($str, $substr) === 0;
     }
 
-    public static function loadView($masterPath, $ctrlName, $viewName )
-    {
-        define('MMVC_CTRL_NAME', $ctrlName);
-        define('MMVC_CTRL_VIEW', $viewName);
-
-        require_once $masterPath;
-    }
-
     /**
      * Возврат всех загруженных скриптов на момент вызова функции
      * @return array required_files
