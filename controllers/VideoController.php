@@ -54,11 +54,18 @@ class VideoController extends BaseController
                 'url' => htmlspecialchars($video->url), 
                 ];
             
-            echo json_encode(['error' => 0, 'data' => $result]);
+            $json_result = json_encode(
+                [
+                    'error' => 0, 
+                    'data' => $result,
+                ]
+            );
+            
+            return  $json_result;
         } 
         catch (\Exception $ex) 
         {
-            echo json_encode(['error' => 1, 
+            return json_encode(['error' => 1, 
                 'data' => $ex->getMessage()]);
         }
         
@@ -69,7 +76,7 @@ class VideoController extends BaseController
         if (isset($_POST['video_id']))
             return $this->actionHide($_POST['video_id']);    
         
-        echo json_encode(['error' => 1, 'data' => 'Wrong API parameters']);
+        return json_encode(['error' => 1, 'data' => 'Wrong API parameters']);
     }
     
     public function actionUpdate()
@@ -77,26 +84,25 @@ class VideoController extends BaseController
         if (isset($_POST['video_id']))
             return $this->actionHide($_POST['video_id'], true);
         
-        echo json_encode(['error' => 1, 'data' => 'Wrong API parameters']);
+        return json_encode(['error' => 1, 'data' => 'Wrong API parameters']);
     }
     
     private function actionHide($id, $current = false)
     {
         if (!isset($_SESSION['auth']) || $_SESSION['auth'] !== true)
         {
-            echo json_encode(['error' => 1, 'data' => 'Access level error']);
-            return;
+            return json_encode(['error' => 1, 'data' => 'Access level error']);
         }
         
         try
         {
             $result = models\Video::update(['is_viewed' => 1])->where('id ='.  intval($id))->execute();
             $_SESSION['obs'] = ['id' => $id, 'current' => $current, 'error' => intval(!$result)];
-            echo json_encode(['error' => intval(!$result)]);
+            return json_encode(['error' => intval(!$result)]);
         } 
         catch (\Exception $ex) 
         {
-            echo json_encode(['error' => 1, 'data' => $ex->getMessage()]);
+            return json_encode(['error' => 1, 'data' => $ex->getMessage()]);
         } 
     }
     
@@ -104,8 +110,7 @@ class VideoController extends BaseController
     {
         if (!isset($_POST['old_ids']))
         {
-            echo json_encode (['error' => 1, 'data' => '']);
-            return;
+            return json_encode (['error' => 1, 'data' => '']);
         }
         
         $in_array = mysql_escape_string($_POST['old_ids']);
@@ -114,36 +119,36 @@ class VideoController extends BaseController
                 where("video.id not in ($in_array) and video.is_viewed=0")->execute();
         
         $v_res = ['error' => 0, 'data' => []];
-        if (!is_bool($videos))
-            foreach ($videos as $video) 
-            {
+        if (!is_bool($videos)) {
+            foreach ($videos as $video) {
                 $params = ['isAdmin' => isset($_SESSION['auth']) && $_SESSION['auth'] === true,
                     'video' => [
-                        'url' => htmlspecialchars($video->url), 
-                        'id' => intval($video->video_id), 
+                        'url' => htmlspecialchars($video->url),
+                        'id' => intval($video->video_id),
                         'username' => htmlspecialchars($video->username),
                     ],
                 ];
-                array_push($v_res['data'], [               
+                array_push($v_res['data'], [
                     'html' => $this->getHtmlContent('views/home/webm_block.tpl', $params),
-                    'url' => htmlspecialchars($video->url), 
-                    ]);
+                    'url' => htmlspecialchars($video->url),
+                ]);
             }
-        
-        echo json_encode($v_res);
+        }
+
+        return json_encode($v_res);
     }
     
     public function actionObs()
     {
-        if (isset($_REQUEST['obs']) && $_REQUEST['obs'] === true)
-        {
-           // $_SESSION['obs']['error'] = 0;
-            echo json_encode($_SESSION['obs']);
+        if (isset($_REQUEST['obs']) && boolval($_REQUEST['obs']) === true)
+        { 
+            $json_result = json_encode($_SESSION['obs']);
             unset($_SESSION['obs']);
-            return;
+            $_SESSION['obs']['error'] = 0;
+            return $json_result;
         }
         
-        echo json_encode(['error' => 1, 'data' => 'Access level error']);
+        return json_encode(['error' => 1, 'data' => 'Access level error']);
     }
 }
 

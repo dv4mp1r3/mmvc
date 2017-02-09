@@ -1,3 +1,5 @@
+var timerId = null;
+
 function obs()
 {
     $.ajax({
@@ -10,15 +12,30 @@ function obs()
                 console.log(data);
                 if (data.error == 0)
                 {
-                    if (data['id'] > 0)
-                        $('a[video_id='+data.id+']').parent().parent().remove();
-                    if (data['current'])
+                    if (data['id'] !== undefined)
+                    {
+                        var currentId = parseInt($(current_webm).find('a').attr('video_id'));
+                        if (currentId == data['id'])
+                        {
+                            nextVideo();
+                            videoPlayer.play();
+                        }
+                        $('a[video_id='+data.id+']').parent().parent().remove(); 
+                    }
+                    else if (data['current'] != undefined && data['current'] === true) 
+                    {
                         nextVideo();
+                        videoPlayer.play();
+                    }
+                }
+                else
+                {
+                    //clearInterval(timerId);
                 }
                 
             }
         });
 }
 
-var timerId = setInterval(obs, 1000);
+timerId = setInterval(obs, 1000);
 

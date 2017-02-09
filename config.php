@@ -18,9 +18,6 @@ $config = ['db' =>
                     'user_hash' => '24wejdslkfjsdfh2k3h5qwd',
                 ], 
             ],
-            'template' => [
-                'file' => ROOT_DIR.'/assets/template/master.php',
-            ],
             'logpath' => ROOT_DIR.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'main.log',
             'timezone' => 'Etc/GMT-3',
     ];

@@ -59,6 +59,11 @@ class DBTable extends BaseModel
         return DBHelper::getSchema($this->table_name);
     }
 
+    /**
+     * Проверка, было ли свойство модели модифицировано после извлечения из БД
+     * @param string $name
+     * @return boolean true если свойство было модифицировано, но не сохранено в БД
+     */
     protected function isDirtyProperty($name)
     {
         $data = $this->properties[$name];

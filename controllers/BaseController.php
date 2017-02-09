@@ -34,9 +34,8 @@ class BaseController
         $tmp        = substr($classname, strrpos($classname, '\\') + 1);
         $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));
         $this->smarty = new Smarty();
-        if ($masterPage === null) {
-            global $config;
-            $this->masterPage = $config['template']['file'];
+        if ($masterPage !== null) {
+            $this->masterPage = $masterPage;
         }
     }
 
@@ -83,6 +82,14 @@ class BaseController
         $this->smarty->assign($name, $value);
     }
     
+    /**
+     * Получение части html-контента
+     * рекомендуется использовать для ajax-запросов
+     * когда, например, нужно получить готовые div с данными
+     * @param string $template путь к шаблону в папке views
+     * @param array $params массив параметров ($key => $value) для шаблона
+     * @return string
+     */
     public function getHtmlContent($template, $params)
     {
         $sm = new Smarty();
@@ -94,6 +101,10 @@ class BaseController
         return $sm->fetch($template);
     }
     
+    /**
+     * Получение доменного имени 
+     * @return string
+     */
     public function getHttpRootPath()
     {
         return 'http://'.$_SERVER['HTTP_HOST'].str_replace("/index.php", "", $_SERVER['PHP_SELF']);
