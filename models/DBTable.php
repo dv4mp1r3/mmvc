@@ -353,20 +353,6 @@ class DBTable extends BaseModel
         $this->sql_is_join = true;
         return $this;
     }
-    
-    /**
-     * Установка лимита на выборку
-     * @param integer $limit сколько
-     * @param integer $offset смещение
-     * @return \app\models\DBTable
-     */
-    public function limit($limit, $offset = 0)
-    {
-        $limit = intval($limit);
-        $offset = intval($offset);
-        $this->sql_query .= " LIMIT $offset, $limit ";
-        return $this;
-    }
 
     /**
      * Выполнение запроса, сгенерированного ранее для объекта
