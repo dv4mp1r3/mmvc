@@ -1,0 +1,10 @@
+div p
+{
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.ex-stacktrace, ex-msg
+{
+    margin-top: 15px;
+}
