@@ -1,0 +1,9 @@
+/log
+/vendor
+/uploads
+/templates_c
+/nbproject
+composer.lock
+*.swp
+#*#
+.#*

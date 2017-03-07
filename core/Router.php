@@ -93,7 +93,7 @@ class Router
         $count = count($result);
         
         if ($count == 0)
-            throw new \Exception ('parseUrlFriendly error');
+            throw new \Exception ('parseUrlFriendly error (param count = 0)');
         
         $this->ctrlName = 'app\\controllers\\'.ucfirst($result[0]).'Controller';
         $this->action = ucfirst($result[1]);
