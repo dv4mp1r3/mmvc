@@ -354,7 +354,7 @@ class DBTable extends BaseModel
         return $this;
     }
     
-    /**
+     /**
      * Установка лимита на выборку
      * @param integer $limit сколько
      * @param integer $offset смещение
@@ -429,7 +429,8 @@ class DBTable extends BaseModel
      */
     private static function filterString($value)
     {
-        return mysql_escape_string(htmlspecialchars($value));
+        return DBHelper::escapeString($value);
+        //return mysql_real_escape_string($value);
     }
     
     /**

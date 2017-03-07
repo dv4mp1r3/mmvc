@@ -4,8 +4,8 @@ namespace app;
 use app\core\Router;
 
 require_once 'config.php';
-require_once '/vendor/autoload.php';
-require_once ROOT_DIR.'/core/Loader.php';
+require_once 'vendor/autoload.php';
+require_once 'core/Loader.php';
 
 date_default_timezone_set($config['timezone']);
 

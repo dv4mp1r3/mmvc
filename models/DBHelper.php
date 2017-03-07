@@ -58,11 +58,17 @@ class DBHelper extends BaseModel
      */
     public static function parseSchema($table_name)
     {
-        if (!self::isConnected()) self::createConnection();
-
+       $table_name = self::escapeString($table_name);
+        
         $query = "DESCRIBE $table_name";
         $result = self::$connection->query($query);
-        while ($row    = mysqli_fetch_array($result)) {
+        if (is_bool($result))
+        {
+            $error = mysqli_error(DBHelper::$connection);
+            throw new \Exception("mysql error $error (row $result)");
+        }
+        
+        while ($row    = mysqli_fetch_array($result)) {            
             self::$schema[$table_name][$row['Field']] = [
                     'type' => self::getType($row['Type']),
                     'size' => self::getTypeSize($row['Type']),
@@ -130,5 +136,12 @@ class DBHelper extends BaseModel
             throw new \Exception("Schema for table $table_name is not loaded yet");
 
         return self::$schema[$table_name][$field]['type'];
+    }
+    
+    public static function escapeString($value)
+    {
+        if (!self::isConnected()) self::createConnection();
+        
+        return self::$connection->escape_string($value);
     }
 }
