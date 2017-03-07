@@ -58,8 +58,8 @@ class DBHelper extends BaseModel
      */
     public static function parseSchema($table_name)
     {
-        if (!self::isConnected()) self::createConnection();
-
+       $table_name = self::escapeString($table_name);
+        
         $query = "DESCRIBE $table_name";
         $result = self::$connection->query($query);
         if (is_bool($result))
