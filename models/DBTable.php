@@ -415,7 +415,8 @@ class DBTable extends BaseModel
      */
     private static function filterString($value)
     {
-        return mysql_escape_string(htmlspecialchars($value));
+        return DBHelper::escapeString($value);
+        //return mysql_real_escape_string($value);
     }
     
     /**
