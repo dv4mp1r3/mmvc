@@ -46,7 +46,6 @@ class BaseController
     public function render($view)
     {
         $this->smarty->display("views/$this->name/$view.tpl");
-//        /Loader::loadView($this->masterPage, $this->name, $view);
     }
 
     /**

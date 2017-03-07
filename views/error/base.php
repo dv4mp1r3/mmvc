@@ -1,5 +1,0 @@
-<?php
-
-?>
-
-Oops! Something wrong
