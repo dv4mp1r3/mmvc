@@ -2,14 +2,14 @@
 
 namespace app\models\data;
 
-abstract class RDBHelper extends AbstractDataStorage  {
-    
-     /**
+use \PDO;
+
+class RDBHelper extends AbstractDataStorage  {   
+    /**
      *
      * @var \PDO 
      */
     protected $connection;
-    
     /**
      * Схема данных для таблицы (одна для всех существующих объектов каждой таблицы)
      * schema[tablename] = ['type' => string, 'size' => integer, 'default' => mixed]
@@ -28,14 +28,14 @@ abstract class RDBHelper extends AbstractDataStorage  {
     public function __construct($dbConfig = null)
     {
         $db_opt = $dbConfig;
-        if ($config === null)
+        if ($dbConfig === null)
         {
             global $config;
             $db_opt = $config['db'];
         }
         
-        $connectionString =  "{$db_opt['driver']}}:host={$db_opt['host']};"
-                            . "port=5432;dbname={$db_opt['schema']};";
+        $connectionString =  "{$db_opt['driver']}:host={$db_opt['host']};"
+                            . "dbname={$db_opt['schema']};";
         
         $opt = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -66,28 +66,64 @@ abstract class RDBHelper extends AbstractDataStorage  {
      * Обработка схемы таблицы и занесение в массив self::$schema
      * @param string $table_name
      */
-    public abstract function parseSchema($table_name);
+    public function parseSchema($table_name)
+    {
+        $query = "DESCRIBE $table_name";
+        $st = $this->connection->prepare($query);        
+
+        if (!($st instanceof \PDOStatement))
+        {
+            $this->dropQueryExecuteException($this->connection);
+        }
+                
+        if (!$st->execute())
+            $this->dropQueryExecuteException ($st);
+        while ($row = $st->fetch(PDO::FETCH_ASSOC)) {            
+            self::$schema[$table_name][$row['Field']] = [
+                    'type' => self::getType($row['Type']),
+                    'size' => self::getTypeSize($row['Type']),
+                    'default' => $row['Default'],
+            ];
+        }
+    }
+    
+    private function dropQueryExecuteException($statement)
+    {
+        $errCode = $statement->errorCode();
+        $errInfo = $statement->errorInfo();
+        throw new \PDOException("PDO error (code $errCode) $errInfo.");
+    }
     
     /**
      * Получение типа данных из строки вида type(size), полученной из запроса DESCRIBE
      * @param string $type
      * @return string
      */
-    protected abstract function getType($type);
+    protected function getType($type)
+    {
+        $pos = strpos($type, '(');
+        if ($pos > 0)
+            return substr($type, 0, $pos); 
+        return $type;
+    }
     
     /**
      * Получение размера данных из строки вида type(size), полученной из запроса DESCRIBE
      * @param string $type
      * @return int
      */
-    protected abstract function getTypeSize($type);
+    protected function getTypeSize($type)
+    {
+        $begin = strpos($type, '(');
+        return (int) substr($type, $begin + 1, strlen($type) - $begin - 2);
+    }
     
     public function isPropertyExists($table_name, $property_name)
     {
         return isset($this->schema[$table_name][$property_name]);
     }
     
-    public function getSchema($table_name)
+    public static function getSchema($table_name)
     {
         if (!isset($this->schema) || !isset($this->schema[$table_name])) {
             return null;
@@ -99,11 +135,18 @@ abstract class RDBHelper extends AbstractDataStorage  {
     /**
      * Выполнение произвольного sql-запроса
      * @param string $sql_query
-     * @return mixed
+     * @throws \PDOException если не удалось успешно выполнить запрос
+     * @return \PDOStatement в случае успеха или null в противном случае
      */
     public function execute($sql_query)
-    {
-        return $this->connection->query($sql_query);
+    {        
+        $st = $this->connection->prepare($sql_query);
+        $res = $st->execute();
+        if ($res === true)
+            return $st;
+        
+        $this->dropQueryExecuteException($st);
+        return null;
     }
     
     /** 
