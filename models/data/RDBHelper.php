@@ -4,6 +4,11 @@ namespace app\models\data;
 
 use \PDO;
 
+/**
+ * TODO 
+ * вынести конфиг в класс-приложение чтобы убрать использование глобальной переменной
+ * 
+ */
 class RDBHelper extends AbstractDataStorage {
 
     /**
