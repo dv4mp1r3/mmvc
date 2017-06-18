@@ -12,7 +12,7 @@ abstract class AbstractDataStorage {
     /**
      * @var mixed 
      */
-    protected $schema;
+    protected static $schema;
     
     public abstract function __construct();
     

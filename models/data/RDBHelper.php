@@ -2,7 +2,7 @@
 
 namespace app\models\data;
 
-abstract class AbstractDatabaseHelper extends AbstractDataStorage  {
+abstract class RDBHelper extends AbstractDataStorage  {
     
      /**
      *
@@ -16,18 +16,23 @@ abstract class AbstractDatabaseHelper extends AbstractDataStorage  {
      * Заполняется при первом обращении к таблице запросом DESCRIBE $tablename
      * @var array 
      */
-    protected $schema;
+    protected static $schema;
     
+    // sqlite - diff
      /**
      * Создание нового соединения к базе
      * @global array $config
      * @return boolean
      * @throws \PDOException
      */
-    public function __construct()
+    public function __construct($dbConfig = null)
     {
-        global $config;
-        $db_opt = $config['db'];
+        $db_opt = $dbConfig;
+        if ($config === null)
+        {
+            global $config;
+            $db_opt = $config['db'];
+        }
         
         $connectionString =  "{$db_opt['driver']}}:host={$db_opt['host']};"
                             . "port=5432;dbname={$db_opt['schema']};";
@@ -55,6 +60,8 @@ abstract class AbstractDatabaseHelper extends AbstractDataStorage  {
         return isset($this->connection) && $this->connection instanceof \PDO; 
     }
     
+    // mssql sp_help "[SchemaName].[TableName]" 
+    // firebird show table "table_name"
     /**
      * Обработка схемы таблицы и занесение в массив self::$schema
      * @param string $table_name
