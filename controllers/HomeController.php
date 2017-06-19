@@ -52,7 +52,7 @@ class HomeController extends BaseController {
         $this->appendVariable('www_root', $this->getHttpRootPath());
         $this->render('index');
     }
-
+    
     public function actionInfo() {
         phpinfo();
     }

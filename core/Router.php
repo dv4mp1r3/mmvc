@@ -82,7 +82,7 @@ class Router
         $url_arr = explode('/', $url);
         
         $result = [];
-        
+
         foreach ($url_arr as $param) 
         {           
             if (in_array($param, $dir_arr) || strlen($param) === 0)
