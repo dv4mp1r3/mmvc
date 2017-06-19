@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models;
 use app\core\AccessChecker;
+use app\models\data\RDBHelper;
 
 class HomeController extends BaseController {
 

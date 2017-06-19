@@ -14,8 +14,6 @@ abstract class AbstractDataStorage {
      */
     protected static $schema;
     
-    public abstract function __construct();
-    
      /**
      * Проверка соединения с базой
      * @return boolean
