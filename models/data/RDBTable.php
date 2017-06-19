@@ -3,21 +3,19 @@
 namespace app\models\data;
 
 use \PDO;
+use app\models\BaseModel;
+use app\models\data\QueryHelper;
 
 /**
- * TODO
- * вынести код генерации запросов в отдельный класс
- * в нем учитывать возможные варианты для одинаковых по типу запросов
- * (для разных СУБД)
- * добавить экранирование
+ * Представление выборки данных из таблицы или таблиц как объекта со свойствами
  */
-class RDBTable {
-
+class RDBTable extends BaseModel {
+    
     const JOIN_TYPE_RIGHT = 'RIGHT';
-    const JOIN_TYPE_LEFT = 'LEFT';
+    const JOIN_TYPE_LEFT  = 'LEFT';
     const JOIN_TYPE_INNER = 'INNER';
     const JOIN_TYPE_OUTER = 'OUTER';
-    const JOIN_TYPE_FULL = 'FULL';
+    const JOIN_TYPE_FULL  = 'FULL';
 
     /**
      * Инстанс объекта для работы с БД
@@ -51,7 +49,7 @@ class RDBTable {
         // Если не новый объект (уже находится в БД)
         if (!$this->is_new) {
             $this->initStored($id);
-        }
+        }    
         $this->sql_query = "";
         $this->sql_is_join = false;
         $this->first_load = false;
@@ -65,7 +63,10 @@ class RDBTable {
         if (!RDBHelper::isSchemaExists($this->object_name)) {
             $this->dbHelper->parseSchema($this->object_name);
         }
-        $sql = "SELECT * FROM $this->object_name WHERE id=$id";
+        $sql = QueryHelper::correctSelect(
+                $this->dbHelper->getDriverName(), 
+                "SELECT * FROM $this->object_name WHERE id=$id"
+                );
         $st = $this->dbHelper->execute($sql);
 
         $this->fillProperties($st->fetch(PDO::FETCH_ASSOC));
@@ -73,8 +74,8 @@ class RDBTable {
 
     protected function fillProperties($props, $ignore_schema = false) {
         foreach ($props as $key => $value) {
-            if (RDBHelper::isPropertyExists($this->object_name, $key) || $ignore_schema === true) {
-                $this->__set($key, $value);
+            if (RDBHelper::isPropertyExists($this->object_name, $key) || $ignore_schema === true) {                
+                $this->__set($key, htmlspecialchars($value));
                 $this->properties[$key]['is_dirty'] = false;
             }
         }
@@ -141,7 +142,11 @@ class RDBTable {
             $value = $this->serializeProperty($data["value"], RDBHelper::getTypeName($this->object_name, $key));
             $values .= "'" . str_replace("'", "", $value) . "'";
         }
-        $q = "INSERT INTO $this->object_name ($props) VALUES ($values);";
+
+        $q = QueryHelper::correctInsert(
+                $this->dbHelper->getDriverName(), 
+                "INSERT INTO $this->object_name ($props) VALUES ($values);"
+                );
         return $q;
     }
 
@@ -170,8 +175,11 @@ class RDBTable {
         }
         if ($new_values === 0) {
             throw new \Exception('Model has no changed properties');
-        }
-        $q = "UPDATE $this->object_name SET $values WHERE `id`='$this->id'";
+        }       
+        $q = QueryHelper::correctUpdate(
+                $this->dbHelper->getDriverName(), 
+                "UPDATE $this->object_name SET $values WHERE `id`='$this->id'"
+                );
         return $q;
     }
 
@@ -280,6 +288,9 @@ class RDBTable {
             $obj->sql_query = "SELECT $fields ";
         }
         $obj->sql_query .= "FROM " . ($from === null ? $obj->object_name : $from);
+        $obj->sql_query = QueryHelper::correctSelect(
+                $obj->dbHelper->getDriverName(), 
+                $odb->sql_query);
         return $obj;
     }
 
@@ -289,7 +300,7 @@ class RDBTable {
      * @return \app\models\RDBTable объект, в рамках которого был дополнен запрос
      */
     public function where($where) {
-        $this->sql_query .= " WHERE $where ";
+        $this->sql_query .= " WHERE $where ";       
         return $this;
     }
 
@@ -312,6 +323,10 @@ class RDBTable {
             $set .= "`$key`=$value";
         }
         $obj->sql_query = "UPDATE $obj->table_name SET $set ";
+        $obj->sql_query = QueryHelper::correctUpdate(
+                $obj->dbHelper->getDriverName(), 
+                $obj->sql_query
+                );
         return $obj;
     }
 
@@ -327,6 +342,10 @@ class RDBTable {
     public function join($type, $table_name, $on = null) {
         $this->sql_query .= " $type JOIN $table_name ON $on";
         $this->sql_is_join = true;
+        $this->sql_query = QueryHelper::correctJoin(
+                $this->dbHelper->getDriverName(), 
+                $this->sql_query
+                );
         return $this;
     }
 
@@ -339,7 +358,9 @@ class RDBTable {
     public function limit($limit, $offset = 0) {
         $limit = intval($limit);
         $offset = intval($offset);
-        $this->sql_query .= " LIMIT $offset, $limit ";
+        $this->sql_query .= QueryHelper::correctLimit(
+                $this->dbHelper->getDriverName(), 
+                " LIMIT $offset, $limit ");
         return $this;
     }
 

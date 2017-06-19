@@ -11,6 +11,10 @@ use \PDO;
  */
 class RDBHelper extends AbstractDataStorage {
 
+    const DB_TYPE_MSSQL = 'mssql';
+    const DB_TYPE_MYSQL = 'mysql';
+    const DB_TYPE_PGSQL = 'pgsql';
+    const DB_TYPE_SQLITE = 'sqlite';
     /**
      *
      * @var \PDO 
@@ -38,7 +42,7 @@ class RDBHelper extends AbstractDataStorage {
             global $config;
             $db_opt = $config['db'];
         }
-
+        
         $connectionString = "{$db_opt['driver']}:host={$db_opt['host']};"
                 . "dbname={$db_opt['schema']};";
 
@@ -48,7 +52,7 @@ class RDBHelper extends AbstractDataStorage {
             PDO::ATTR_EMULATE_PREPARES => false,
             PDO::ATTR_PERSISTENT => true,
         ];
-
+        
         $this->connection = new \PDO($connectionString, $db_opt['username'], $db_opt['password'], $opt);
 
         return $this->isConnected();
@@ -69,7 +73,9 @@ class RDBHelper extends AbstractDataStorage {
      * @param string $table_name
      */
     public function parseSchema($table_name) {
-        $query = "DESCRIBE $table_name";
+        $query = QueryHelper::buildDescribe(
+                $this->getDriverName(), 
+                $table_name);
         $st = $this->connection->prepare($query);
 
         if (!($st instanceof \PDOStatement)) {
@@ -166,5 +172,9 @@ class RDBHelper extends AbstractDataStorage {
 
         return self::$schema[$table_name][$field]['type'];
     }
-
+    
+    public function getDriverName()
+    {
+        return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+    }
 }
