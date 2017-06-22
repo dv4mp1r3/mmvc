@@ -20,14 +20,13 @@ class RDBHelper extends AbstractDataStorage {
      * @var \PDO 
      */
     protected $connection;
-
+    
     /**
-     * Схема данных для таблицы (одна для всех существующих объектов каждой таблицы)
-     * schema[tablename] = ['type' => string, 'size' => integer, 'default' => mixed]
-     * Заполняется при первом обращении к таблице запросом DESCRIBE $tablename
-     * @var array 
+     * Загруженные хелперы для работы с запросами
+     * @var array каждый элемент - наследник 
+     * \app\models\data\sql\AbstractQueryHelper
      */
-    protected static $schema;
+    protected static $queryHelpers;
 
     // sqlite - diff
     /**
@@ -53,9 +52,24 @@ class RDBHelper extends AbstractDataStorage {
             PDO::ATTR_PERSISTENT => true,
         ];
         
-        $this->connection = new \PDO($connectionString, $db_opt['username'], $db_opt['password'], $opt);
-
+        $this->connection = new \PDO($connectionString, $db_opt['username'], $db_opt['password'], $opt);       
+        $this->addQueryHelper($this->getDriverName());
         return $this->isConnected();
+    }
+    
+    /**
+     * Добавление хелпера запросов для driverName
+     * Имя класс помещается в RDBHelper::$queryHelpers
+     * @param string $driverName
+     * @return \app\models\data\sql\AbstractQueryHelper 
+     */
+    protected function addQueryHelper($driverName)
+    {
+        $classname = 'app\\models\\data\\sql\\'.ucfirst($driverName).'QueryHelper';
+        $obj = new $classname();
+        self::$queryHelpers[$driverName] = $obj;
+        
+        return $obj;
     }
 
     /**
@@ -66,77 +80,10 @@ class RDBHelper extends AbstractDataStorage {
         return isset($this->connection) && $this->connection instanceof \PDO;
     }
 
-    // mssql sp_help "[SchemaName].[TableName]" 
-    // firebird show table "table_name"
-    /**
-     * Обработка схемы таблицы и занесение в массив self::$schema
-     * @param string $table_name
-     */
-    public function parseSchema($table_name) {
-        $query = QueryHelper::buildDescribe(
-                $this->getDriverName(), 
-                $table_name);
-        $st = $this->connection->prepare($query);
-
-        if (!($st instanceof \PDOStatement)) {
-            $this->dropQueryExecuteException($this->connection);
-        }
-
-        if (!$st->execute()) {
-            $this->dropQueryExecuteException($st);
-        }
-        while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
-            self::$schema[$table_name][$row['Field']] = [
-                'type' => self::getType($row['Type']),
-                'size' => self::getTypeSize($row['Type']),
-                'default' => $row['Default'],
-            ];
-        }
-    }
-
     private function dropQueryExecuteException($statement) {
         $errCode = $statement->errorCode();
         $errInfo = $statement->errorInfo();
         throw new \PDOException("PDO error (code $errCode) $errInfo.");
-    }
-
-    /**
-     * Получение типа данных из строки вида type(size), полученной из запроса DESCRIBE
-     * @param string $type
-     * @return string
-     */
-    protected function getType($type) {
-        $pos = strpos($type, '(');
-        if ($pos > 0) {
-            return substr($type, 0, $pos);
-        }
-        return $type;
-    }
-
-    /**
-     * Получение размера данных из строки вида type(size), полученной из запроса DESCRIBE
-     * @param string $type
-     * @return int
-     */
-    protected function getTypeSize($type) {
-        $begin = strpos($type, '(');
-        return (int) substr($type, $begin + 1, strlen($type) - $begin - 2);
-    }
-
-    public static function isPropertyExists($table_name, $property_name) {
-        return isset(self::$schema[$table_name][$property_name]);
-    }
-
-    public static function getSchema($table_name) {
-        if (self::isSchemaExists($table_name)) {
-            return null;
-        }
-
-        return self::$schema[$table_name];
-    }
-
-    public static function isSchemaExists($table_name) {
-        return !empty(self::$schema) || !empty(self::$schema[$table_name]);
     }
 
     /**
@@ -159,22 +106,18 @@ class RDBHelper extends AbstractDataStorage {
     public function lastInsertId() {
         return $this->connection->lastInsertId();
     }
-
-    /**
-     * Получение имени типа из загруженной ранее схемы
-     * @param string $table_name
-     * @param string $field
-     */
-    public static function getTypeName($table_name, $field) {
-        if (!isset(self::$schema[$table_name])) {
-            throw new \Exception("Schema for table $table_name is not loaded yet");
-        }
-
-        return self::$schema[$table_name][$field]['type'];
-    }
     
     public function getDriverName()
     {
         return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+    } 
+    
+    /**
+     * 
+     * @return app\models\data\sql\AbstractQueryHelper
+     */
+    public function getQueryHelper()
+    {
+        return self::$queryHelpers[$this->getDriverName()];
     }
 }

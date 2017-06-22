@@ -19,11 +19,5 @@ abstract class AbstractDataStorage {
      * @return boolean
      */
     public abstract function isConnected();
-    
-    /**
-     * Обработка схемы таблицы и занесение в массив self::$schema
-     * @param string $table_name
-     */
-    public abstract function parseSchema($table_name);
        
 }

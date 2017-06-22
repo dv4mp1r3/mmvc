@@ -2,14 +2,14 @@
 
 namespace app\models;
 
-use app\models\data\RDBTable;
+use app\models\data\RDBRecord;
 /**
  * Модель загруженного в сервис видео
  * @property integer id
  * @property string $url
  * @property string $user_id
  */
-class Video extends RDBTable
+class Video extends RDBRecord
 {
     /**
      * Загрузка атрибутов модели из $_POST

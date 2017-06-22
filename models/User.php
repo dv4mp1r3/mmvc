@@ -2,13 +2,13 @@
 
 namespace app\models;
 
-use app\models\data\RDBTable;
+use app\models\data\RDBRecord;
 /**
  * Модель загруженного в сервис видео
  * @property integer id
  * @property string $name
  */
-class User extends RDBTable
+class User extends RDBRecord
 {
 
 }
