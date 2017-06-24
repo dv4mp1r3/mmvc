@@ -19,8 +19,17 @@ class StoredObject extends BaseModel {
      * @var boolean 
      */
     protected $is_new;
-    protected $object_name;
+    protected $objectName;
     protected $first_load = true;
+    
+    public function __construct($objectName = null) {
+        parent::__construct();
+        
+        if ($objectName !== null)
+            $this->objectName = $objectName;
+        else
+            $this->objectName = $this->modelName;
+    }
 
     /**
      * Представление объекта в виде массива $object['attribute'] = $value

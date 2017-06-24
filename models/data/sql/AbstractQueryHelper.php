@@ -4,6 +4,7 @@ namespace app\models\data\sql;
 
 use app\models\BaseModel;
 use app\models\data\StoredObject;
+use app\models\data\RDBHelper;
 
 class AbstractQueryHelper extends BaseModel {
  

@@ -98,7 +98,7 @@ class RDBHelper extends AbstractDataStorage {
         if ($res === true) {
             return $st;
         }
-
+        
         $this->dropQueryExecuteException($st);
         return null;
     }

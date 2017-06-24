@@ -4,6 +4,7 @@ namespace app\models\data\sql;
 
 use app\models\data\StoredObject;
 use app\models\data\RDBRecord;
+use app\models\data\RDBHelper;
 
 class MysqlQueryHelper extends AbstractQueryHelper {
     
@@ -36,7 +37,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
     }
 
     public static function addWhere($where) {
-        
+        return " WHERE ".$where;
     }
 
     public static function buildDescribe($table) {
@@ -70,7 +71,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
      * Вызывается при сохранении (метод save())
      * @return string готовый запрос INSERT INTO $tablename ($columns) VALUES ($values);
      */
-    public static function buildInsertQuery(&$properties) {
+    public static function buildInsertQuery($table, &$properties) {
         $props = '';
         $values = '';
         $delemiter = ', ';
@@ -89,12 +90,12 @@ class MysqlQueryHelper extends AbstractQueryHelper {
             }
             $properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = false;
             $value = self::serializeProperty($data[StoredObject::PROPERTY_ATTRIBUTE_VALUE], 
-                    RDBHelper::getTypeName($this->object_name, $key)
+                    RDBRecord::getTypeName($table, $key)
                     );
             $values .= "'" . str_replace("'", "", $value) . "'";
         }
 
-        $q = "INSERT INTO $this->object_name ($props) VALUES ($values);";
+        $q = "INSERT INTO $table ($props) VALUES ($values);";
         return $q;
     }
     
@@ -117,7 +118,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
             case 'tinytext':
             case 'mediumtext':
             case 'varchar':
-                return "'" . $this->filterString($value) . "'";
+                return "'" . self::filterString($value) . "'";
             case 'double':
                 return (string) floatval($value);
             case 'set':
@@ -137,7 +138,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
      * @return string готовый запрос UPDATE $table_name SET (values) WHERE id=$id;
      * @throws Exception выбрасывается, если у объекта нет измененных свойств
      */
-    public static function buildUpdateQuery(&$properties) {
+    public static function buildUpdateQuery($table, &$properties) {
         $values = '';
         $new_values = 0;
         foreach ($this->properties as $key => $data) {
@@ -159,8 +160,9 @@ class MysqlQueryHelper extends AbstractQueryHelper {
         }
         if ($new_values === 0) {
             throw new \Exception('Model has no changed properties');
-        }       
-        $q = "UPDATE $this->object_name SET $values WHERE `id`='$this->id'";
+        }    
+        $id = $properties['id']['value'];
+        $q = "UPDATE $table SET $values WHERE `id`='$id'";
         return $q;
     }
 

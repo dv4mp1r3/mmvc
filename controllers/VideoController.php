@@ -24,9 +24,10 @@ class VideoController extends BaseController
     {
         try
         {
-            $name = mysql_escape_string($_POST['user_name']);
+            //$name = mysql_escape_string($_POST['user_name']);
+            $name = 'test';
             $user = models\User::select('id')->where('name = "'.$name.'"')->execute();
-
+                       
             if (count($user) == 0)
             {
                 $user = new models\User();
@@ -35,9 +36,9 @@ class VideoController extends BaseController
             }
             else
                 $user = $user[0];
-
+            
             $video = new models\Video();
-            $video->url = mysql_escape_string($_POST['video_url']);
+            $video->url = 'https://2ch.hk/b/arch/2017-06-23/src/155608747/14980552922830.webm';//mysql_escape_string($_POST['video_url']);
             $video->user_id = $user->id;
             $video->save();
             
