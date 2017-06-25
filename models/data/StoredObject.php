@@ -18,9 +18,15 @@ class StoredObject extends BaseModel {
      * необходимо выставить в false после помещения в хранилище
      * @var boolean 
      */
-    protected $is_new;
+    protected $isNew;
+    
+    /**
+     * Название сущности, с которой ассоциируется объект
+     * Для RDBMS это чаще всего имя таблицы
+     * @var string 
+     */
     protected $objectName;
-    protected $first_load = true;
+    protected $firstLoad = true;
     
     public function __construct($objectName = null) {
         parent::__construct();
@@ -58,13 +64,13 @@ class StoredObject extends BaseModel {
             $msg = "Trying to access on unexisting property $name of " . $this->getName();
             throw new \Exception($msg);
         }
-
+        
         return $this->properties[$name][StoredObject::PROPERTY_ATTRIBUTE_VALUE];
     }
 
     public function __set($name, $value) {
         $this->properties[$name][StoredObject::PROPERTY_ATTRIBUTE_VALUE] = $value;
-        if (!$this->first_load && $name !== 'id') {
+        if (!$this->firstLoad) {
             $this->properties[$name][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = true;
         }
     }
@@ -81,7 +87,7 @@ class StoredObject extends BaseModel {
     }
 
     public function save() {
-        $this->is_new = false;
+        $this->isNew = false;
     }
 
 }

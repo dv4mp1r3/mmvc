@@ -12,22 +12,21 @@ use app\models\data\RDBHelper;
  * Представление выборки данных из таблицы или таблиц как объекта со свойствами
  */
 class RDBRecord extends StoredObject {
-    
+
     const JOIN_TYPE_RIGHT = 'RIGHT';
-    const JOIN_TYPE_LEFT  = 'LEFT';
+    const JOIN_TYPE_LEFT = 'LEFT';
     const JOIN_TYPE_INNER = 'INNER';
     const JOIN_TYPE_OUTER = 'OUTER';
-    const JOIN_TYPE_FULL  = 'FULL';
-    
-    const PROPERTY_ATTRIBUTE_SCHEMA   = 'schema';
-    const PROPERTY_ATTRIBUTE_TYPE   = 'type';
-    
+    const JOIN_TYPE_FULL = 'FULL';
+    const PROPERTY_ATTRIBUTE_SCHEMA = 'schema';
+    const PROPERTY_ATTRIBUTE_TYPE = 'type';
+
     /**
      * Инстанс объекта для работы с БД
      * @var \app\models\data\RDBHelper 
      */
     protected $dbHelper;
-    
+
     /**
      * Хелпер для генерации запросов в СУБД
      * @var app\models\data\sql\AbstractQueryHelper 
@@ -39,20 +38,21 @@ class RDBRecord extends StoredObject {
      * затирается после выполнения запроса
      * @var string
      */
-    private $sql_query;
-    
+    private $sqlQuery;
+
     /* присутствует ли join с таблицей внутри запроса $sql_query
      * устанавливается в true при вызове join
      * затирается после выполнения запроса
      * @var boolean
      */
-    private $sql_is_join;
-    
+    private $sqlIsJoin;
+
     /**
      * Схема данных для таблицы (одна для всех существующих объектов каждой таблицы)
      * schema[tablename] = ['type' => string, 'size' => integer, 'default' => mixed]
      * Заполняется при первом обращении к таблице запросом DESCRIBE $tablename
      * @var array 
+     * @see RDBRecord::parseSchema
      */
     protected static $schema;
 
@@ -61,34 +61,32 @@ class RDBRecord extends StoredObject {
      * @param integer $id PK записи для выгрузки существующий (опционально)
      */
     public function __construct($id = null, $table = null, $dbConfig = null) {
-        
+
         parent::__construct();
-        
-        if ($table !== null)
-        {
+
+        if ($table !== null) {
             $this->objectName = $table;
         }
-        
+
         $this->dbHelper = new RDBHelper($dbConfig);
         $this->queryHelper = $this->dbHelper->getQueryHelper();
-               
-        $this->is_new = ($id === null);
+
+        $this->isNew = ($id === null);
         // Если не новый объект (уже находится в БД)
-        if (!$this->is_new) {
+        if (!$this->isNew) {
             $this->initStored($id);
-        }    
-        $this->sql_query = "";
-        $this->sql_is_join = false;
-        $this->first_load = false;
+        }
+        $this->sqlQuery = "";
+        $this->sqlIsJoin = false;
+        $this->firstLoad = false;
     }
-    
+
     /**
      * 
      * @return app\models\data\sql\AbstractQueryHelper
      */
-    protected function getQueryHelper()
-    {
-        $obj = $this->dbHelper->getQueryHelper();        
+    protected function getQueryHelper() {
+        $obj = $this->dbHelper->getQueryHelper();
         return $obj;
     }
 
@@ -100,19 +98,40 @@ class RDBRecord extends StoredObject {
         if (!RDBHelper::isSchemaExists($this->objectName)) {
             self::parseSchema($this->objectName, $this);
         }
-        
+
         $sql = $this->queryHelper->buildSelect('*', $this->objectName, "id=$id");
         $st = $this->dbHelper->execute($sql);
 
         $this->fillProperties($st->fetch(PDO::FETCH_ASSOC));
     }
 
+    /**
+     * Заполнение свойств объекта из результатов запроса
+     * @param array $props результат выполнения запроса
+     * @see app\models\data\RDBRecord::execute()
+     * @param boolean $ignore_schema нужно ли игнорировать схему при заполнении свойств
+     * Например, при выполнении join и помещении результатов в один объект
+     */
     protected function fillProperties($props, $ignore_schema = false) {
         foreach ($props as $key => $value) {
-            if (self::isPropertyExists($this->objectName, $key) || $ignore_schema === true) {                
-                $this->__set($key, htmlspecialchars($value));
+            if (self::isPropertyExists($this->objectName, $key) || $ignore_schema === true) {
+                $this->__set($key, $value);
                 $this->properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = false;
             }
+        }
+    }
+
+    /**
+     * Перегрузка метода присваивания значения свойству
+     * При изменении значения id ему не выставляется свойство is_dirty в true
+     * @see app\models\data\StoredObject::__set()
+     * @param string $name
+     * @param mixed $value
+     */
+    public function __set($name, $value) {
+        $this->properties[$name][StoredObject::PROPERTY_ATTRIBUTE_VALUE] = $value;
+        if (!$this->firstLoad && $name !== 'id') {
+            $this->properties[$name][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = true;
         }
     }
 
@@ -122,7 +141,7 @@ class RDBRecord extends StoredObject {
      */
     public function getObjectSchema() {
         return self::getSchema($this->objectName);
-    }   
+    }
 
     protected function isPrimaryKey($name) {
         $data = $this->properties[$name];
@@ -134,9 +153,8 @@ class RDBRecord extends StoredObject {
      * @return string
      */
     protected function getPrimaryColumn() {
-        
-        return QueryHelper::getPrimaryColumn($this->properties);
-    }    
+        return $this->queryHelper->getPrimaryColumn($this->properties);
+    }
 
     /**
      * Сохранение модели как записи в БД
@@ -148,16 +166,16 @@ class RDBRecord extends StoredObject {
      */
     public function save() {
         $query = '';
-        if ($this->is_new) {            
+        if ($this->isNew) {
             self::parseSchema($this->objectName, $this);
             $query = $this->queryHelper->buildInsertQuery($this->objectName, $this->properties);
         } else {
             $query = $this->queryHelper->buildUpdateQuery($this->objectName, $this->properties);
         }
-        var_dump($query);
+
         $st = $this->dbHelper->execute($query);
 
-        if ($this->is_new) {
+        if ($this->isNew) {
             $this->id = $this->dbHelper->lastInsertId();
         }
 
@@ -196,16 +214,13 @@ class RDBRecord extends StoredObject {
      * @return \app\models\data\RDBRecord объект, в рамках которого вызывался метод select
      * со сгенерированным началом запроса
      */
-    public static function select($values = "*", $from = null) {
+    public static function select($values = "*", $from = null, $dbConfig = null) {
         $classname = get_called_class();
-        $obj = new $classname();
-        if ($from === null)
-        {
-            $from = $obj->modelName;
-        }
-        $obj->sql_query = $obj->queryHelper->buildSelect(
-                $values,
-                $from);
+        $obj = new $classname(null, $from, $dbConfig);
+
+        $obj->sqlQuery = $obj->queryHelper->buildSelect(
+                $values, $obj->objectName
+        );
         return $obj;
     }
 
@@ -215,47 +230,44 @@ class RDBRecord extends StoredObject {
      * @return \app\models\RDBTable объект, в рамках которого был дополнен запрос
      */
     public function where($where) {
-        $this->sql_query .= $this->queryHelper->addWhere($where);       
+        $this->sqlQuery .= $this->queryHelper->addWhere($where);
         return $this;
     }
 
     /**
      * Инициализация процедуры обновления данных в БД
      * @param array $values массив key=>value [string=>mixed]
+     * @param string $table Имя таблицы, для которой необходимо выполнить запрос
      * @return \app\models\data\RDBRecord
      */
-    public static function update($values) {
+    public static function update($values, $table = null, $dbConfig = null) {
         $classname = get_called_class();
-        $obj = new $classname();
-        if (!self::isSchemaExists($obj->modelName))
-        {
-            self::parseSchema($obj->modelName, $this);
+        $obj = new $classname(null, $table, $dbConfig);
+
+        if (!self::isSchemaExists($obj->objectName)) {
+            self::parseSchema($obj->objectName, $this);
         }
-        
-        $obj->sql_query = $this->queryHelper->buildUpdate(
-                $obj->modelName,
-                $values
-                );
+
+        $obj->sqlQuery = $this->queryHelper->buildUpdate(
+                $obj->objectName, $values
+        );
         return $obj;
     }
 
     /**
      * Объединение с другой таблицей при вызове select
      * @param string $type тип объединения (объявлены внутри app\models\DBTable)
-     * @param string $table_name имя таблицы, с которой происходит объединение
+     * @param string $tableName имя таблицы, с которой происходит объединение
      * @param string $on критерий объединения
      * используется только для объединений с типами DBTable::JOIN_TYPE_LEFT и
      * DBTable::JOIN_TYPE_RIGHT
      * @return \app\models\data\RDBRecord
      */
-    public function join($type, $table_name, $on = null) {
-        $this->sql_is_join = true;
-        $this->sql_query = $this->queryHelper->addJoin(
-                $this->sql_query, 
-                $type, 
-                $table_name, 
-                $on
-                );
+    public function join($type, $tableName, $on = null) {
+        $this->sqlIsJoin = true;
+        $this->sqlQuery = $this->queryHelper->addJoin(
+                $this->sqlQuery, $type, $tableName, $on
+        );
         return $this;
     }
 
@@ -266,11 +278,9 @@ class RDBRecord extends StoredObject {
      * @return \app\models\data\RDBRecord
      */
     public function limit($limit, $offset = 0) {
-        $this->sql_query = $this->queryHelper->addLimit(
-                $this->sql_query,
-                $limit, 
-                $offset
-                );
+        $this->sqlQuery = $this->queryHelper->addLimit(
+                $this->sqlQuery, $limit, $offset
+        );
         return $this;
     }
 
@@ -281,17 +291,18 @@ class RDBRecord extends StoredObject {
      * или \app\models\data\RDBTable в зависимости от количества найденных объектов или null 
      */
     public function execute() {
-        if ($this->sql_is_join !== false && RDBRecord::getSchema($this->objectName) === null) {
+        if ($this->sqlIsJoin !== false && RDBRecord::getSchema($this->objectName) === null) {
             RDBRecord::parseSchema($this->objectName, $this);
         }
-        $this->sql_query .= ";";
+        $this->sqlQuery .= ";";
         /**
          * Получаем схему, если ее нет в скрипте
          */
         if (RDBRecord::getSchema($this->objectName) === null) {
             RDBRecord::parseSchema($this->objectName, $this->queryHelper);
         }
-        $st = $this->dbHelper->execute($this->sql_query);
+
+        $st = $this->dbHelper->execute($this->sqlQuery);
 
         return $this->postExecute($st, $this->getClassName(), $this->objectName);
     }
@@ -300,18 +311,18 @@ class RDBRecord extends StoredObject {
      * 
      * @param \PDOStatement $st
      */
-    protected function postExecute($st, $classname, $table_name) {
-        $queryType = substr($this->sql_query, 0, strpos($this->sql_query, ' '));
+    protected function postExecute($st, $classname, $tableName) {
+        $queryType = substr($this->sqlQuery, 0, strpos($this->sqlQuery, ' '));
         $result = null;
 
         switch ($queryType) {
             case 'SELECT':
-                $ignore_schema = $this->sql_is_join;
+                $ignoreSchema = $this->sqlIsJoin;
                 $result = new \ArrayObject();
                 while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
                     $obj = new $classname();
-                    $obj->is_new = false;
-                    $obj->fillProperties($row, $ignore_schema);
+                    $obj->isNew = false;
+                    $obj->fillProperties($row, $ignoreSchema);
                     $result->append($obj);
                 }
                 break;
@@ -324,43 +335,43 @@ class RDBRecord extends StoredObject {
                 break;
         }
 
-        $this->sql_query = "";
-        $this->sql_is_join = false;
-        $this->is_new = false;
+        $this->sqlQuery = "";
+        $this->sqlIsJoin = false;
+        $this->isNew = false;
 
         return $result;
     }
-    
-    public static function isPropertyExists($table_name, $property_name) {
-        return isset(self::$schema[$table_name][$property_name]);
+
+    public static function isPropertyExists($tableName, $propertyName) {
+        return isset(self::$schema[$tableName][$propertyName]);
     }
 
-    public static function getSchema($table_name) {
-        if (self::isSchemaExists($table_name)) {
+    public static function getSchema($tableName) {
+        if (self::isSchemaExists($tableName)) {
             return null;
         }
 
-        return self::$schema[$table_name];
+        return self::$schema[$tableName];
     }
 
-    public static function isSchemaExists($table_name) {
-        return !empty(self::$schema) || !empty(self::$schema[$table_name]);
+    public static function isSchemaExists($tableName) {
+        return !empty(self::$schema) && !empty(self::$schema[$tableName]);
     }
-    
+
     /**
      * Получение имени типа из загруженной ранее схемы
-     * @param string $table_name
+     * @param string $tableName
      * @param string $field
      */
-    public static function getTypeName($table_name, $field) {
-        if (!isset(self::$schema[$table_name])) {
-            throw new \Exception("Schema for table $table_name is not loaded yet");
+    public static function getTypeName($tableName, $field) {
+        if (!isset(self::$schema[$tableName])) {
+            throw new \Exception("Schema for table $tableName is not loaded yet");
         }
 
-        return self::$schema[$table_name][$field]['type'];
+        return self::$schema[$tableName][$field]['type'];
     }
-    
-     /**
+
+    /**
      * Получение типа данных из строки вида type(size), полученной из запроса DESCRIBE
      * @param string $type
      * @return string
@@ -382,7 +393,7 @@ class RDBRecord extends StoredObject {
         $begin = strpos($type, '(');
         return (int) substr($type, $begin + 1, strlen($type) - $begin - 2);
     }
-    
+
     // mssql sp_help "[SchemaName].[TableName]" 
     // firebird show table "table_name"
     /**
@@ -392,14 +403,14 @@ class RDBRecord extends StoredObject {
     public function parseSchema($table = null) {
         if ($table === null)
             $table = $this->objectName;
-        
+
         if (RDBRecord::isSchemaExists($table)) {
             return;
         }
-        
+
         $query = $this->queryHelper->buildDescribe($table);
         $st = $this->dbHelper->execute($query);
-        
+
         while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
             self::$schema[$table][$row['Field']] = [
                 'type' => self::getType($row['Type']),
@@ -408,4 +419,5 @@ class RDBRecord extends StoredObject {
             ];
         }
     }
+
 }
