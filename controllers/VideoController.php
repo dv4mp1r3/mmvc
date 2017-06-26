@@ -24,8 +24,7 @@ class VideoController extends BaseController
     {
         try
         {
-            //$name = mysql_escape_string($_POST['user_name']);
-            $name = 'test';
+            $name = $_POST['user_name'];
             $user = models\User::select('id')->where('name = "'.$name.'"')->execute();
                        
             if (count($user) == 0)
@@ -38,7 +37,7 @@ class VideoController extends BaseController
                 $user = $user[0];
             
             $video = new models\Video();
-            $video->url = 'https://2ch.hk/b/arch/2017-06-23/src/155608747/14980552922830.webm';//mysql_escape_string($_POST['video_url']);
+            $video->url = $_POST['video_url'];
             $video->user_id = $user->id;
             $video->save();
             
@@ -114,7 +113,7 @@ class VideoController extends BaseController
             return json_encode (['error' => 1, 'data' => '']);
         }
         
-        $in_array = mysql_escape_string($_POST['old_ids']);
+        $in_array = $_POST['old_ids'];
         $videos = models\Video::select(['video.id video_id', 'video.url url', 'user.name username'])->
                 join(models\Video::JOIN_TYPE_LEFT, 'user', 'user.id = video.user_id')->
                 where("video.id not in ($in_array) and video.is_viewed=0")->execute();

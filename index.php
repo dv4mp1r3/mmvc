@@ -20,5 +20,5 @@ set_exception_handler('app\\core\\ExceptionHandler::doException');
 
 session_start();
 
-$router = new Router(Router::ROUTE_TYPE_DEFAULT);
+$router = new Router(Router::ROUTE_TYPE_FRIENDLY);
 $router->route();

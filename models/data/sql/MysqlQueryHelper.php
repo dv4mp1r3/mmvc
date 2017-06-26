@@ -192,8 +192,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
     }
 
     public static function filterString($value) {
-    return $value;
-//return mysql_real_escape_string($value);
+        return $value;
     }
 
 }
