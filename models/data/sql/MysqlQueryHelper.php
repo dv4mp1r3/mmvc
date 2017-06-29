@@ -110,6 +110,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
     private static function serializeProperty($value, $type) {
         $type = strtolower($type);
         switch ($type) {
+            case 'tinyint':
             case 'integer':
             case 'int':
                 return (string) intval($value);

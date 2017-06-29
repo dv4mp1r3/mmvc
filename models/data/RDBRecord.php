@@ -96,7 +96,7 @@ class RDBRecord extends StoredObject {
      */
     protected function initStored($id) {
         if (!RDBHelper::isSchemaExists($this->objectName)) {
-            self::parseSchema($this->objectName, $this);
+            $this->parseSchema($this->objectName);
         }
 
         $sql = $this->queryHelper->buildSelect('*', $this->objectName, "id=$id");
@@ -167,7 +167,7 @@ class RDBRecord extends StoredObject {
     public function save() {
         $query = '';
         if ($this->isNew) {
-            self::parseSchema($this->objectName, $this);
+            $this->parseSchema($this->objectName);
             $query = $this->queryHelper->buildInsertQuery($this->objectName, $this->properties);
         } else {
             $query = $this->queryHelper->buildUpdateQuery($this->objectName, $this->properties);
@@ -245,10 +245,10 @@ class RDBRecord extends StoredObject {
         $obj = new $classname(null, $table, $dbConfig);
 
         if (!self::isSchemaExists($obj->objectName)) {
-            self::parseSchema($obj->objectName, $this);
+            $obj->parseSchema($obj->objectName);
         }
 
-        $obj->sqlQuery = $this->queryHelper->buildUpdate(
+        $obj->sqlQuery = $obj->queryHelper->buildUpdate(
                 $obj->objectName, $values
         );
         return $obj;
@@ -292,14 +292,14 @@ class RDBRecord extends StoredObject {
      */
     public function execute() {
         if ($this->sqlIsJoin !== false && RDBRecord::getSchema($this->objectName) === null) {
-            RDBRecord::parseSchema($this->objectName, $this);
+            $this->parseSchema($this->objectName);
         }
         $this->sqlQuery .= ";";
         /**
          * Получаем схему, если ее нет в скрипте
          */
         if (RDBRecord::getSchema($this->objectName) === null) {
-            RDBRecord::parseSchema($this->objectName, $this->queryHelper);
+            $this->parseSchema($this->objectName);
         }
 
         $st = $this->dbHelper->execute($this->sqlQuery);
