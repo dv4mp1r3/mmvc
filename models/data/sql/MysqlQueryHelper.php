@@ -10,13 +10,13 @@ class MysqlQueryHelper extends AbstractQueryHelper {
     
     const PROPERTY_ATTRIBUTE_FLAGS = 'flags';
     
-    private static function isPrimaryKey($data)
+    private  function isPrimaryKey($data)
     {
         return isset($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS]) 
         && ($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS] & MYSQLI_PRI_KEY_FLAG);
     }
     
-    public static function getPrimaryColumn(&$properties)
+    public  function getPrimaryColumn(&$properties)
     {
         foreach ($this->properties as $key => $data) {
             if ($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS] & MYSQLI_PRI_KEY_FLAG) {
@@ -25,30 +25,30 @@ class MysqlQueryHelper extends AbstractQueryHelper {
         }
     }
     
-    public static function addJoin($query, $type, $table, $on) {
+    public  function addJoin($query, $type, $table, $on) {
         return $query." $type JOIN $table ON $on";
     }
 
-    public static function addLimit($query, $limit, $offset = 0) {
+    public  function addLimit($query, $limit, $offset = 0) {
         $limit = intval($limit);
         $offset = intval($offset);
         
         return $query." LIMIT $offset, $limit ";
     }
 
-    public static function addWhere($where) {
+    public  function addWhere($where) {
         return " WHERE ".$where;
     }
 
-    public static function buildDescribe($table) {
+    public  function buildDescribe($table) {
         return "DESCRIBE $table";
     }
 
-    public static function buildInsert(&$properties) {
+    public  function buildInsert(&$properties) {
         
     }
 
-    public static function buildUpdate($table, $values, $where = null) {
+    public  function buildUpdate($table, $values, $where = null) {
         $set = '';
         foreach ($values as $key => $value) {
             if (strlen($set) > 0) {
@@ -71,7 +71,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
      * Вызывается при сохранении (метод save())
      * @return string готовый запрос INSERT INTO $tablename ($columns) VALUES ($values);
      */
-    public static function buildInsertQuery($table, &$properties) {
+    public  function buildInsertQuery($table, &$properties) {
         $props = '';
         $values = '';
         $delemiter = ', ';
@@ -107,7 +107,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
      * @throws Exception генерируется если передаваемый тип неизвестен
      * Или если передан тип set, но $variable не массив
      */
-    private static function serializeProperty($value, $type) {
+    private  function serializeProperty($value, $type) {
         $type = strtolower($type);
         switch ($type) {
             case 'tinyint':
@@ -139,7 +139,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
      * @return string готовый запрос UPDATE $table_name SET (values) WHERE id=$id;
      * @throws Exception выбрасывается, если у объекта нет измененных свойств
      */
-    public static function buildUpdateQuery($table, &$properties) {
+    public  function buildUpdateQuery($table, &$properties) {
         $values = '';
         $new_values = 0;
         foreach ($this->properties as $key => $data) {
@@ -167,7 +167,7 @@ class MysqlQueryHelper extends AbstractQueryHelper {
         return $q;
     }
 
-    public static function buildSelect($fields = '*', $from, $where = null) {
+    public  function buildSelect($fields = '*', $from, $where = null) {
         $query = '';
         if (!is_array($fields)) {
             $query = "SELECT * ";
@@ -188,11 +188,11 @@ class MysqlQueryHelper extends AbstractQueryHelper {
         return $query;
     }
 
-    public static function buildDelete($table, $where) {
+    public  function buildDelete($table, $where) {
         $query = "DELETE FROM $table ".self::addWhere($where);
     }
 
-    public static function filterString($value) {
+    public  function filterString($value) {
         return $value;
     }
 
