@@ -1,11 +1,11 @@
-<?php
+<?php namespace app\core;
 
-namespace app\core;
 /**
  * Автоматическая подгрузка нужных файлов
  */
 class Loader
 {
+
     protected static $required_files = array();
 
     public static function load($classname)
@@ -17,14 +17,13 @@ class Loader
             // обрезаем app\ в начале пути
             $classname = substr($classname, strlen($baseNamespace));
         }
-        $filename = ROOT_DIR.DIRECTORY_SEPARATOR.
-            str_replace('\\', DIRECTORY_SEPARATOR, $classname).'.php';
+        $filename = ROOT_DIR . DIRECTORY_SEPARATOR .
+            str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
 
-        if (!in_array($filename, self::$required_files))
-        {
+        if (!in_array($filename, self::$required_files)) {
             require_once $filename;
             array_push(self::$required_files, $filename);
-        }       
+        }
     }
 
     private static function beginsAt($str, $substr)

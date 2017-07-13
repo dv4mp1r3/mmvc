@@ -31,10 +31,10 @@ class HomeController extends BaseController {
         }
         if ($isOBS === true)
             $_SESSION['obs'] = [];
-
+        
         $videos = models\Video::select(['user.name username', 'video.url', 'video.id', 'video.is_viewed'])->
                 join(models\Video::JOIN_TYPE_LEFT, 'user', 'user.id = video.user_id')->
-                where('video.is_viewed = 0')->
+                where('video.is_viewed = :viewed', ['viewed' => 1])->
                 execute();
         $data = array();
 

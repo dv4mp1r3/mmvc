@@ -1,9 +1,8 @@
-<?php
-
-namespace app\controllers;
+<?php namespace app\controllers;
 
 class ErrorController extends BaseController
 {
+
     public function __construct()
     {
         parent::__construct();
@@ -24,10 +23,9 @@ class ErrorController extends BaseController
     public function actionDetails($ex)
     {
         $this->appendVariable('exceptionMessage', $ex->getMessage());
-        $stackTrace = 
-                '<div>'. 
-                    str_replace("\n", "</div><div>", $ex->getTraceAsString()). 
-                '</div';
+        $stackTrace = '<div>' .
+            str_replace("\n", "</div><div>", $ex->getTraceAsString()) .
+            '</div';
         $this->appendVariable('stackTrace', $stackTrace);
         $this->appendVariable('www_root', $this->getHttpRootPath());
         $this->render('details');

@@ -1,16 +1,15 @@
-<?php
-
-namespace app\core;
+<?php namespace app\core;
 
 use app\controllers\BaseController;
 
 class AccessChecker
 {
+
     const USER_ANONYMOUS = '?';
     const USER_ALL = '*';
-
     const RULE_DENIED = 'denied';
     const RULE_GRANTED = 'granted';
+
     /**
      * Проверка доступа к action для текущего пользователя
      * @param BaseController $controller
@@ -24,18 +23,16 @@ class AccessChecker
         }
 
         $access_granted = false;
-        $access_denied  = false;
+        $access_denied = false;
 
         $username = self::getUsername();
 
         if (isset($rules[$actionName][self::RULE_GRANTED])) {
-            $access_granted = self::accessResult($rules[$actionName][self::RULE_GRANTED],
-                    $username);
+            $access_granted = self::accessResult($rules[$actionName][self::RULE_GRANTED], $username);
         }
 
         if (isset($rules[$actionName][self::RULE_DENIED])) {
-            $access_denied = self::accessResult($rules[$actionName][self::RULE_DENIED],
-                    $username);
+            $access_denied = self::accessResult($rules[$actionName][self::RULE_DENIED], $username);
         }
 
         if ($access_granted && $access_denied) {

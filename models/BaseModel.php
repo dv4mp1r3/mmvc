@@ -1,9 +1,8 @@
-<?php
-
-namespace app\models;
+<?php namespace app\models;
 
 class BaseModel
 {
+
     /**
      * 
      * @var string 
@@ -13,17 +12,17 @@ class BaseModel
     public function getName()
     {
         return substr(
-                get_called_class(), 
-                strrpos($this->getClassName(), '\\') + 1
-                );
+            get_called_class(), strrpos($this->getClassName(), '\\') + 1
+        );
     }
-    
+
     public function getClassName()
     {
         return get_called_class();
     }
-    
-    public function __construct() {
+
+    public function __construct()
+    {
         $this->modelName = $this->getName();
     }
 }

@@ -1,10 +1,10 @@
-<?php
-namespace app\core;
+<?php namespace app\core;
 
 use app\controllers\ErrorController;
 
 class ExceptionHandler
 {
+
     /**
      * Функция обработки исключений
      * @param \Exception $ex
@@ -12,12 +12,9 @@ class ExceptionHandler
     public static function doException($ex)
     {
         $err_ctrl = new ErrorController();
-        if (DEBUG === false)
-        {
+        if (DEBUG === false) {
             $err_ctrl->actionBase();
-        }
-        else
-        {
+        } else {
             $err_ctrl->actionDetails($ex);
         }
 
@@ -31,13 +28,12 @@ class ExceptionHandler
      */
     public static function doError($errno, $errstr, $errfile, $errline)
     {
-        self::log(null,
-            [
-                'level' => $errno,
-                'message' => $errstr,
-                'file' => $errfile,
-                'line' =>$errline,
-            ]);
+        self::log(null, [
+            'level' => $errno,
+            'message' => $errstr,
+            'file' => $errfile,
+            'line' => $errline,
+        ]);
     }
 
     /**
@@ -50,16 +46,14 @@ class ExceptionHandler
     {
         global $config;
         $log = fopen($config['logpath'], 'a+');
-        if (!$log)
-        {
+        if (!$log) {
             echo 'can not open logname (check access rights to log folder)';
         }
 
         fwrite($log, date("Y-m-d H:i:s"));
         fwrite($log, ' ==> ');
 
-        if ($ex != null)
-        {
+        if ($ex != null) {
             fwrite($log, $ex->getMessage());
             fwrite($log, ' at line "');
             fwrite($log, $ex->getLine());
@@ -68,8 +62,7 @@ class ExceptionHandler
             fwrite($log, "\r\nStack trace: \r\n");
             fwrite($log, $ex->getTraceAsString());
         }
-        if ($err != null)
-        {
+        if ($err != null) {
             fwrite($log, self::parseErrorType($err['level']));
             fwrite($log, ' at "');
             fwrite($log, $err['line']);
@@ -88,37 +81,37 @@ class ExceptionHandler
      */
     private static function parseErrorType($type)
     {
-        $return ="";
-        if($type & E_ERROR)
+        $return = "";
+        if ($type & E_ERROR)
             $return.='& E_ERROR ';
-        if($type & E_WARNING)
+        if ($type & E_WARNING)
             $return.='& E_WARNING ';
-        if($type & E_PARSE)
+        if ($type & E_PARSE)
             $return.='& E_PARSE ';
-        if($type & E_NOTICE)
+        if ($type & E_NOTICE)
             $return.='& E_NOTICE ';
-        if($type & E_CORE_ERROR)
+        if ($type & E_CORE_ERROR)
             $return.='& E_CORE_ERROR ';
-        if($type & E_CORE_WARNING)
+        if ($type & E_CORE_WARNING)
             $return.='& E_CORE_WARNING ';
-        if($type & E_COMPILE_ERROR)
+        if ($type & E_COMPILE_ERROR)
             $return.='& E_COMPILE_ERROR ';
-        if($type & E_COMPILE_WARNING)
+        if ($type & E_COMPILE_WARNING)
             $return.='& E_COMPILE_WARNING ';
-        if($type & E_USER_ERROR)
+        if ($type & E_USER_ERROR)
             $return.='& E_USER_ERROR ';
-        if($type & E_USER_WARNING)
+        if ($type & E_USER_WARNING)
             $return.='& E_USER_WARNING ';
-        if($type & E_USER_NOTICE)
+        if ($type & E_USER_NOTICE)
             $return.='& E_USER_NOTICE ';
-        if($type & E_STRICT)
+        if ($type & E_STRICT)
             $return.='& E_STRICT ';
-        if($type & E_RECOVERABLE_ERROR)
+        if ($type & E_RECOVERABLE_ERROR)
             $return.='& E_RECOVERABLE_ERROR ';
-        if($type & E_DEPRECATED)
+        if ($type & E_DEPRECATED)
             $return.='& E_DEPRECATED ';
-        if($type & E_USER_DEPRECATED)
+        if ($type & E_USER_DEPRECATED)
             $return.='& E_USER_DEPRECATED ';
-        return substr($return,2);
+        return substr($return, 2);
     }
 }

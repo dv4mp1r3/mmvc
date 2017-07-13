@@ -1,8 +1,7 @@
-<?php
-
-namespace app\models;
+<?php namespace app\models;
 
 use app\models\data\RDBRecord;
+
 /**
  * Модель загруженного в сервис видео
  * @property integer id
@@ -11,6 +10,7 @@ use app\models\data\RDBRecord;
  */
 class Video extends RDBRecord
 {
+
     /**
      * Загрузка атрибутов модели из $_POST
      */
@@ -24,7 +24,7 @@ class Video extends RDBRecord
             }
         }
     }
-    
+
     /**
      * Возвращение уникального идентификатора видео 
      * https://www.youtube.com/watch?v=pFBUh3hKKDg -> pFBUh3hKKDg
@@ -33,6 +33,6 @@ class Video extends RDBRecord
     public function getVideoId()
     {
         $pos = strpos($this->url, "v=");
-        return substr($this->url, $pos+2);
+        return substr($this->url, $pos + 2);
     }
 }

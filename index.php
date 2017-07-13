@@ -1,9 +1,5 @@
 <?php
-/*
- * TODO
- * собрать нормлаьное дерево объектов
- * описать класс-приложение
- */
+
 namespace app;
 
 use app\core\Router;
@@ -20,5 +16,5 @@ set_exception_handler('app\\core\\ExceptionHandler::doException');
 
 session_start();
 
-$router = new Router(Router::ROUTE_TYPE_FRIENDLY);
-$router->route();
+$router = new Router(Router::ROUTE_TYPE_DEFAULT);
+$router->route();   

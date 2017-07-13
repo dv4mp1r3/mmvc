@@ -1,8 +1,7 @@
-<?php
-
-namespace app\models;
+<?php namespace app\models;
 
 use app\models\data\RDBRecord;
+
 /**
  * Модель загруженного в сервис видео
  * @property integer id
@@ -10,5 +9,5 @@ use app\models\data\RDBRecord;
  */
 class User extends RDBRecord
 {
-
+    
 }

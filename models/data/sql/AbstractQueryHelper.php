@@ -1,12 +1,17 @@
-<?php
-
-namespace app\models\data\sql;
+<?php namespace app\models\data\sql;
 
 use app\models\BaseModel;
 use app\models\data\StoredObject;
 use app\models\data\RDBHelper;
 
-abstract class AbstractQueryHelper extends BaseModel {
+abstract class AbstractQueryHelper extends BaseModel
+{
+
+    /**
+     * Массив ключ-значение для вставки параметров в PDO
+     * @var array 
+     */
+    private $queryValues;
 
     /**
      * Имя используемого классом драйвера для генерации запросов
@@ -20,8 +25,25 @@ abstract class AbstractQueryHelper extends BaseModel {
     const JOIN_TYPE_OUTER = 'OUTER';
     const JOIN_TYPE_FULL = 'FULL';
 
-    public function __construct() {
+    public function __construct()
+    {
+        $this->queryValues = [];
         $this->driverName = $this->findDriverName();
+    }
+
+    public function getQueryValues()
+    {
+        return $this->queryValues;
+    }
+
+    public function clearQueryValues()
+    {
+        $this->queryValues = [];
+    }
+
+    public function addQueryValue($name, $value)
+    {
+        $this->queryValues[":$name"] = $value;
     }
 
     /**
@@ -29,7 +51,8 @@ abstract class AbstractQueryHelper extends BaseModel {
      * Например, MysqlQueryHelper -> mysql
      * @return string
      */
-    private function findDriverName() {
+    private function findDriverName()
+    {
         $matches = [];
         preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $this->getName(), $matches);
         $ret = $matches[0];
@@ -41,7 +64,8 @@ abstract class AbstractQueryHelper extends BaseModel {
      * Возвращает используемое хелпером имя драйвера
      * @return string
      */
-    public function getDriverName() {
+    public function getDriverName()
+    {
         return $this->driverName;
     }
 
@@ -57,7 +81,7 @@ abstract class AbstractQueryHelper extends BaseModel {
 
     public abstract function addLimit($query, $limit, $offset = 0);
 
-    public abstract function addWhere($where);
+    public abstract function addWhere($where, $values = null);
 
     public abstract function addJoin($query, $type, $table, $on);
 
@@ -67,5 +91,4 @@ abstract class AbstractQueryHelper extends BaseModel {
      * @return string
      */
     public abstract function filterString($value);
-
 }

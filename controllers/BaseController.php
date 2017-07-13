@@ -1,12 +1,11 @@
-<?php
-
-namespace app\controllers;
+<?php namespace app\controllers;
 
 use app\core\Loader;
 use Smarty;
 
 class BaseController
 {
+
     /**
      * массив правил
      * @var array 
@@ -25,13 +24,12 @@ class BaseController
      * @var string
      */
     protected $masterPage;
-    
     protected $smarty;
 
     public function __construct($masterPage = null)
     {
-        $classname  = get_called_class();
-        $tmp        = substr($classname, strrpos($classname, '\\') + 1);
+        $classname = get_called_class();
+        $tmp = substr($classname, strrpos($classname, '\\') + 1);
         $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));
         $this->smarty = new Smarty();
         if ($masterPage !== null) {
@@ -70,7 +68,7 @@ class BaseController
 
         throw new \Exception("File not found ($filename)");
     }
-    
+
     /**
      * Добавление переменной в шаблон
      * @param string $name имя
@@ -80,7 +78,7 @@ class BaseController
     {
         $this->smarty->assign($name, $value);
     }
-    
+
     /**
      * Получение части html-контента
      * рекомендуется использовать для ajax-запросов
@@ -92,20 +90,19 @@ class BaseController
     public function getHtmlContent($template, $params)
     {
         $sm = new Smarty();
-        foreach ($params as $key => $value) 
-        {
-            $sm->assign($key, $value);  
+        foreach ($params as $key => $value) {
+            $sm->assign($key, $value);
         }
-        
+
         return $sm->fetch($template);
     }
-    
+
     /**
      * Получение доменного имени 
      * @return string
      */
     public function getHttpRootPath()
     {
-        return 'http://'.$_SERVER['HTTP_HOST'].str_replace("/index.php", "", $_SERVER['PHP_SELF']);
+        return 'http://' . $_SERVER['HTTP_HOST'] . str_replace("/index.php", "", $_SERVER['PHP_SELF']);
     }
 }

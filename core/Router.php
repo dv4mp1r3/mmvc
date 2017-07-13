@@ -1,16 +1,16 @@
-<?php
-
-namespace app\core;
+<?php namespace app\core;
 
 class Router
 {
+
     const ROUTE_TYPE_DEFAULT = 0, // по умолчанию обрабатывается $_GET['u']
-            ROUTE_TYPE_FRIENDLY = 1; //ЧПУ
-    
+        ROUTE_TYPE_FRIENDLY = 1; //ЧПУ
+
     /**
      * контроллер для передачи ему управления
      * @var BaseController 
      */
+
     protected $controller;
 
     /**
@@ -52,7 +52,7 @@ class Router
             default:
                 throw new \Exception("Unknown route type $route_type");
         }
-        
+
         $this->controller = new $this->ctrlName();
     }
 
@@ -62,12 +62,12 @@ class Router
      */
     protected function parseUrl($url)
     {
-        $delemiter      = strpos($url, '-');
-        $ctrl           = htmlspecialchars(substr($url, 0, $delemiter));
-        $this->action   = htmlspecialchars(substr($url, $delemiter + 1));
-        $this->ctrlName = 'app\\controllers\\'.ucfirst($ctrl).'Controller';
+        $delemiter = strpos($url, '-');
+        $ctrl = htmlspecialchars(substr($url, 0, $delemiter));
+        $this->action = htmlspecialchars(substr($url, $delemiter + 1));
+        $this->ctrlName = 'app\\controllers\\' . ucfirst($ctrl) . 'Controller';
     }
-    
+
     /**
      * Обработка урл вида index/ctrlName/view/paramName/paramValue...
      * строка разбивается на пары (параметр-значение)
@@ -77,34 +77,30 @@ class Router
     {
         $dir = str_replace(DIRECTORY_SEPARATOR, '/', ROOT_DIR);
         $url = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['REQUEST_URI']);
-        
+
         $dir_arr = explode('/', $dir);
         $url_arr = explode('/', $url);
-        
+
         $result = [];
 
-        foreach ($url_arr as $param) 
-        {           
+        foreach ($url_arr as $param) {
             if (in_array($param, $dir_arr) || strlen($param) === 0)
                 continue;
             array_push($result, $param);
         }
-        
+
         $count = count($result);
-        
+
         if ($count == 0)
-            throw new \Exception ('parseUrlFriendly error (param count = 0)');
-        
-        $this->ctrlName = 'app\\controllers\\'.ucfirst($result[0]).'Controller';
+            throw new \Exception('parseUrlFriendly error (param count = 0)');
+
+        $this->ctrlName = 'app\\controllers\\' . ucfirst($result[0]) . 'Controller';
         $this->action = ucfirst($result[1]);
-        
-        if ($count > 2)
-        {
-            for ($i = 2; $i < $count; $i++)
-            {
-                if (isset($result[$i]) && isset($result[$i+1]))
-                {
-                    $_REQUEST[$result[$i]] = $result[$i+1];
+
+        if ($count > 2) {
+            for ($i = 2; $i < $count; $i++) {
+                if (isset($result[$i]) && isset($result[$i + 1])) {
+                    $_REQUEST[$result[$i]] = $result[$i + 1];
                     $i++;
                 }
             }
@@ -119,16 +115,14 @@ class Router
      */
     protected function callAction()
     {
-        if ($this->action === null)
-        {
+        if ($this->action === null) {
             throw new \Exception('Router->action is null');
         }
         if ($this->controller === null &&
-            !($this->controller instanceof \app\controllers\BaseController))
-        {
+            !($this->controller instanceof \app\controllers\BaseController)) {
             throw new \Exception('Router->controller is null or not instance of BaseController');
         }
-        return call_user_func(array($this->controller, 'action'.ucfirst($this->action)));
+        return call_user_func(array($this->controller, 'action' . ucfirst($this->action)));
     }
 
     /**
