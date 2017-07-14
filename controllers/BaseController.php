@@ -18,23 +18,14 @@ class BaseController
      */
     protected $name;
 
-    /**
-     * Путь к Мастер-странице шаблона (задается в конструкторе либо в методе setMasterPage)
-     * Если не задан, путь берется из $config['template']['file']
-     * @var string
-     */
-    protected $masterPage;
     protected $smarty;
 
-    public function __construct($masterPage = null)
+    public function __construct()
     {
         $classname = get_called_class();
         $tmp = substr($classname, strrpos($classname, '\\') + 1);
         $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));
         $this->smarty = new Smarty();
-        if ($masterPage !== null) {
-            $this->masterPage = $masterPage;
-        }
     }
 
     /**
@@ -53,20 +44,6 @@ class BaseController
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Задание новой Мастер-страницы шаблона для контроллера
-     * @param string $filename полный путь к файлу
-     * @throws \Exception при отсутствии файла по заданному пути
-     */
-    public function setMasterPage($filename)
-    {
-        if (is_file($filename)) {
-            $this->masterPage = $filename;
-        }
-
-        throw new \Exception("File not found ($filename)");
     }
 
     /**
