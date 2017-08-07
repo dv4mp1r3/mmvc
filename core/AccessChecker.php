@@ -18,7 +18,7 @@ class AccessChecker
     public static function checkAccess($controller, $actionName)
     {
         $rules = $controller->rules;
-        if (!isset($rules[$actionName])) {
+        if (empty($rules[$actionName])) {
             return true;
         }
 

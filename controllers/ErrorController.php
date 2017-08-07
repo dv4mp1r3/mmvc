@@ -1,6 +1,6 @@
 <?php namespace app\controllers;
 
-class ErrorController extends BaseController
+class ErrorController extends WebController
 {
 
     public function __construct()

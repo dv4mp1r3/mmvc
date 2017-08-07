@@ -6,15 +6,17 @@ use app\models;
 use app\core\AccessChecker;
 use app\models\data\RDBHelper;
 
-class HomeController extends BaseController {
+class HomeController extends WebController {
 
     public function __construct() {
         $this->rules = [
             'index' => [
-                AccessChecker::RULE_GRANTED => AccessChecker::USER_ALL,
+                self::RULE_TYPE_ACCESS_GRANTED => AccessChecker::USER_ALL,
+                self::RULE_TYPE_INPUT => self::INPUT_PARAMETER_REQUEST,
             ],
             'info' => [
-                AccessChecker::RULE_GRANTED => AccessChecker::USER_ALL,
+                self::RULE_TYPE_ACCESS_GRANTED => AccessChecker::USER_ALL,
+                self::RULE_TYPE_INPUT => self::INPUT_PARAMETER_REQUEST,
             ],
         ];
         parent::__construct();

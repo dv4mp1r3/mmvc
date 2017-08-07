@@ -1,16 +1,19 @@
 <?php namespace app\core;
 
+use app\controllers\BaseController;
+use app\controllers\WebController;
+use app\controllers\CliController;
+
 class Router
 {
 
-    const ROUTE_TYPE_DEFAULT = 0, // по умолчанию обрабатывается $_GET['u']
-        ROUTE_TYPE_FRIENDLY = 1; //ЧПУ
-
+    const ROUTE_TYPE_DEFAULT  = 0, // по умолчанию обрабатывается $_GET['u']
+          ROUTE_TYPE_FRIENDLY = 1, // ЧПУ
+          ROUTE_TYPE_CLI      = 2; // консольная версия
     /**
      * контроллер для передачи ему управления
      * @var BaseController 
      */
-
     protected $controller;
 
     /**
@@ -33,35 +36,41 @@ class Router
 
     /**
      * Конструктор роутера (обработка ссылок, выдача нужной страницы в зависимости от url)
-     * @param string $url
+     * @param integer $routeType
      * @throws Exception
      */
-    public function __construct($route_type = Router::ROUTE_TYPE_DEFAULT)
+    public function __construct($routeType = Router::ROUTE_TYPE_DEFAULT)
     {
-        switch ($route_type) {
-            case Router::ROUTE_TYPE_DEFAULT:
-                $url = $_GET['u'];
-                if ($url === null) {
-                    throw new \Exception('$url is not defined');
-                }
-                $this->parseUrl($url);
+        switch ($routeType) {
+            case Router::ROUTE_TYPE_DEFAULT:               
+                $this->parseUrl($_GET['u']);
                 break;
             case Router::ROUTE_TYPE_FRIENDLY:
                 $this->parseUrlFriendly();
                 break;
+            case Router::ROUTE_TYPE_CLI:
+                if (empty($_SERVER['argv'])) {
+                    throw new \Exception('Empty cli-arguments but router type defined as CLI');
+                }
+                $this->parseUrl($_SERVER['argv'][1]);
+                break;
             default:
-                throw new \Exception("Unknown route type $route_type");
+                throw new \Exception("Unknown route type $routeType");
         }
 
         $this->controller = new $this->ctrlName();
     }
-
+    
     /**
      * Обработка урл вида index.php?u=ctrlName-view
      * @param string $url значение $_GET['u']
      */
     protected function parseUrl($url)
     {
+        if ($url === null) {
+            throw new \Exception('$url is not defined');
+        }
+        
         $delemiter = strpos($url, '-');
         $ctrl = htmlspecialchars(substr($url, 0, $delemiter));
         $this->action = htmlspecialchars(substr($url, $delemiter + 1));

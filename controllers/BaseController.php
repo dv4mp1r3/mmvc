@@ -1,13 +1,40 @@
 <?php namespace app\controllers;
 
 use app\core\Loader;
-use Smarty;
 
-class BaseController
+abstract class BaseController
 {
+    
+    const INPUT_PARAMETER_CLI = 0,
+          INPUT_PARAMETER_GET = 1,
+          INPUT_PARAMETER_POST = 2,
+          INPUT_PARAMETER_REQUEST = 3;
+    
+    /**
+     * Правило, определяющее, откуда брать входящие параметры для action
+     * Возможные значения INPUT_PARAMETER_*
+     */
+    const RULE_TYPE_INPUT = 'input';
 
     /**
-     * массив правил
+     * массив правил ключ - значение, где ключ - название action без префикса
+     * маленькими буквами, значение - массив правил.
+     * Правила - массив ключ-значение где ключ - константа, определенная в 
+     * контроллере с именем RULE_TYPE_* и значением.
+     * Допустимые значения свои для каждого правила
+     * Пример:
+     * $this->rules = [
+            'index' => [
+                self::RULE_TYPE_ACCESS_GRANTED => AccessChecker::USER_ALL,
+                self::RULE_TYPE_INPUT => self::INPUT_PARAMETER_GET,
+            ],
+            'info' => [
+                self::RULE_TYPE_ACCESS_GRANTED => AccessChecker::USER_ALL,
+                self::RULE_TYPE_INPUT => self::INPUT_PARAMETER_GET,
+            ],
+        ];
+     * Массив должен быть определен в конструкторе контроллера
+     * Дополнение: не используется в потомках CliController
      * @var array 
      */
     public $rules;
@@ -17,26 +44,14 @@ class BaseController
      * @var string 
      */
     protected $name;
-
-    protected $smarty;
-
+   
     public function __construct()
     {
         $classname = get_called_class();
         $tmp = substr($classname, strrpos($classname, '\\') + 1);
-        $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));
-        $this->smarty = new Smarty();
+        $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));        
     }
-
-    /**
-     * Выдача шаблона клиенту
-     * @param string $view имя вьюшки, которую надо отдать клиенту
-     */
-    public function render($view)
-    {
-        $this->smarty->display("views/$this->name/$view.tpl");
-    }
-
+    
     /**
      * Получение имени контроллера
      * @return string
@@ -45,41 +60,13 @@ class BaseController
     {
         return $this->name;
     }
-
+    
     /**
-     * Добавление переменной в шаблон
-     * @param string $name имя
-     * @param mixed $value
+     * Получение входящего параметра по его типу (источник) и имени
+     * @param integer $type
+     * @param mixed $name имя параметра или число для консольных контроллеров
+     * @return mixed
+     * @throws \Exception
      */
-    public function appendVariable($name, $value)
-    {
-        $this->smarty->assign($name, $value);
-    }
-
-    /**
-     * Получение части html-контента
-     * рекомендуется использовать для ajax-запросов
-     * когда, например, нужно получить готовые div с данными
-     * @param string $template путь к шаблону в папке views
-     * @param array $params массив параметров ($key => $value) для шаблона
-     * @return string
-     */
-    public function getHtmlContent($template, $params)
-    {
-        $sm = new Smarty();
-        foreach ($params as $key => $value) {
-            $sm->assign($key, $value);
-        }
-
-        return $sm->fetch($template);
-    }
-
-    /**
-     * Получение доменного имени 
-     * @return string
-     */
-    public function getHttpRootPath()
-    {
-        return 'http://' . $_SERVER['HTTP_HOST'] . str_replace("/index.php", "", $_SERVER['PHP_SELF']);
-    }
+    protected abstract function getInputParameter($name, $type = null);
 }

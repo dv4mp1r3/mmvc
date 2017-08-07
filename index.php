@@ -14,7 +14,16 @@ spl_autoload_register('app\\core\\Loader::load');
 //set_error_handler('app\\core\\ExceptionHandler::doError');
 set_exception_handler('app\\core\\ExceptionHandler::doException');
 
-session_start();
+$router = null;
 
-$router = new Router(Router::ROUTE_TYPE_DEFAULT);
+if (php_sapi_name() === 'cli')
+{
+    $router = new Router(Router::ROUTE_TYPE_CLI);
+}
+else
+{
+    session_start();
+    $router = new Router(Router::ROUTE_TYPE_DEFAULT);
+}
+
 $router->route();   

@@ -552,3 +552,8 @@ Stack trace:
 #5 /private/var/www/mmvc/core/Router.php(141): app\core\Router->callAction()
 #6 /private/var/www/mmvc/index.php(20): app\core\Router->route()
 #7 {main}
+2017-08-03 17:05:19 ==> Not supported yet. at line "66" of file /private/var/www/mmvc/core/Router.php
+Stack trace: 
+#0 /private/var/www/mmvc/core/Router.php(54): app\core\Router->parseCliParams()
+#1 /private/var/www/mmvc/index.php(21): app\core\Router->__construct(2)
+#2 {main}
