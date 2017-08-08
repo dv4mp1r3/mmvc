@@ -62,23 +62,18 @@ class WebController extends BaseController
         return 'http://' . $_SERVER['HTTP_HOST'] . str_replace("/index.php", "", $_SERVER['PHP_SELF']);
     }
 
-    protected function getInputParameter($name, $type = null)
+    protected function getInput($name, $filterType = null, $inputType = null)
     {
-        if ($type === null)
+        if ($inputType === null)
         {
-            return $_REQUEST[$name];
+            return filter_input(INPUT_REQUEST, $name);
         }
         
-        switch ($type)
+        if ($inputType && $filterType)
         {
-            case BaseController::INPUT_PARAMETER_GET:
-                return $_GET[$name];
-            case BaseController::INPUT_PARAMETER_POST:
-                return $_POST[$name];
-            case BaseController::INPUT_PARAMETER_REQUEST;
-                return $_REQUEST[$name];
-            default:
-                throw new \Exception('Wrong parameter type: '.$type);
+            return filter_input($inputType, $name, $filterType);
         }
+        
+        throw new \Exception('Bad parameters');
     }
 }

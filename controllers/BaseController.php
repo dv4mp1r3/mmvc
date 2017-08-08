@@ -5,10 +5,10 @@ use app\core\Loader;
 abstract class BaseController
 {
     
-    const INPUT_PARAMETER_CLI = 0,
-          INPUT_PARAMETER_GET = 1,
-          INPUT_PARAMETER_POST = 2,
-          INPUT_PARAMETER_REQUEST = 3;
+    const INPUT_PARAMETER_CLI = INPUT_SERVER,
+          INPUT_PARAMETER_GET = INPUT_GET,
+          INPUT_PARAMETER_POST = INPUT_POST,
+          INPUT_PARAMETER_REQUEST = INPUT_REQUEST;
     
     /**
      * Правило, определяющее, откуда брать входящие параметры для action
@@ -57,7 +57,7 @@ abstract class BaseController
      * @return string
      */
     public function getName()
-    {
+    {        
         return $this->name;
     }
     
@@ -68,5 +68,5 @@ abstract class BaseController
      * @return mixed
      * @throws \Exception
      */
-    protected abstract function getInputParameter($name, $type = null);
+    protected abstract function getInput($name, $filterType = null, $inputType = null);
 }

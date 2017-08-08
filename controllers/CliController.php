@@ -4,8 +4,9 @@ use app\controllers\BaseController;
 
 class CliController extends BaseController
 {    
-    protected function getInputParameter($name)
+    protected function getInput($name, $filterType = null, $inputType = null)
     {
-        return $_SERVER['argv'][(int)$name];
+        $value = $_SERVER['argv'][$name];
+        return filter_var($value, $filterType);
     }
 }
