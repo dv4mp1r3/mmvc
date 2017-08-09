@@ -369,15 +369,15 @@ class RDBRecord extends StoredObject
     public static function getSchema($tableName)
     {
         if (self::isSchemaExists($tableName)) {
-            return null;
+            return self::$schema[$tableName];
         }
-
-        return self::$schema[$tableName];
+        
+        return null;
     }
 
     public static function isSchemaExists($tableName)
     {
-        return !empty(self::$schema) && !empty(self::$schema[$tableName]);
+        return empty(self::$schema) ? false : !empty(self::$schema[$tableName]);
     }
 
     /**
