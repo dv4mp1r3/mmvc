@@ -63,8 +63,10 @@ abstract class BaseController
     
     /**
      * Получение входящего параметра по его типу (источник) и имени
-     * @param integer $type
      * @param mixed $name имя параметра или число для консольных контроллеров
+     * @param integer $filterType тип фильтра входящего параметра (FILTER_*)
+     * @param integer $inputType источник для обработки входящего параметра (INPUT_PARAMETER_*)
+     * null для  консольных контроллеров
      * @return mixed
      * @throws \Exception
      */
