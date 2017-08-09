@@ -91,4 +91,13 @@ abstract class AbstractQueryHelper extends BaseModel
      * @return string
      */
     public abstract function filterString($value);
+    
+    /**
+     * Соотвествие между типами данных в СУБД и типами данных в PHP
+     * Используется при генерации модели через консоль во время
+     * обработки схемы таблицы
+     * @param string $dbPropertyType Тип данных СУБД
+     * @return string Тип данных в PHP
+     */
+    public abstract function getPropertyType($dbPropertyType);
 }
