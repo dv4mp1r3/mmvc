@@ -53,7 +53,7 @@ class RDBHelper extends AbstractDataStorage
             PDO::ATTR_PERSISTENT => true,
         ];
 
-        if ($db_opt['driver'] === 'mysql') {
+        if ($db_opt['driver'] === RDBHelper::DB_TYPE_MYSQL) {
             $opt[PDO::MYSQL_ATTR_DIRECT_QUERY] = 0;
         }
 
