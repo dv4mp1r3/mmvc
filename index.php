@@ -3,17 +3,22 @@ namespace app;
 
 use app\core\Router;
 
-require_once 'config.php';
+define('DEBUG', true);
+define('ROOT_DIR', dirname(__FILE__));
+
 require_once 'vendor/autoload.php';
 require_once 'core/Loader.php';
 
-date_default_timezone_set($config['timezone']);
-
 spl_autoload_register('app\\core\\Loader::load');
+set_exception_handler('app\\core\\ExceptionHandler::doException');
+
+require_once 'config.php';
+
 if (!defined('DEBUG') || DEBUG === false) {
     set_error_handler('app\\core\\ExceptionHandler::doError');
 }
-set_exception_handler('app\\core\\ExceptionHandler::doException');
+
+date_default_timezone_set($config['timezone']);
 
 $router = null;
 

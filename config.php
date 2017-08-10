@@ -1,11 +1,10 @@
 <?php
 
-define('DEBUG', true);
-define('ROOT_DIR', dirname(__FILE__));
+use app\models\data\RDBHelper;
 
 $config = ['db' => 
             [
-                'driver' => 'mysql',
+                'driver' => RDBHelper::DB_TYPE_MYSQL,
                 'username' => 'root',
                 'password' => '',
                 'host' => 'localhost',

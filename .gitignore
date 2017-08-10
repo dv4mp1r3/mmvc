@@ -3,6 +3,7 @@
 /uploads
 /templates_c
 /nbproject
+/log/main.log
 composer.lock
 *.swp
 #*#
