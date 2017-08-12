@@ -369,15 +369,15 @@ class RDBRecord extends StoredObject
     public static function getSchema($tableName)
     {
         if (self::isSchemaExists($tableName)) {
-            return null;
+            return self::$schema[$tableName];
         }
-
-        return self::$schema[$tableName];
+        
+        return null;
     }
 
     public static function isSchemaExists($tableName)
     {
-        return !empty(self::$schema) && !empty(self::$schema[$tableName]);
+        return empty(self::$schema) ? false : !empty(self::$schema[$tableName]);
     }
 
     /**
@@ -444,5 +444,24 @@ class RDBRecord extends StoredObject
                 'default' => $row['Default'],
             ];
         }
+    }
+    
+    /**
+     * Получение типа данных PHP для свойства по его имени
+     * с учетом схемы данных СУБД
+     * @param string $propertyName
+     * @return string
+     * @throws \Exception выбрасывается если нет схемы 
+     */
+    public function getPropertyType($propertyName)
+    {
+        $table = $this->objectName;
+        if (!self::isSchemaExists($table))
+        {
+            throw new \Exception('Empty schema for table '.$table);
+        }
+        $propType = self::$schema[$table][$propertyName][RDBRecord::PROPERTY_ATTRIBUTE_TYPE];
+        
+        return $this->queryHelper->getPropertyType($propType);
     }
 }

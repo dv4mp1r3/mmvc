@@ -216,4 +216,32 @@ class MysqlQueryHelper extends AbstractQueryHelper
     {
         return $value;
     }
+
+    public function getPropertyType($dbPropertyType)
+    {
+        switch ($dbPropertyType) {
+            case 'tinyint':
+            case 'integer':
+            case 'int':
+                return 'integer';
+            case 'string':
+            case 'tinytext':
+            case 'mediumtext':
+            case 'varchar':
+            case 'datetime':
+            case 'date':
+            case 'time':
+                return 'string';
+            case 'double':
+                return 'double';
+            case 'enum':
+            case 'set':
+                return 'array';
+            case 'bit':
+            case 'bool':
+                return 'boolean';
+            default:
+                throw new \Exception("Unknown type $dbPropertyType.");
+        }
+    }
 }

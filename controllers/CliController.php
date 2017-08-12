@@ -9,4 +9,9 @@ class CliController extends BaseController
         $value = $_SERVER['argv'][$name];
         return filter_var($value, $filterType);
     }
+    
+    protected function printLine($message)
+    {
+        echo "$message\n";
+    }
 }
