@@ -9,7 +9,7 @@ $config = ['db' =>
                 'username' => 'root',
                 'password' => '',
                 'host' => 'localhost',
-                'schema' => 'mmvc_test',
+                'schema' => 'mmvc',
             ],
             'users' => [
                 'admin' =>
