@@ -176,12 +176,25 @@ class RDBRecord extends StoredObject
         $query = '';
         if ($this->isNew) {
             $this->parseSchema($this->objectName);
-            $query = $this->queryHelper->buildInsertQuery($this->objectName, $this->properties);
+            $query = $this->queryHelper->buildInsert($this->objectName, $this->properties);
         } else {
-            $query = $this->queryHelper->buildUpdateQuery($this->objectName, $this->properties);
+            $values = [];
+            foreach ($this->properties as $key => &$property) 
+            {
+                if  (
+                        $property[StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] == false || 
+                        $this->queryHelper->isPrimaryKey($property)
+                    )
+                {
+                    continue;
+                }
+                $values[$key] = $property[StoredObject::PROPERTY_ATTRIBUTE_VALUE];
+            }
+            $query = $this->queryHelper->buildUpdate($this->objectName, $values, "id = $this->id");
         }
         
         $st = $this->dbHelper->execute($query, $this->queryHelper->getQueryValues());
+        $this->queryHelper->clearQueryValues();
 
         if ($this->isNew) {
             $this->id = $this->dbHelper->lastInsertId();

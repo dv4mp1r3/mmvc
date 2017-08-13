@@ -38,7 +38,7 @@ class VideoController extends WebController
             $video->url = $_POST['video_url'];
             $video->user_id = $user->id;
             $video->save();
-
+            
             $params = ['isAdmin' => isset($_SESSION['auth']) && $_SESSION['auth'] === true,
                 'video' => [
                     'url' => htmlspecialchars($video->url),

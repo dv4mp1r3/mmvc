@@ -75,7 +75,7 @@ abstract class AbstractQueryHelper extends BaseModel
 
     public abstract function buildDescribe($table);
 
-    public abstract function buildInsert(&$properties);
+    public abstract function buildInsert($table, &$properties);
 
     public abstract function buildUpdate($table, $values, $where = null);
 

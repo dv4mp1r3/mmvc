@@ -9,7 +9,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
 
     const PROPERTY_ATTRIBUTE_FLAGS = 'flags';
 
-    private function isPrimaryKey($data)
+    public function isPrimaryKey($data)
     {
         return isset($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS]) && ($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS] & MYSQLI_PRI_KEY_FLAG);
     }
@@ -57,11 +57,6 @@ class MysqlQueryHelper extends AbstractQueryHelper
         return "DESCRIBE $table";
     }
 
-    public function buildInsert(&$properties)
-    {
-        
-    }
-
     public function buildUpdate($table, $values, $where = null)
     {
         $set = '';
@@ -80,13 +75,13 @@ class MysqlQueryHelper extends AbstractQueryHelper
         }
         return $query;
     }
-
+    
     /**
      * Создание запроса для добавления записи в базу
      * Вызывается при сохранении (метод save())
      * @return string готовый запрос INSERT INTO $tablename ($columns) VALUES ($values);
      */
-    public function buildInsertQuery($table, &$properties)
+    public function buildInsert($table, &$properties)
     {
         $props = '';
         $values = '';
@@ -150,42 +145,6 @@ class MysqlQueryHelper extends AbstractQueryHelper
             default:
                 throw new \Exception("Unknown type $type.");
         }
-    }
-
-    /**
-     * Создание запроса для обновления данных для существующей записи
-     * Вызывается при сохранении (метод save())
-     * @return string готовый запрос UPDATE $table_name SET (values) WHERE id=$id;
-     * @throws Exception выбрасывается, если у объекта нет измененных свойств
-     */
-    public function buildUpdateQuery($table, &$properties)
-    {
-        $values = '';
-        $new_values = 0;
-        foreach ($this->properties as $key => $data) {
-            if ($properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] == true || self::isPrimaryKey($data)) {
-                continue;
-            }
-
-            if (strlen($values) > 0) {
-                $values .= ', ';
-            }
-            $value = $this->serializeProperty(
-                $data[StoredObject::PROPERTY_ATTRIBUTE_VALUE], $data[RDBRecord::PROPERTY_ATTRIBUTE_TYPE]
-            );
-            $this->addQueryValue($key, $value);
-            $values .= "`$key`=:$key";
-
-            $properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = false;
-            $new_values++;
-        }
-        if ($new_values === 0) {
-            throw new \Exception('Model has no changed properties');
-        }
-        $id = $properties['id']['value'];
-        $this->addQueryValue('id', $id);
-        $q = "UPDATE $table SET $values WHERE `id`=:id";
-        return $q;
     }
 
     public function buildSelect($fields = '*', $from, $where = null)
