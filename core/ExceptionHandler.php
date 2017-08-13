@@ -1,16 +1,15 @@
 <?php namespace app\core;
 
 use app\controllers\ErrorController;
+use app\controllers\CliController;
 
-class ExceptionHandler
-{
+class ExceptionHandler {
 
     /**
-     * Функция обработки исключений
+     * Функция обработки исключений для веб-приложения
      * @param \Exception $ex
      */
-    public static function doException($ex)
-    {
+    public static function doWebAppException($ex) {
         $err_ctrl = new ErrorController();
         if (DEBUG === false) {
             $err_ctrl->actionBase();
@@ -20,14 +19,25 @@ class ExceptionHandler
 
         self::log($ex);
     }
+    
+    /**
+     * Функция обработки исключений для cli-приложения
+     * @param \Exception $ex
+     */
+    public static function doCliAppException($ex)
+    {
+        $err_ctrl = new CliController();
+        $err_ctrl->printExceptionData($ex);
+        
+        self::log($ex);
+    }
 
     /**
      * Функция обработки ошибок
      * @param int $errLevel тип ошибки
      * @param string $errMsg текст ошибки
      */
-    public static function doError($errno, $errstr, $errfile, $errline)
-    {
+    public static function doError($errno, $errstr, $errfile, $errline) {
         self::log(null, [
             'level' => $errno,
             'message' => $errstr,
@@ -42,8 +52,7 @@ class ExceptionHandler
      * @param \Exception $ex
      * @param array $err информация об ошибке (массив ['level','message'])
      */
-    protected static function log($ex = null, $err = null)
-    {
+    protected static function log($ex = null, $err = null) {
         global $config;
         $log = fopen($config['logpath'], 'a+');
         if (!$log) {
@@ -79,8 +88,7 @@ class ExceptionHandler
      * @param int $type
      * @return string
      */
-    private static function parseErrorType($type)
-    {
+    private static function parseErrorType($type) {
         $return = "";
         if ($type & E_ERROR)
             $return.='& E_ERROR ';
@@ -114,4 +122,5 @@ class ExceptionHandler
             $return.='& E_USER_DEPRECATED ';
         return substr($return, 2);
     }
+
 }

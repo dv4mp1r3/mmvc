@@ -10,7 +10,6 @@ require_once 'vendor/autoload.php';
 require_once 'core/Loader.php';
 
 spl_autoload_register('app\\core\\Loader::load');
-set_exception_handler('app\\core\\ExceptionHandler::doException');
 
 require_once 'config.php';
 
@@ -23,10 +22,12 @@ date_default_timezone_set($config['timezone']);
 $router = null;
 
 if (php_sapi_name() === 'cli') {
+    set_exception_handler('app\\core\\ExceptionHandler::doCliAppException');
     $router = new Router(Router::ROUTE_TYPE_CLI);
 } else {
+    set_exception_handler('app\\core\\ExceptionHandler::doWebAppException');
     session_start();
-    $router = new Router(Router::ROUTE_TYPE_DEFAULT);
+    $router = new Router(Router::ROUTE_TYPE_FRIENDLY);
 }
 
 $router->route();

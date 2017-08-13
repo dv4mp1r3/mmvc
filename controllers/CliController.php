@@ -14,4 +14,18 @@ class CliController extends BaseController
     {
         echo "$message\n";
     }
+    
+    /**
+     * Вывод в stdout информации о выброшенном исключении
+     * @see app\core\ExceptionHandler::doCliAppException()
+     * @param \Exception $ex
+     */
+    public function printExceptionData($ex)
+    {
+        $this->printLine("Exception: ".get_class($ex));
+        $this->printLine("Message: ".$ex->getMessage());
+        $this->printLine("File: ".$ex->getFile());
+        $this->printLine("Line: ".$ex->getLine());
+        $this->printLine("(stacktrace): ".$ex->getTraceAsString());
+    }
 }
