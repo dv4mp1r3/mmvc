@@ -105,10 +105,12 @@ class MysqlQueryHelper extends AbstractQueryHelper
                 $values .= $delemiter;
             }
             $properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = false;
-            $value = self::serializeProperty($data[StoredObject::PROPERTY_ATTRIBUTE_VALUE], RDBRecord::getTypeName($table, $key)
+            $value = self::serializeProperty(
+                $data[StoredObject::PROPERTY_ATTRIBUTE_VALUE], 
+                RDBRecord::getTypeName($table, $key)
             );
-            $this->addQueryValue($value);
-            $values .= "'" . str_replace("'", "", ":$key") . "'";
+            $this->addQueryValue($key, $value);
+            $values .= ":$key";
         }
 
         $q = "INSERT INTO $table ($props) VALUES ($values);";
@@ -136,7 +138,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'tinytext':
             case 'mediumtext':
             case 'varchar':
-                return "'" . self::filterString($value) . "'";
+                return self::filterString($value);
             case 'double':
                 return (string) floatval($value);
             case 'set':

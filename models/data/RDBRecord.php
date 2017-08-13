@@ -180,8 +180,8 @@ class RDBRecord extends StoredObject
         } else {
             $query = $this->queryHelper->buildUpdateQuery($this->objectName, $this->properties);
         }
-
-        $st = $this->dbHelper->execute($query);
+        
+        $st = $this->dbHelper->execute($query, $this->queryHelper->getQueryValues());
 
         if ($this->isNew) {
             $this->id = $this->dbHelper->lastInsertId();

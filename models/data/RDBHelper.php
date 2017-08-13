@@ -86,7 +86,7 @@ class RDBHelper extends AbstractDataStorage
         return isset($this->connection) && $this->connection instanceof \PDO;
     }
 
-    private function dropQueryExecuteException($statement)
+    private function dropQueryExecuteException($statement, $statementValues = null)
     {
         $errCode = $statement->errorCode();
         $errInfo = $statement->errorInfo();
@@ -106,11 +106,11 @@ class RDBHelper extends AbstractDataStorage
     public function execute($sql_query, $values = null)
     {
         $st = $this->connection->prepare($sql_query);
-        $res = is_array($values) ? $st->execute($values) : $st->execute();
+        $res = is_array($values) && count($values) > 0 ? $st->execute($values) : $st->execute();
         if ($res !== false) {
             return $st;
         }
-        $this->dropQueryExecuteException($st);
+        $this->dropQueryExecuteException($st, $values);
     }
 
     public function lastInsertId()
