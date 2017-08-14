@@ -1,4 +1,4 @@
-<?php namespace app\models;
+<?php namespace mmvc\models;
 
 class BaseModel
 {

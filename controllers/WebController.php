@@ -1,7 +1,7 @@
-<?php namespace app\controllers;
+<?php namespace mmvc\controllers;
 
 use Smarty;
-use app\core\AccessChecker;
+use mmvc\core\AccessChecker;
 
 class WebController extends BaseController
 {

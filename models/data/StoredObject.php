@@ -1,6 +1,6 @@
-<?php namespace app\models\data;
+<?php namespace mmvc\models\data;
 
-use app\models\BaseModel;
+use mmvc\models\BaseModel;
 
 class StoredObject extends BaseModel
 {

@@ -1,4 +1,4 @@
-<?php namespace app\core;
+<?php namespace mmvc\core;
 
 /**
  * Автоматическая подгрузка нужных файлов
@@ -10,11 +10,11 @@ class Loader
 
     public static function load($classname)
     {
-        $baseNamespace = 'app\\';
+        $baseNamespace = 'mmvc\\';
 
         if (self::beginsAt($classname, $baseNamespace)) {
             // загружен класс фреймворка
-            // обрезаем app\ в начале пути
+            // обрезаем mmvc\ в начале пути
             $classname = substr($classname, strlen($baseNamespace));
         }
         $filename = ROOT_DIR . DIRECTORY_SEPARATOR .

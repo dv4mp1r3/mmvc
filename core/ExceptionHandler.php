@@ -1,7 +1,7 @@
-<?php namespace app\core;
+<?php namespace mmvc\core;
 
-use app\controllers\ErrorController;
-use app\controllers\CliController;
+use mmvc\controllers\ErrorController;
+use mmvc\controllers\CliController;
 
 class ExceptionHandler {
 

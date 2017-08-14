@@ -1,6 +1,6 @@
-<?php namespace app\controllers;
+<?php namespace mmvc\controllers;
 
-use app\core\Loader;
+use mmvc\core\Loader;
 
 abstract class BaseController
 {

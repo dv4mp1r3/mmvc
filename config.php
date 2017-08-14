@@ -1,6 +1,7 @@
 <?php
 
-use app\models\data\RDBHelper;
+use mmvc\models\data\RDBHelper;
+use mmvc\core\Router;
 
 $config = ['db' => 
             [
@@ -8,7 +9,7 @@ $config = ['db' =>
                 'username' => 'root',
                 'password' => '',
                 'host' => 'localhost',
-                'schema' => 'mmvc',
+                'schema' => 'mmvc_test',
             ],
             'users' => [
                 'admin' =>
@@ -20,5 +21,6 @@ $config = ['db' =>
             ],
             'logpath' => ROOT_DIR.DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.'main.log',
             'timezone' => 'Etc/GMT-3',
+            'route' => Router::ROUTE_TYPE_DEFAULT,
     ];
 

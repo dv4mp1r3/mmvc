@@ -1,8 +1,8 @@
-<?php namespace app\models\data\sql;
+<?php namespace mmvc\models\data\sql;
 
-use app\models\data\StoredObject;
-use app\models\data\RDBRecord;
-use app\models\data\RDBHelper;
+use mmvc\models\data\StoredObject;
+use mmvc\models\data\RDBRecord;
+use mmvc\models\data\RDBHelper;
 
 class MysqlQueryHelper extends AbstractQueryHelper
 {

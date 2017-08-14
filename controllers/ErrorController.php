@@ -1,4 +1,4 @@
-<?php namespace app\controllers;
+<?php namespace mmvc\controllers;
 
 class ErrorController extends WebController
 {

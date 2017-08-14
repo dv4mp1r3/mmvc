@@ -1,6 +1,6 @@
-<?php namespace app\controllers;
+<?php namespace mmvc\controllers;
 
-use app\controllers\BaseController;
+use mmvc\controllers\BaseController;
 
 class CliController extends BaseController
 {    
@@ -17,7 +17,7 @@ class CliController extends BaseController
     
     /**
      * Вывод в stdout информации о выброшенном исключении
-     * @see app\core\ExceptionHandler::doCliAppException()
+     * @see mmvc\core\ExceptionHandler::doCliAppException()
      * @param \Exception $ex
      */
     public function printExceptionData($ex)

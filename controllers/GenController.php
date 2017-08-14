@@ -1,8 +1,8 @@
 <?php
 
-namespace app\controllers;
+namespace mmvc\controllers;
 
-use app\models\data\RDBRecord;
+use mmvc\models\data\RDBRecord;
 
 class GenController extends CliController
 {
@@ -57,8 +57,8 @@ class GenController extends CliController
             throw new \Exception('bad fopen result for path '.$scriptPath);
         }
         
-        fwrite($f, "<?php\r\nnamespace app\models;\r\n\r\n");
-        fwrite($f, "use app\models\data\RDBRecord;\r\n\r\n");
+        fwrite($f, "<?php\r\nnamespace mmvc\models;\r\n\r\n");
+        fwrite($f, "use mmvc\models\data\RDBRecord;\r\n\r\n");
         fwrite($f, $props);
         fwrite($f, "class $modelName extends RDBRecord\r\n{\r\n}\r\n");
         fclose($f);    

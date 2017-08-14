@@ -1,6 +1,6 @@
-<?php namespace app\core;
+<?php namespace mmvc\core;
 
-use app\controllers\BaseController;
+use mmvc\controllers\BaseController;
 
 class AccessChecker
 {

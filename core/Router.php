@@ -1,8 +1,8 @@
-<?php namespace app\core;
+<?php namespace mmvc\core;
 
-use app\controllers\BaseController;
-use app\controllers\WebController;
-use app\controllers\CliController;
+use mmvc\controllers\BaseController;
+use mmvc\controllers\WebController;
+use mmvc\controllers\CliController;
 
 class Router
 {
@@ -74,7 +74,7 @@ class Router
         $delemiter = strpos($url, '-');
         $ctrl = htmlspecialchars(substr($url, 0, $delemiter));
         $this->action = htmlspecialchars(substr($url, $delemiter + 1));
-        $this->ctrlName = 'app\\controllers\\' . ucfirst($ctrl) . 'Controller';
+        $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($ctrl) . 'Controller';
     }
 
     /**
@@ -103,7 +103,7 @@ class Router
         if ($count == 0)
             throw new \Exception('parseUrlFriendly error (param count = 0)');
 
-        $this->ctrlName = 'app\\controllers\\' . ucfirst($result[0]) . 'Controller';
+        $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($result[0]) . 'Controller';
         $this->action = ucfirst($result[1]);
 
         if ($count > 2) {
@@ -128,7 +128,7 @@ class Router
             throw new \Exception('Router->action is null');
         }
         if ($this->controller === null &&
-            !($this->controller instanceof \app\controllers\BaseController)) {
+            !($this->controller instanceof \mmvc\controllers\BaseController)) {
             throw new \Exception('Router->controller is null or not instance of BaseController');
         }
         return call_user_func(array($this->controller, 'action' . ucfirst($this->action)));

@@ -1,10 +1,10 @@
-<?php namespace app\models\data;
+<?php namespace mmvc\models\data;
 
 use \PDO;
-use app\models\BaseModel;
-use app\models\data\QueryHelper;
-use app\models\data\sql\AbstractQueryHelper;
-use app\models\data\RDBHelper;
+use mmvc\models\BaseModel;
+use mmvc\models\data\QueryHelper;
+use mmvc\models\data\sql\AbstractQueryHelper;
+use mmvc\models\data\RDBHelper;
 
 /**
  * Представление выборки данных из таблицы или таблиц как объекта со свойствами
@@ -22,13 +22,13 @@ class RDBRecord extends StoredObject
 
     /**
      * Инстанс объекта для работы с БД
-     * @var \app\models\data\RDBHelper 
+     * @var \mmvc\models\data\RDBHelper 
      */
     protected $dbHelper;
 
     /**
      * Хелпер для генерации запросов в СУБД
-     * @var app\models\data\sql\AbstractQueryHelper 
+     * @var mmvc\models\data\sql\AbstractQueryHelper 
      */
     protected $queryHelper;
 
@@ -83,7 +83,7 @@ class RDBRecord extends StoredObject
 
     /**
      * 
-     * @return app\models\data\sql\AbstractQueryHelper
+     * @return mmvc\models\data\sql\AbstractQueryHelper
      */
     protected function getQueryHelper()
     {
@@ -110,7 +110,7 @@ class RDBRecord extends StoredObject
     /**
      * Заполнение свойств объекта из результатов запроса
      * @param array $props результат выполнения запроса
-     * @see app\models\data\RDBRecord::execute()
+     * @see mmvc\models\data\RDBRecord::execute()
      * @param boolean $ignore_schema нужно ли игнорировать схему при заполнении свойств
      * Например, при выполнении join и помещении результатов в один объект
      */
@@ -127,7 +127,7 @@ class RDBRecord extends StoredObject
     /**
      * Перегрузка метода присваивания значения свойству
      * При изменении значения id ему не выставляется свойство is_dirty в true
-     * @see app\models\data\StoredObject::__set()
+     * @see mmvc\models\data\StoredObject::__set()
      * @param string $name
      * @param mixed $value
      */
@@ -234,7 +234,7 @@ class RDBRecord extends StoredObject
      * или ['field_1 f1', 'field_2 f2']
      * @param string $from переопределить выборку из таблицы
      * например, если для таблицы нужно указать алиас
-     * @return \app\models\data\RDBRecord объект, в рамках которого вызывался метод select
+     * @return \mmvc\models\data\RDBRecord объект, в рамках которого вызывался метод select
      * со сгенерированным началом запроса
      */
     public static function select($values = "*", $from = null, $dbConfig = null)
@@ -251,7 +251,7 @@ class RDBRecord extends StoredObject
     /**
      * Указание критерия для запроса (используется при вызове select или update)
      * @param string $where критерий запроса, который описывает блок WHERE
-     * @return \app\models\RDBTable объект, в рамках которого был дополнен запрос
+     * @return \mmvc\models\RDBTable объект, в рамках которого был дополнен запрос
      */
     public function where($where, $values = null)
     {
@@ -263,7 +263,7 @@ class RDBRecord extends StoredObject
      * Инициализация процедуры обновления данных в БД
      * @param array $values массив key=>value [string=>mixed]
      * @param string $table Имя таблицы, для которой необходимо выполнить запрос
-     * @return \app\models\data\RDBRecord
+     * @return \mmvc\models\data\RDBRecord
      */
     public static function update($values, $table = null, $dbConfig = null)
     {
@@ -282,12 +282,12 @@ class RDBRecord extends StoredObject
 
     /**
      * Объединение с другой таблицей при вызове select
-     * @param string $type тип объединения (объявлены внутри app\models\DBTable)
+     * @param string $type тип объединения (объявлены внутри mmvc\models\DBTable)
      * @param string $tableName имя таблицы, с которой происходит объединение
      * @param string $on критерий объединения
      * используется только для объединений с типами DBTable::JOIN_TYPE_LEFT и
      * DBTable::JOIN_TYPE_RIGHT
-     * @return \app\models\data\RDBRecord
+     * @return \mmvc\models\data\RDBRecord
      */
     public function join($type, $tableName, $on = null)
     {
@@ -302,7 +302,7 @@ class RDBRecord extends StoredObject
      * Установка лимита на выборку
      * @param integer $limit сколько
      * @param integer $offset смещение
-     * @return \app\models\data\RDBRecord
+     * @return \mmvc\models\data\RDBRecord
      */
     public function limit($limit, $offset = 0)
     {
@@ -316,7 +316,7 @@ class RDBRecord extends StoredObject
      * Выполнение запроса, сгенерированного ранее для объекта
      * через вызовы методов select, update, where, join
      * @return mixed если данные есть то ArrayObject 
-     * или \app\models\data\RDBTable в зависимости от количества найденных объектов или null 
+     * или \mmvc\models\data\RDBTable в зависимости от количества найденных объектов или null 
      */
     public function execute()
     {

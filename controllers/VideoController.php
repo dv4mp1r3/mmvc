@@ -1,7 +1,7 @@
-<?php namespace app\controllers;
+<?php namespace mmvc\controllers;
 
-use app\models;
-use app\core\AccessChecker;
+use mmvc\models;
+use mmvc\core\AccessChecker;
 
 class VideoController extends WebController
 {

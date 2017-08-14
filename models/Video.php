@@ -1,6 +1,6 @@
-<?php namespace app\models;
+<?php namespace mmvc\models;
 
-use app\models\data\RDBRecord;
+use mmvc\models\data\RDBRecord;
 
 /**
  * Модель загруженного в сервис видео

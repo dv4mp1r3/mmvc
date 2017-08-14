@@ -1,8 +1,8 @@
-<?php namespace app\models\data\sql;
+<?php namespace mmvc\models\data\sql;
 
-use app\models\BaseModel;
-use app\models\data\StoredObject;
-use app\models\data\RDBHelper;
+use mmvc\models\BaseModel;
+use mmvc\models\data\StoredObject;
+use mmvc\models\data\RDBHelper;
 
 abstract class AbstractQueryHelper extends BaseModel
 {

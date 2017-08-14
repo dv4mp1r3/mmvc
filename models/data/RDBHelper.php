@@ -1,4 +1,4 @@
-<?php namespace app\models\data;
+<?php namespace mmvc\models\data;
 
 use \PDO;
 
@@ -24,7 +24,7 @@ class RDBHelper extends AbstractDataStorage
     /**
      * Загруженные хелперы для работы с запросами
      * @var array каждый элемент - наследник 
-     * \app\models\data\sql\AbstractQueryHelper
+     * \mmvc\models\data\sql\AbstractQueryHelper
      */
     protected static $queryHelpers;
 
@@ -66,11 +66,11 @@ class RDBHelper extends AbstractDataStorage
      * Добавление хелпера запросов для driverName
      * Имя класс помещается в RDBHelper::$queryHelpers
      * @param string $driverName
-     * @return \app\models\data\sql\AbstractQueryHelper 
+     * @return \mmvc\models\data\sql\AbstractQueryHelper 
      */
     protected function addQueryHelper($driverName)
     {
-        $classname = 'app\\models\\data\\sql\\' . ucfirst($driverName) . 'QueryHelper';
+        $classname = 'mmvc\\models\\data\\sql\\' . ucfirst($driverName) . 'QueryHelper';
         $obj = new $classname();
         self::$queryHelpers[$driverName] = $obj;
 
@@ -125,7 +125,7 @@ class RDBHelper extends AbstractDataStorage
 
     /**
      * 
-     * @return app\models\data\sql\AbstractQueryHelper
+     * @return mmvc\models\data\sql\AbstractQueryHelper
      */
     public function getQueryHelper()
     {

@@ -1,10 +1,10 @@
 <?php
 
-namespace app\controllers;
+namespace mmvc\controllers;
 
-use app\models;
-use app\core\AccessChecker;
-use app\models\data\RDBHelper;
+use mmvc\models;
+use mmvc\core\AccessChecker;
+use mmvc\models\data\RDBHelper;
 
 class HomeController extends WebController {
 

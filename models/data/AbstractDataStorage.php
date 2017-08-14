@@ -1,4 +1,4 @@
-<?php namespace app\models\data;
+<?php namespace mmvc\models\data;
 
 abstract class AbstractDataStorage
 {
