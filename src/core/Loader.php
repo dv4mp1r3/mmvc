@@ -6,7 +6,7 @@
 class Loader
 {
     protected static $baseNamespace = MMVC_VENDOR_NAMESPACE.'\\';
-    protected static $vendorBasePath = 'vendor\\'.MMVC_VENDOR_NAMESPACE.'\\src\\';
+    protected static $vendorBasePath = 'vendor\\dv4mp1r3\\'.MMVC_VENDOR_NAMESPACE.'\\src\\';
     //protected static $required_files = array();
 
     public static function load($classname)
