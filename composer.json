@@ -6,6 +6,8 @@
             "smarty/smarty": "~3.1"
     },
     "autoload": {
-        "classmap": ["autoload.php"]
+       "files": [
+                "autload.php"
+            ]
     }
 }

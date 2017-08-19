@@ -1,5 +1,4 @@
 <?php 
-namespace mmvc;
 
 require_once __DIR__.'/src/core/Loader.php';
 
