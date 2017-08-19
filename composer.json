@@ -1,5 +1,11 @@
 {
+    "name": "dv4mp1r3/mmvc",
+    "description": "Быстрая реализация MVC опыта ради",
+    "version": "1.0.0",
     "require": {
             "smarty/smarty": "~3.1"
+    },
+    "autoload": {
+        "classmap": ["autoload.php"]
     }
 }

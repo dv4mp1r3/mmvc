@@ -2,6 +2,7 @@
 
 use Smarty;
 use mmvc\core\AccessChecker;
+use mmvc\controllers\BaseController;
 
 class WebController extends BaseController
 {
@@ -22,7 +23,7 @@ class WebController extends BaseController
      */
     public function render($view)
     {
-        $this->smarty->display("views/$this->name/$view.tpl");
+        $this->smarty->display(MMVC_ROOT_DIR."/views/$this->name/$view.tpl");
     }
 
     /**

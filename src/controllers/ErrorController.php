@@ -1,5 +1,7 @@
 <?php namespace mmvc\controllers;
 
+use mmvc\controllers\WebController;
+
 class ErrorController extends WebController
 {
 
@@ -37,5 +39,14 @@ class ErrorController extends WebController
     public function actionBase()
     {
         $this->render('base');
+    }
+    
+    /**
+     * Выдача шаблона клиенту
+     * @param string $view имя вьюшки, которую надо отдать клиенту
+     */
+    public function render($view)
+    {
+        $this->smarty->display(__DIR__."/../views/$this->name/$view.tpl");
     }
 }

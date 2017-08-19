@@ -5,25 +5,28 @@
  */
 class Loader
 {
-
-    protected static $required_files = array();
+    protected static $baseNamespace = MMVC_VENDOR_NAMESPACE.'\\';
+    protected static $vendorBasePath = 'vendor\\'.MMVC_VENDOR_NAMESPACE.'\\src\\';
+    //protected static $required_files = array();
 
     public static function load($classname)
     {
-        $baseNamespace = 'mmvc\\';
-
-        if (self::beginsAt($classname, $baseNamespace)) {
+        if (self::beginsAt($classname, self::$baseNamespace)) {
             // загружен класс фреймворка
             // обрезаем mmvc\ в начале пути
-            $classname = substr($classname, strlen($baseNamespace));
+            $classname = self::$vendorBasePath.substr($classname, strlen(self::$baseNamespace));
         }
-        $filename = ROOT_DIR . DIRECTORY_SEPARATOR .
+        else if (defined('MMVC_PROJECT_NAMESPACE') && self::beginsAt($classname, MMVC_PROJECT_NAMESPACE))
+        {
+            $classname = substr($classname, strlen(MMVC_PROJECT_NAMESPACE.'\\'));
+        }
+        $filename = MMVC_ROOT_DIR . DIRECTORY_SEPARATOR .
             str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
 
-        if (!in_array($filename, self::$required_files)) {
+        //if (!in_array($filename, self::$required_files)) {
             require_once $filename;
-            array_push(self::$required_files, $filename);
-        }
+            //array_push(self::$required_files, $filename);
+        //}
     }
 
     private static function beginsAt($str, $substr)

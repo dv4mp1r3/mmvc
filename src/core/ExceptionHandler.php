@@ -11,7 +11,7 @@ class ExceptionHandler {
      */
     public static function doWebAppException($ex) {
         $err_ctrl = new ErrorController();
-        if (DEBUG === false) {
+        if (!defined('MMVC_DEBUG') || MMVC_DEBUG === false) {
             $err_ctrl->actionBase();
         } else {
             $err_ctrl->actionDetails($ex);
@@ -48,7 +48,7 @@ class ExceptionHandler {
 
     /**
      * Функция логирования ошибок и исключений
-     * Выполняется внезависимости от значения флага DEBUG
+     * Выполняется внезависимости от значения константы MMVC_DEBUG
      * @param \Exception $ex
      * @param array $err информация об ошибке (массив ['level','message'])
      */

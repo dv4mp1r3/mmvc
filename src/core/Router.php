@@ -84,7 +84,7 @@ class Router
      */
     protected function parseUrlFriendly()
     {
-        $dir = str_replace(DIRECTORY_SEPARATOR, '/', ROOT_DIR);
+        $dir = str_replace(DIRECTORY_SEPARATOR, '/', MMVC_ROOT_DIR);
         $url = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['REQUEST_URI']);
 
         $dir_arr = explode('/', $dir);
@@ -102,8 +102,21 @@ class Router
 
         if ($count == 0)
             throw new \Exception('parseUrlFriendly error (param count = 0)');
-
-        $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($result[0]) . 'Controller';
+        
+        switch ($result[0]) {
+            case 'error':
+            case 'gen':
+            case 'cli':            
+                $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($result[0]) . 'Controller';
+                break;
+            default:
+                if (!defined('MMVC_PROJECT_NAMESPACE'))
+                {
+                    throw new \Exception("constant MMVC_PROJECT_NAMESPACE undefined. Can not route {$result[0]}->{$result[1]}");
+                }
+                $this->ctrlName = MMVC_PROJECT_NAMESPACE.'\\controllers\\' . ucfirst($result[0]) . 'Controller';
+                break;
+        }
         $this->action = ucfirst($result[1]);
 
         if ($count > 2) {

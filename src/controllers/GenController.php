@@ -3,6 +3,7 @@
 namespace mmvc\controllers;
 
 use mmvc\models\data\RDBRecord;
+use mmvc\controllers\CliController;
 
 class GenController extends CliController
 {
