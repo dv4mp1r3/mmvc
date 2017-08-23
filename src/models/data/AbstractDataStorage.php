@@ -1,6 +1,6 @@
 <?php namespace mmvc\models\data;
 
-abstract class AbstractDataStorage
+abstract class AbstractDataStorage extends \mmvc\models\BaseModel
 {
 
     /**

@@ -7,6 +7,7 @@ use mmvc\models\data\sql\AbstractQueryHelper;
 use mmvc\models\data\RDBHelper;
 
 /**
+ * @todo реализация one2many / many2many отношений
  * Представление выборки данных из таблицы или таблиц как объекта со свойствами
  */
 class RDBRecord extends StoredObject
