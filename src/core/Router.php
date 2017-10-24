@@ -1,4 +1,5 @@
-<?php namespace mmvc\core;
+<?php
+namespace mmvc\core;
 
 use mmvc\controllers\BaseController;
 use mmvc\controllers\WebController;
@@ -10,10 +11,12 @@ class Router
     const ROUTE_TYPE_DEFAULT  = 0, // по умолчанию обрабатывается $_GET['u']
           ROUTE_TYPE_FRIENDLY = 1, // ЧПУ
           ROUTE_TYPE_CLI      = 2; // консольная версия
+
     /**
      * контроллер для передачи ему управления
      * @var BaseController 
      */
+
     protected $controller;
 
     /**
@@ -42,7 +45,7 @@ class Router
     public function __construct($routeType = Router::ROUTE_TYPE_DEFAULT)
     {
         switch ($routeType) {
-            case Router::ROUTE_TYPE_DEFAULT:               
+            case Router::ROUTE_TYPE_DEFAULT:
                 $this->parseUrl($_GET['u']);
                 break;
             case Router::ROUTE_TYPE_FRIENDLY:
@@ -60,7 +63,7 @@ class Router
 
         $this->controller = new $this->ctrlName();
     }
-    
+
     /**
      * Обработка урл вида index.php?u=ctrlName-view
      * @param string $url значение $_GET['u']
@@ -70,11 +73,20 @@ class Router
         if ($url === null) {
             throw new \Exception('$url is not defined');
         }
-        
+
         $delemiter = strpos($url, '-');
         $ctrl = htmlspecialchars(substr($url, 0, $delemiter));
         $this->action = htmlspecialchars(substr($url, $delemiter + 1));
-        $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($ctrl) . 'Controller';
+
+        $exprectedFilename = MMVC_ROOT_DIR.
+            DIRECTORY_SEPARATOR.'controllers'.
+            DIRECTORY_SEPARATOR.ucfirst($ctrl).'Controller.php';
+
+        if (defined('MMVC_PROJECT_NAMESPACE') && file_exists($exprectedFilename)) {
+            $this->ctrlName = MMVC_PROJECT_NAMESPACE . '\\controllers\\' . ucfirst($ctrl) . 'Controller';
+        } else {
+            $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($ctrl) . 'Controller';
+        }
     }
 
     /**
@@ -102,19 +114,18 @@ class Router
 
         if ($count == 0)
             throw new \Exception('parseUrlFriendly error (param count = 0)');
-        
+
         switch ($result[0]) {
             case 'error':
             case 'gen':
-            case 'cli':            
+            case 'cli':
                 $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($result[0]) . 'Controller';
                 break;
             default:
-                if (!defined('MMVC_PROJECT_NAMESPACE'))
-                {
+                if (!defined('MMVC_PROJECT_NAMESPACE')) {
                     throw new \Exception("constant MMVC_PROJECT_NAMESPACE undefined. Can not route {$result[0]}->{$result[1]}");
                 }
-                $this->ctrlName = MMVC_PROJECT_NAMESPACE.'\\controllers\\' . ucfirst($result[0]) . 'Controller';
+                $this->ctrlName = MMVC_PROJECT_NAMESPACE . '\\controllers\\' . ucfirst($result[0]) . 'Controller';
                 break;
         }
         $this->action = ucfirst($result[1]);

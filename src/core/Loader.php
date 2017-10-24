@@ -16,7 +16,7 @@ class Loader
             // обрезаем mmvc\ в начале пути
             $classname = self::$vendorBasePath.substr($classname, strlen(self::$baseNamespace));
         }
-        else if (defined('MMVC_PROJECT_NAMESPACE') && self::beginsAt($classname, MMVC_PROJECT_NAMESPACE))
+        else if (self::beginsAt($classname, MMVC_PROJECT_NAMESPACE))
         {
             $classname = substr($classname, strlen(MMVC_PROJECT_NAMESPACE.'\\'));
         }
