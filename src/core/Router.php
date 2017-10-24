@@ -78,11 +78,11 @@ class Router
         $ctrl = htmlspecialchars(substr($url, 0, $delemiter));
         $this->action = htmlspecialchars(substr($url, $delemiter + 1));
 
-        $exprectedFilename = MMVC_ROOT_DIR.
+        $expectedFilename = MMVC_ROOT_DIR.
             DIRECTORY_SEPARATOR.'controllers'.
             DIRECTORY_SEPARATOR.ucfirst($ctrl).'Controller.php';
 
-        if (defined('MMVC_PROJECT_NAMESPACE') && file_exists($exprectedFilename)) {
+        if (defined('MMVC_PROJECT_NAMESPACE') && file_exists($expectedFilename)) {
             $this->ctrlName = MMVC_PROJECT_NAMESPACE . '\\controllers\\' . ucfirst($ctrl) . 'Controller';
         } else {
             $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($ctrl) . 'Controller';
