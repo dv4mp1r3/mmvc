@@ -139,7 +139,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'set':
                 if (is_array($value))
                     return "(" . implode(", ", $value) . ")";
-                throw new Exception("Variable 'value' is not array.");
+                throw new \Exception("Variable 'value' is not array.");
             case 'bit':
                 return boolval($value) ? "1" : "0";
             default:

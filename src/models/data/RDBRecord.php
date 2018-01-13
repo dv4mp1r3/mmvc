@@ -2,7 +2,6 @@
 
 use \PDO;
 use mmvc\models\BaseModel;
-use mmvc\models\data\QueryHelper;
 use mmvc\models\data\sql\AbstractQueryHelper;
 use mmvc\models\data\RDBHelper;
 
