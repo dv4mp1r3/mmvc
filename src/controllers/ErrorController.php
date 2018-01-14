@@ -30,7 +30,7 @@ class ErrorController extends WebController
             '</div';
         $this->appendVariable('stackTrace', $stackTrace);
         $this->appendVariable('www_root', $this->getHttpRootPath());
-        $this->render('details');
+        parent::render(__DIR__."/../views/$this->name/details.php", true);
     }
 
     /**
@@ -38,15 +38,6 @@ class ErrorController extends WebController
      */
     public function actionBase()
     {
-        $this->render('base');
-    }
-    
-    /**
-     * Выдача шаблона клиенту
-     * @param string $view имя вьюшки, которую надо отдать клиенту
-     */
-    public function render($view)
-    {
-        $this->smarty->display(__DIR__."/../views/$this->name/$view.tpl");
+        parent::render(__DIR__."/../views/$this->name/base.php", true);
     }
 }

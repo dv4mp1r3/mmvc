@@ -1,6 +1,5 @@
 <?php namespace mmvc\controllers;
 
-use Smarty;
 use mmvc\core\AccessChecker;
 use mmvc\controllers\BaseController;
 
@@ -9,31 +8,47 @@ class WebController extends BaseController
     const RULE_TYPE_ACCESS_DENIED = AccessChecker::RULE_DENIED;
     const RULE_TYPE_ACCESS_GRANTED = AccessChecker::RULE_GRANTED;
     
-    protected $smarty;
+    /**
+     * Массив со значениями перед передачей во вьюху
+     * очищается после вызова render
+     * @var array 
+     */
+    protected $vars;
     
     public function __construct()
     {
         parent::__construct();
-        $this->smarty = new Smarty();
+        $this->vars = [];
     }
     
     /**
      * Выдача шаблона клиенту
      * @param string $view имя вьюшки, которую надо отдать клиенту
+     * @param boolean $$isFullPath использование полного пути во $view
+     * @see \mmvc\controllers\ErrorController
      */
-    public function render($view)
+    public function render($view, $isFullPath = false)
     {
-        $this->smarty->display(MMVC_ROOT_DIR."/views/$this->name/$view.tpl");
+        ob_start();
+        extract($this->vars, EXTR_OVERWRITE);
+        $this->vars = [];
+        if ($isFullPath) {
+            require_once $view;
+        } else {
+            require_once MMVC_ROOT_DIR . "/views/$this->name/$view.php";
+        }
+        return ob_get_contents();
     }
 
     /**
      * Добавление переменной в шаблон
      * @param string $name имя
      * @param mixed $value
+     * @param integer 
      */
     public function appendVariable($name, $value)
     {
-        $this->smarty->assign($name, $value);
+        $this->vars[$name] = $value;        
     }
 
     /**
@@ -46,12 +61,10 @@ class WebController extends BaseController
      */
     public function getHtmlContent($template, $params)
     {
-        $sm = new Smarty();
         foreach ($params as $key => $value) {
-            $sm->assign($key, $value);
+            $this->appendVariable($key, $value);
         }
-
-        return $sm->fetch($template);
+        return $this->render($template);
     }
 
     /**
