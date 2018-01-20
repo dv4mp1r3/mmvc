@@ -7,7 +7,7 @@ class BaseModel
      * 
      * @var string 
      */
-    protected $ctrlName;
+    protected $modelName;
 
     public function getName()
     {
@@ -23,6 +23,6 @@ class BaseModel
 
     public function __construct()
     {
-        $this->ctrlName = $this->getName();
+        $this->modelName = $this->getName();
     }
 }
