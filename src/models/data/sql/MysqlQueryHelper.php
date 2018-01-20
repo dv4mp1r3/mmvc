@@ -131,6 +131,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'string':
             case 'enum':
             case 'tinytext':
+            case 'text':
             case 'mediumtext':
             case 'varchar':
                 return self::filterString($value);
