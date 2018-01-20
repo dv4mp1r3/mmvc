@@ -64,7 +64,9 @@ class WebController extends BaseController
         foreach ($params as $key => $value) {
             $this->appendVariable($key, $value);
         }
-        return $this->render($template);
+        $content = $this->render($template, true);
+        ob_clean();
+        return $content;
     }
 
     /**
