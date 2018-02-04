@@ -9,6 +9,11 @@ class BaseModel
      */
     protected $modelName;
 
+    /**
+     * Возврат имени класса без неймспейса
+     * Пример: BaseModel
+     * @return string
+     */
     public function getName()
     {
         return substr(
@@ -16,6 +21,11 @@ class BaseModel
         );
     }
 
+    /**
+     * Возврат имени класса вместе с неймспейсом
+     * Пример: mmvc\models\BaseModel
+     * @return string
+     */
     public function getClassName()
     {
         return get_called_class();
