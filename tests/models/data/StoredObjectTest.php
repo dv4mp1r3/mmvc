@@ -2,9 +2,10 @@
 
 require_once __DIR__.'/../../../src/models/data/StoredObject.php';
 
+use PHPUnit\Framework\TestCase;
 use mmvc\models\data\StoredObject;
 
-class StoredObjectTest extends PHPUnit_Framework_TestCase { 
+class StoredObjectTest extends TestCase { 
     
     protected $model;
     
@@ -33,4 +34,10 @@ class StoredObjectTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(['property' => 'value'], $result);
     }
     
+    public function testAsJson()
+    {        
+        $result = $this->model->asJson();
+        
+        $this->assertEquals(json_encode(['property' => 'value']), $result);
+    }
 }

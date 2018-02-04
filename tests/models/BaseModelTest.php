@@ -2,9 +2,10 @@
 
 require_once __DIR__.'/../../src/models/BaseModel.php';
 
+use PHPUnit\Framework\TestCase;
 use mmvc\models\BaseModel;
 
-class BaseModelTest extends PHPUnit_Framework_TestCase {
+class BaseModelTest extends TestCase {
     
     protected $model;
     
