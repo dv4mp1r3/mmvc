@@ -40,4 +40,12 @@ class StoredObjectTest extends TestCase {
         
         $this->assertEquals(json_encode(['property' => 'value']), $result);
     }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testUndefinedPropertyAccess()
+    {
+        $result = $this->model->undefinedProperty;
+    }
 }
