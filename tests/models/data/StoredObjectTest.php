@@ -48,4 +48,12 @@ class StoredObjectTest extends TestCase {
     {
         $result = $this->model->undefinedProperty;
     }
+    
+    public function testIsNew()
+    {
+        $this->model->someProperty = 'someValue';
+        $this->model->save();
+        
+        $this->assertAttributeEquals(false, 'isNew', $this->model);
+    }
 }
