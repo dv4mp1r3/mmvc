@@ -29,13 +29,14 @@ class WebController extends BaseController
      */
     public function render($view, $isFullPath = false)
     {
+        $viewFolderName = lcfirst($this->name);
         ob_start();
         extract($this->vars, EXTR_OVERWRITE);
         $this->vars = [];
         if ($isFullPath) {
             require_once $view;
         } else {
-            require_once MMVC_ROOT_DIR . "/views/$this->name/$view.php";
+            require_once MMVC_ROOT_DIR . "/views/$viewFolderName/$view.php";
         }
         return ob_get_contents();
     }
