@@ -113,7 +113,7 @@ class Router
         $count = count($result);
 
         if ($count == 0) {
-            $result = $this->getDeafultAction();
+            $result = $this->getDefaultAction();
         }
 
         switch ($result[0]) {
@@ -170,7 +170,7 @@ class Router
         }
     }
     
-    protected function getDeafultAction()
+    protected function getDefaultAction()
     {
         global $config;
         if (empty($config['defaultAction'])) {
