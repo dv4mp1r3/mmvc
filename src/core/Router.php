@@ -112,8 +112,9 @@ class Router
 
         $count = count($result);
 
-        if ($count == 0)
-            throw new \Exception('parseUrlFriendly error (param count = 0)');
+        if ($count == 0) {
+            $result = $this->getDeafultAction();
+        }
 
         switch ($result[0]) {
             case 'error':
@@ -167,5 +168,18 @@ class Router
         if (AccessChecker::checkAccess($this->controller, $this->action)) {
             echo $this->callAction();
         }
+    }
+    
+    protected function getDeafultAction()
+    {
+        global $config;
+        if (empty($config['defaultAction'])) {
+            throw new \Exception('parseUrlFriendly error (param count = 0)');
+        }
+        $result = [
+            $config['defaultAction']['controller'],
+            $config['defaultAction']['action'],
+        ];
+        return $result;
     }
 }
