@@ -38,7 +38,7 @@ class StorageHelper extends \mmvc\models\BaseModel {
                 $storage = new \Redis();
                 break;
             case self::INSTANCE_MEMCACHED:
-                $storage = new \Memcache();
+                $storage = new \Memcached();
                 break;
             default :
                 throw new \Exception("Unknown storage type: {$storageConfig['type']}");
