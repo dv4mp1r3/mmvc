@@ -45,7 +45,7 @@ class StorageHelper extends \mmvc\models\BaseModel {
                 throw new \Exception("Unknown storage type: {$storageConfig['type']}");
         }
         
-        if (gettype($callBack) === 'callable')
+        if ($callBack instanceof \Closure)
         {
             $callBack($storage);
         }
