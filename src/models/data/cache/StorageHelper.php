@@ -27,9 +27,10 @@ class StorageHelper extends \mmvc\models\BaseModel {
     /**
      * Возврат инстанса класса 
      * @param string $storageConfig
+     * @param callable $callBack
      * @throws \Exception
      */
-    public static function getInstance($storageConfig = 'default')
+    public static function getInstance($storageConfig = 'default', $callBack = null)
     {               
         $storageConfig = static::getStorageConfig($storageConfig);        
         $storage = null;
@@ -42,6 +43,11 @@ class StorageHelper extends \mmvc\models\BaseModel {
                 break;
             default :
                 throw new \Exception("Unknown storage type: {$storageConfig['type']}");
+        }
+        
+        if (gettype($callBack) === 'callable')
+        {
+            $callBack($storage);
         }
         
         if (!$storage->connect($storageConfig['host'], $storageConfig['port']))
