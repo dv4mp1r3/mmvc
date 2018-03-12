@@ -2,6 +2,7 @@
 
 use mmvc\core\AccessChecker;
 use mmvc\controllers\BaseController;
+use mmvc\models\BaseView;
 
 class WebController extends BaseController
 {
@@ -9,16 +10,15 @@ class WebController extends BaseController
     const RULE_TYPE_ACCESS_GRANTED = AccessChecker::RULE_GRANTED;
     
     /**
-     * Массив со значениями перед передачей во вьюху
-     * очищается после вызова render
-     * @var array 
+     *
+     * @var BaseView 
      */
-    protected $vars;
+    protected $view;
     
     public function __construct()
     {
         parent::__construct();
-        $this->vars = [];
+        $this->view = new BaseView(lcfirst($this->name));
     }
     
     /**
@@ -27,29 +27,23 @@ class WebController extends BaseController
      * @param boolean $$isFullPath использование полного пути во $view
      * @see \mmvc\controllers\ErrorController
      */
-    public function render($view, $isFullPath = false)
+    public function render($view, $data = null, $isFullPath = false)
     {
-        $viewFolderName = lcfirst($this->name);
-        ob_start();
-        extract($this->vars, EXTR_OVERWRITE);
-        $this->vars = [];
-        if ($isFullPath) {
-            require_once $view;
-        } else {
-            require_once MMVC_ROOT_DIR . "/views/$viewFolderName/$view.php";
-        }
-        return ob_get_contents();
+        if (is_array($data))
+        {
+            $this->view->appendVariables($data);
+        }        
+        return $this->view->render($view, $isFullPath);
     }
 
     /**
      * Добавление переменной в шаблон
      * @param string $name имя
      * @param mixed $value
-     * @param integer 
      */
     public function appendVariable($name, $value)
     {
-        $this->vars[$name] = $value;        
+        $this->view->appendVariable($name, $value);
     }
 
     /**
@@ -62,12 +56,7 @@ class WebController extends BaseController
      */
     public function getHtmlContent($template, $params)
     {
-        foreach ($params as $key => $value) {
-            $this->appendVariable($key, $value);
-        }
-        $content = $this->render($template, true);
-        ob_clean();
-        return $content;
+        return $this->render($template, $params, true);
     }
 
     /**
