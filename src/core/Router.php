@@ -9,7 +9,9 @@ class Router
 {
 
     const ROUTE_TYPE_DEFAULT  = 0, // по умолчанию обрабатывается $_GET['u']
+          //domain.zone/controller/action/var1/val1/val2/var2
           ROUTE_TYPE_FRIENDLY = 1, // ЧПУ
+          // тоже что и ROUTE_TYPE_DEFAULT, только данные берутся из $argv
           ROUTE_TYPE_CLI      = 2; // консольная версия
 
     /**
