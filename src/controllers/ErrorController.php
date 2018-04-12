@@ -30,7 +30,7 @@ class ErrorController extends WebController
             '</div';
         $this->appendVariable('stackTrace', $stackTrace);
         $this->appendVariable('www_root', $this->getHttpRootPath());
-        parent::render(__DIR__."/../views/$this->name/details.php", true);
+        parent::render(__DIR__."/../views/$this->name/details.php", null, true);
     }
 
     /**
@@ -38,6 +38,6 @@ class ErrorController extends WebController
      */
     public function actionBase()
     {
-        parent::render(__DIR__."/../views/$this->name/base.php", true);
+        parent::render(__DIR__."/../views/$this->name/base.php", null, true);
     }
 }
