@@ -65,7 +65,12 @@ class WebController extends BaseController
      */
     public function getHttpRootPath()
     {
-        return '//' . $_SERVER['HTTP_HOST'] . str_replace("/index.php", "", $_SERVER['PHP_SELF']);
+        if (!empty ($_SERVER['PHP_SELF']))
+        {
+            return '//' . $_SERVER['HTTP_HOST'] . str_replace("/index.php", "", $_SERVER['PHP_SELF']);
+        }
+
+        return '//' . $_SERVER['HTTP_HOST'] . str_replace("/index.php", "", $_SERVER['DOCUMENT_URI']);
     }
 
     protected function getInput($name, $filterType = null, $inputType = null)
