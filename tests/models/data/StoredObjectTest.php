@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__.'/../../../src/models/BaseModel.php';
 require_once __DIR__.'/../../../src/models/data/StoredObject.php';
 
 use PHPUnit\Framework\TestCase;
