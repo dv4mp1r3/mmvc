@@ -1,0 +1,7 @@
+<phpunit bootstrap="autoload.php">
+    <testsuites>
+        <testsuite name="mmvc test suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

@@ -1,60 +1,59 @@
 <?php
 
-require_once __DIR__.'/../../../src/models/BaseModel.php';
-require_once __DIR__.'/../../../src/models/data/StoredObject.php';
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use mmvc\models\data\StoredObject;
 
-class StoredObjectTest extends TestCase { 
-    
+class StoredObjectTest extends TestCase {
+
+    /**
+     * @var StoredObject $model
+     */
     protected $model;
     
-    public function setUp()
+    public function setUp() : void
     {
         $this->model = new StoredObject('test');
         $this->model->property = 'value';
     }
     
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $this->model = null;
     }
     
-    public function testGettingProperty()
+    public function testGettingProperty() : void
     {      
         $result = $this->model->property;
         
         $this->assertEquals('value', $result);
     }
     
-    public function testAsArray()
+    public function testAsArray() : void
     {        
         $result = $this->model->asArray();
         
         $this->assertEquals(['property' => 'value'], $result);
     }
     
-    public function testAsJson()
+    public function testAsJson() : void
     {        
         $result = $this->model->asJson();
         
         $this->assertEquals(json_encode(['property' => 'value']), $result);
     }
-    
-    /**
-     * @expectedException Exception
-     */
-    public function testUndefinedPropertyAccess()
+
+    public function testUndefinedPropertyAccess() : void
     {
+        $this->expectException('\\Exception');
         $result = $this->model->undefinedProperty;
     }
     
-    public function testIsNew()
+    public function testIsNew() : void
     {
         $this->model->someProperty = 'someValue';
         $this->model->save();
-        
-        $this->assertAttributeEquals(false, 'isNew', $this->model);
+        $this->assertEquals(false, $this->model->isNew());
     }
 }

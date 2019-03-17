@@ -20,6 +20,12 @@ class Loader
         {
             $classname = substr($classname, strlen(MMVC_PROJECT_NAMESPACE.'\\'));
         }
+        else
+        {
+            // если класс не относится к приложению или mmvc - передаем управление другому загрузчику
+            // например, если это еще одна зависимость
+            return;
+        }
         $filename = MMVC_ROOT_DIR . DIRECTORY_SEPARATOR .
             str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
 
@@ -32,14 +38,5 @@ class Loader
     private static function beginsAt($str, $substr)
     {
         return strpos($str, $substr) === 0;
-    }
-
-    /**
-     * Возврат всех загруженных скриптов на момент вызова функции
-     * @return array required_files
-     */
-    public static function getReqiredFiles()
-    {
-        return self::$required_files;
     }
 }

@@ -94,4 +94,12 @@ class StoredObject extends BaseModel
     {
         $this->isNew = false;
     }
+
+    /**
+     * @return bool
+     */
+    public function isNew()
+    {
+        return $this->isNew;
+    }
 }

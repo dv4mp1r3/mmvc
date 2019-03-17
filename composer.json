@@ -1,13 +1,17 @@
 {
-    "name": "dv4mp1r3/mmvc",
-    "description": "Быстрая реализация MVC опыта ради",
-    "version": "1.0.0",
-    "require": {
-            
-    },
-    "autoload": {
-       "files": [
-                "autoload.php"
-            ]
-    }
+  "name": "dv4mp1r3/mmvc",
+  "description": "Быстрая реализация MVC опыта ради",
+  "version": "1.0.0",
+  "require": {
+    "php": "^7.2.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8",
+    "phpunit/php-code-coverage": "^7"
+  },
+  "autoload": {
+    "files": [
+      "autoload.php"
+    ]
+  }
 }
