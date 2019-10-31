@@ -30,4 +30,13 @@ class ColoredConsole extends BaseModel
     {
         return "\033[{$color}m{$string}\033[0m";
     }
+
+    public static function paintYesNo(string $string, bool $condition, string $yesColor, string $noColor): string
+    {
+        if ($condition)
+        {
+            return self::paintString($string, $yesColor);
+        }
+        return self::paintString($string, $noColor);
+    }
 }
