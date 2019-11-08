@@ -157,7 +157,7 @@ class Table extends \mmvc\models\BaseModel
                 return $this->cachedTableBorder;
             }
             $this->cachedTableBorder =
-                "+".str_repeat($borderCharacter, array_sum($this->lengthPerColumn) + 2)."+";
+                "+".str_repeat($borderCharacter, array_sum($this->lengthPerColumn) + 1)."+";
             return $this->cachedTableBorder;
         }
 
