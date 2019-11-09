@@ -14,6 +14,9 @@ class Table extends \mmvc\models\BaseModel
     const FLAG_FILTER_TERMINAL_COLORS = 1;
     const FLAG_EMPTY = 0;
 
+    const REGEXP_COLOR_CODE_BEGIN = '/\\033\\[[0-9]\\;[0-9]{2}m/';
+    const REGEXP_COLOR_CODE_END = '/\\033\\[0m/';
+
     /**
      * @var array
      */
@@ -37,10 +40,17 @@ class Table extends \mmvc\models\BaseModel
 
     protected $cachedTableBorder = '';
 
+    protected $ignoreColorCodes = true;
+
     public function __construct(int $flags = 0)
     {
         $this->flags = $flags;
         parent::__construct();
+    }
+
+    public function setIgnoreColorCodes(bool $value)
+    {
+        $this->ignoreColorCodes = $value;
     }
 
     public function getColumnCount(): int
@@ -65,6 +75,32 @@ class Table extends \mmvc\models\BaseModel
     }
 
     /**
+     * Возвращает количество символов, которые нужно игнорировать при расчете длины строки, т.к. это
+     * спец. символы для форматирования текста в консоли
+     * @param string $pattern
+     * @param string $string
+     * @return int
+     */
+    protected function considerColorCodes(string $pattern, string $string): int
+    {
+        $matches = [];
+
+        $count = preg_match($pattern, $string, $matches);
+        if ($count === false || $count === 0)
+        {
+            return 0;
+        }
+
+        $count = 0;
+        foreach ($matches as $match)
+        {
+            $count += mb_strlen($match);
+        }
+
+        return $count;
+    }
+
+    /**
      * Расчет максимальной длины каждого значения в таблице без учета длины заголовков
      * (длина заголовков проверяется в вызове setHeader
      */
@@ -76,9 +112,10 @@ class Table extends \mmvc\models\BaseModel
             foreach ($row as $column)
             {
                 $columnLen = mb_strlen((string)$column);
-                if (mb_strpos($column, "\033") !== false)
+                if (!$this->ignoreColorCodes)
                 {
-                    $columnLen -= 11;
+                    $columnLen -= $this->considerColorCodes(Table::REGEXP_COLOR_CODE_BEGIN, $column);
+                    $columnLen -= $this->considerColorCodes(Table::REGEXP_COLOR_CODE_END, $column);
                 }
 
                 if ($columnLen > $this->lengthPerColumn[$i])
@@ -118,9 +155,10 @@ class Table extends \mmvc\models\BaseModel
     protected function formatCell(string $string, int $align, int $columnNumber) : string
     {
         $len = mb_strlen($string);
-        if (mb_strpos($string, "\033") !== false)
+        if (!$this->ignoreColorCodes)
         {
-            $len -= 11;
+            $len -= $this->considerColorCodes(Table::REGEXP_COLOR_CODE_BEGIN, $string);
+            $len -= $this->considerColorCodes(Table::REGEXP_COLOR_CODE_END, $string);
         }
         $spaces = $this->generateEmptyCell($columnNumber, $len);
         switch ($align)
