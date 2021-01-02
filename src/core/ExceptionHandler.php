@@ -57,6 +57,7 @@ class ExceptionHandler {
         $log = fopen($config['logpath'], 'a+');
         if (!$log) {
             echo 'can not open logname (check access rights to log folder)';
+            return;
         }
 
         fwrite($log, date("Y-m-d H:i:s"));
