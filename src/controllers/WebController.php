@@ -2,6 +2,7 @@
 
 use mmvc\core\AccessChecker;
 use mmvc\controllers\BaseController;
+use mmvc\core\Config;
 use mmvc\models\BaseView;
 
 class WebController extends BaseController
@@ -15,9 +16,9 @@ class WebController extends BaseController
      */
     protected $view;
     
-    public function __construct()
+    public function __construct(Config $config)
     {
-        parent::__construct();
+        parent::__construct($config);
         $this->view = new BaseView(lcfirst($this->name));
     }
     

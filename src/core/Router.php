@@ -40,12 +40,18 @@ class Router
     protected $ctrlName;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * Конструктор роутера (обработка ссылок, выдача нужной страницы в зависимости от url)
      * @param integer $routeType
      * @throws Exception
      */
-    public function __construct($routeType = Router::ROUTE_TYPE_DEFAULT)
+    public function __construct($routeType = Router::ROUTE_TYPE_DEFAULT, Config $config)
     {
+        $this->config = $config;
         switch ($routeType) {
             case Router::ROUTE_TYPE_DEFAULT:
                 $this->parseUrl($_GET['u']);
@@ -63,7 +69,7 @@ class Router
                 throw new \Exception("Unknown route type $routeType");
         }
 
-        $this->controller = new $this->ctrlName();
+        $this->controller = new $this->ctrlName($this->config);
     }
 
     /**

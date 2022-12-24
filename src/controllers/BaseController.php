@@ -1,5 +1,6 @@
 <?php namespace mmvc\controllers;
 
+use mmvc\core\Config;
 use mmvc\core\Loader;
 
 abstract class BaseController
@@ -44,9 +45,15 @@ abstract class BaseController
      * @var string 
      */
     protected $name;
+
+    /**
+     * @var Config
+     */
+    private $config;
    
-    public function __construct()
+    public function __construct(Config $config)
     {
+        $this->config = $config;
         $classname = get_called_class();
         $tmp = substr($classname, strrpos($classname, '\\') + 1);
         $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));        
@@ -59,6 +66,10 @@ abstract class BaseController
     public function getName()
     {        
         return $this->name;
+    }
+
+    protected function getConfig() : Config {
+        return $this->config;
     }
     
     /**

@@ -43,11 +43,11 @@ class Application
 
 
     /**
-     * @var array $config
+     * @var Config $config
      */
     protected $config;
 
-    public function __construct(array $config)
+    public function __construct(Config $config)
     {
         $this->config = $config;
     }
@@ -61,7 +61,7 @@ class Application
             set_error_handler($handler);
         }
 
-        date_default_timezone_set($this->config[self::CONFIG_KEY_TIMEZONE]);
+        date_default_timezone_set($this->config->getValueByKey(self::CONFIG_KEY_TIMEZONE));
 
         $router = $this->initRouter();
         $router->route();
@@ -75,10 +75,10 @@ class Application
      */
     protected function getHandler(string $configHandlerKey, string $defaultHandler) : string
     {
-        $handler = array_key_exists($configHandlerKey, $this->config) && !empty($this->config[$configHandlerKey])
-            ? $this->config[$configHandlerKey]
+        $handler = $this->config->getValueByKey($configHandlerKey);
+        return !empty($handler)
+            ? $handler
             : $defaultHandler;
-        return $handler;
     }
 
     /**
@@ -91,13 +91,17 @@ class Application
                 self::CONFIG_KEY_EXCEPTION_HANDLER_CLI,
                 self::DEFAULT_EXCEPTION_HANDLER_CLI);
             set_exception_handler($handler);
-            return new Router(Router::ROUTE_TYPE_CLI);
+            return new Router(Router::ROUTE_TYPE_CLI, $this->config);
         } else {
             $handler = $this->getHandler(
                 self::CONFIG_KEY_EXCEPTION_HANDLER_WEB,
                 self::DEFAULT_EXCEPTION_HANDLER_WEB);
             set_exception_handler($handler);
-            return new Router($this->config[self::CONFIG_KEY_ROUTE]);
+            $routeKey = $this->config->getValueByKey(self::CONFIG_KEY_ROUTE);
+            return new Router(
+                empty($routeKey) ? Router::ROUTE_TYPE_DEFAULT : $routeKey,
+                $this->config
+            );
         }
     }
 }
