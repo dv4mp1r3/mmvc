@@ -97,7 +97,7 @@ class RDBRecord extends StoredObject
      */
     protected function initStored($id)
     {
-        if (!RDBHelper::isSchemaExists($this->objectName)) {
+        if (!self::isSchemaExists($this->objectName)) {
             $this->parseSchema($this->objectName);
         }
 
