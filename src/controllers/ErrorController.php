@@ -1,13 +1,13 @@
 <?php namespace mmvc\controllers;
 
-use mmvc\controllers\WebController;
+use mmvc\core\Config;
 
 class ErrorController extends WebController
 {
 
-    public function __construct()
+    public function __construct(Config $config)
     {
-        parent::__construct();
+        parent::__construct($config);
         $this->rules = [
             'base' => [
                 'granted' => '*',
