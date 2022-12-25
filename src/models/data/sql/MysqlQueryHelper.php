@@ -9,8 +9,8 @@ class MysqlQueryHelper extends AbstractQueryHelper
 
     const PROPERTY_ATTRIBUTE_FLAGS = 'flags';
 
-    const DEFAULT_DATETIME_FORMAT = '%d-%m-%Y %h:%i:%s';
-    const DEFAULT_TIME_FORMAT = '%h:%i:%s';
+    const DEFAULT_DATETIME_FORMAT = '%d-%m-%Y %H:%i:%s';
+    const DEFAULT_TIME_FORMAT = '%H:%i:%s';
     const DEFAULT_DATE_FORMAT = '%d-%m-%Y';
 
     public function isPrimaryKey($data)
