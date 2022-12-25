@@ -28,7 +28,7 @@ class RDBRecord extends StoredObject
 
     /**
      * Хелпер для генерации запросов в СУБД
-     * @var mmvc\models\data\sql\AbstractQueryHelper 
+     * @var AbstractQueryHelper
      */
     protected $queryHelper;
 
@@ -82,8 +82,8 @@ class RDBRecord extends StoredObject
     }
 
     /**
-     * 
-     * @return mmvc\models\data\sql\AbstractQueryHelper
+     *
+     * @return AbstractQueryHelper
      */
     protected function getQueryHelper()
     {
@@ -251,7 +251,7 @@ class RDBRecord extends StoredObject
     /**
      * Указание критерия для запроса (используется при вызове select или update)
      * @param string $where критерий запроса, который описывает блок WHERE
-     * @return \mmvc\models\RDBTable объект, в рамках которого был дополнен запрос
+     * @return RDBRecord объект, в рамках которого был дополнен запрос
      */
     public function where($where, $values = null)
     {
@@ -341,6 +341,7 @@ class RDBRecord extends StoredObject
     /**
      * 
      * @param \PDOStatement $st
+     * @return \ArrayObject|string
      */
     protected function postExecute($st, $classname, $tableName)
     {
