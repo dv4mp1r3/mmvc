@@ -9,6 +9,10 @@ class MysqlQueryHelper extends AbstractQueryHelper
 
     const PROPERTY_ATTRIBUTE_FLAGS = 'flags';
 
+    const DEFAULT_DATETIME_FORMAT = '%d-%m-%Y %h:%i:%s';
+    const DEFAULT_TIME_FORMAT = '%h:%i:%s';
+    const DEFAULT_DATE_FORMAT = '%d-%m-%Y';
+
     public function isPrimaryKey($data)
     {
         return isset($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS]) && ($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS] & MYSQLI_PRI_KEY_FLAG);
@@ -32,7 +36,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
     {
         $limit = intval($limit);
         $offset = intval($offset);
-        
+
         $this->addQueryValue('limit', $limit);
         $this->addQueryValue('offset', $offset);
 
@@ -43,12 +47,12 @@ class MysqlQueryHelper extends AbstractQueryHelper
     {
         if (is_array($values))
         {
-            foreach ($values as $key => &$value) 
-            {                
+            foreach ($values as $key => &$value)
+            {
                 $this->addQueryValue($key, $value);
             }
         }
-        
+
         return " WHERE " . $where;
     }
 
@@ -60,13 +64,21 @@ class MysqlQueryHelper extends AbstractQueryHelper
     public function buildUpdate($table, $values, $where = null)
     {
         $set = '';
+        $dateTypes = ['datetime', 'time', 'date'];
         foreach ($values as $key => $value) {
             if (strlen($set) > 0) {
                 $set .= ', ';
             }
-            $value = self::serializeProperty($value, RDBRecord::getTypeName($table, $key));
+            $type = RDBRecord::getTypeName($table, $key);
+            $serializedValue = self::serializeProperty($value, $type, $key);
+            if (in_array($type, $dateTypes)) {
+                $set .= "`$key`= $serializedValue";
+            }
+            else {
+                $set .= "`$key`=:$key";
+            }
             $this->addQueryValue($key, $value);
-            $set .= "`$key`=:$key";
+
         }
 
         $query = "UPDATE $table SET $set ";
@@ -75,7 +87,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
         }
         return $query;
     }
-    
+
     /**
      * Создание запроса для добавления записи в базу
      * Вызывается при сохранении (метод save())
@@ -101,8 +113,9 @@ class MysqlQueryHelper extends AbstractQueryHelper
             }
             $properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = false;
             $value = self::serializeProperty(
-                $data[StoredObject::PROPERTY_ATTRIBUTE_VALUE], 
-                RDBRecord::getTypeName($table, $key)
+                $data[StoredObject::PROPERTY_ATTRIBUTE_VALUE],
+                RDBRecord::getTypeName($table, $key),
+                $key
             );
             $this->addQueryValue($key, $value);
             $values .= ":$key";
@@ -120,7 +133,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
      * @throws Exception генерируется если передаваемый тип неизвестен
      * Или если передан тип set, но $variable не массив
      */
-    private function serializeProperty($value, $type)
+    private function serializeProperty($value, $type, $key)
     {
         $type = strtolower($type);
         switch ($type) {
@@ -141,6 +154,12 @@ class MysqlQueryHelper extends AbstractQueryHelper
                 if (is_array($value))
                     return "(" . implode(", ", $value) . ")";
                 throw new \Exception("Variable 'value' is not array.");
+            case 'datetime':
+                return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_DATETIME_FORMAT.'\' )';
+            case 'date':
+                return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_DATE_FORMAT.'\' )';
+            case 'time':
+                return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_TIME_FORMAT.'\' )';
             case 'bit':
                 return boolval($value) ? "1" : "0";
             default:
