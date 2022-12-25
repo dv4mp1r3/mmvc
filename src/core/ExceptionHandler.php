@@ -10,7 +10,9 @@ class ExceptionHandler {
      * @param \Exception $ex
      */
     public static function doWebAppException($ex) {
-        $err_ctrl = new ErrorController();
+        // todo: rewrite
+        global $config;
+        $err_ctrl = new ErrorController(new Config($config));
         if (!defined('MMVC_DEBUG') || MMVC_DEBUG === false) {
             $err_ctrl->actionBase();
         } else {
