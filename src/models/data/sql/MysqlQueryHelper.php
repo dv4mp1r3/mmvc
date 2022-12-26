@@ -40,7 +40,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
         $this->addQueryValue('limit', $limit);
         $this->addQueryValue('offset', $offset);
 
-        return $query . " LIMIT :limit, :offset ";
+        return $query . " LIMIT :offset, :limit ";
     }
 
     public function addWhere($where, $values = null)
