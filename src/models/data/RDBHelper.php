@@ -7,7 +7,7 @@ use \PDO;
  * вынести конфиг в класс-приложение чтобы убрать использование глобальной переменной
  * 
  */
-class RDBHelper extends AbstractDataStorage
+class RDBHelper extends AbstractDataStorage implements Transactional
 {
 
     const DB_TYPE_MSSQL = 'mssql';
@@ -130,5 +130,40 @@ class RDBHelper extends AbstractDataStorage
     public function getQueryHelper()
     {
         return self::$queryHelpers[$this->getDriverName()];
+    }
+
+    /**
+     * @throws \PDOException
+     * @return bool
+     */
+    public function beginTransaction(): bool
+    {
+        return $this->connection->beginTransaction();
+    }
+
+    /**
+     * @throws \PDOException
+     * @return bool
+     */
+    public function commit(): bool
+    {
+        return $this->connection->commit();
+    }
+
+    /**
+     * @throws \PDOException
+     * @return bool
+     */
+    public function rollback(): bool
+    {
+        return $this->connection->rollBack();
+    }
+
+    /**
+     * @return bool
+     */
+    public function inTransaction(): bool
+    {
+        return $this->connection->inTransaction();
     }
 }
