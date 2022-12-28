@@ -78,7 +78,7 @@ class WebController extends BaseController
     {
         if ($inputType === null)
         {
-            return filter_input(INPUT_REQUEST, $name);
+            return filter_input(INPUT_POST, $name);
         }
         
         if ($inputType && $filterType)
