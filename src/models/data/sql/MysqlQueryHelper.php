@@ -98,11 +98,11 @@ class MysqlQueryHelper extends AbstractQueryHelper
         $props = '';
         $values = '';
         $delemiter = ', ';
+        $dateTypes = ['datetime', 'time', 'date'];
         foreach ($properties as $key => $data) {
             if (!isset($data[StoredObject::PROPERTY_ATTRIBUTE_VALUE]) || self::isPrimaryKey($data)) {
                 continue;
             }
-
             if (strlen($props) > 0) {
                 $props .= $delemiter;
             }
@@ -112,13 +112,19 @@ class MysqlQueryHelper extends AbstractQueryHelper
                 $values .= $delemiter;
             }
             $properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = false;
+            $type = RDBRecord::getTypeName($table, $key);
             $value = self::serializeProperty(
                 $data[StoredObject::PROPERTY_ATTRIBUTE_VALUE],
-                RDBRecord::getTypeName($table, $key),
+                $type,
                 $key
             );
-            $this->addQueryValue($key, $value);
-            $values .= ":$key";
+            if (in_array($type, $dateTypes)) {
+                $values .= "$value";
+                $this->addQueryValue($key, $data[StoredObject::PROPERTY_ATTRIBUTE_VALUE]);
+            } else {
+                $values .= ":$key";
+                $this->addQueryValue($key, $value);
+            }
         }
 
         $q = "INSERT INTO $table ($props) VALUES ($values);";
