@@ -140,6 +140,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'tinyint':
             case 'integer':
             case 'int':
+            case 'mediumint':
                 return (string) intval($value);
             case 'string':
             case 'enum':
@@ -204,6 +205,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'tinyint':
             case 'integer':
             case 'int':
+            case 'mediumint':
                 return 'integer';
             case 'string':
             case 'tinytext':
