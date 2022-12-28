@@ -156,6 +156,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'varchar':
                 return self::filterString($value);
             case 'double':
+            case 'float':
                 return (string) floatval($value);
             case 'set':
                 if (is_array($value))
@@ -222,6 +223,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'time':
                 return 'string';
             case 'double':
+            case 'float':
                 return 'double';
             case 'enum':
             case 'set':
