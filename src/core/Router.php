@@ -164,7 +164,11 @@ class Router
             !($this->controller instanceof \mmvc\controllers\BaseController)) {
             throw new \Exception('Router->controller is null or not instance of BaseController');
         }
-        return call_user_func(array($this->controller, 'action' . ucfirst($this->action)));
+        $method = 'action' . ucfirst($this->action);
+        if (!method_exists($this->controller, $method)) {
+            throw new \Exception("Method $method in $this->ctrlName is undefined");
+        }
+        return call_user_func(array($this->controller, $method));
     }
 
     /**
