@@ -1,4 +1,8 @@
-<?php namespace mmvc\models\data\sql;
+<?php
+
+declare(strict_types=1);
+
+namespace mmvc\models\data\sql;
 
 use mmvc\models\data\StoredObject;
 use mmvc\models\data\RDBRecord;
@@ -18,9 +22,9 @@ class MysqlQueryHelper extends AbstractQueryHelper
         return isset($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS]) && ($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS] & MYSQLI_PRI_KEY_FLAG);
     }
 
-    public function getPrimaryColumn(&$properties)
+    public function getPrimaryColumn(array $properties)
     {
-        foreach ($this->properties as $key => $data) {
+        foreach ($properties as $key => $data) {
             if ($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS] & MYSQLI_PRI_KEY_FLAG) {
                 return $key;
             }
@@ -159,13 +163,12 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'float':
                 return (string) floatval($value);
             case 'set':
-                if (is_array($value))
+                if (is_array($value)) {
                     return "(" . implode(", ", $value) . ")";
+                }
                 throw new \Exception("Variable 'value' is not array.");
             case 'datetime':
-                return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_DATETIME_FORMAT.'\' )';
             case 'date':
-                return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_DATE_FORMAT.'\' )';
             case 'time':
                 return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_TIME_FORMAT.'\' )';
             case 'bit':
@@ -177,7 +180,6 @@ class MysqlQueryHelper extends AbstractQueryHelper
 
     public function buildSelect($fields = '*', $from, $where = null)
     {
-        $query = '';
         if (!is_array($fields)) {
             $query = "SELECT * ";
         } else {
@@ -196,9 +198,9 @@ class MysqlQueryHelper extends AbstractQueryHelper
         return $query;
     }
 
-    public function buildDelete($table, $where)
+    public function buildDelete($table, $where, $values = null)
     {
-        $query = "DELETE FROM $table " . self::addWhere($where);
+        return "DELETE FROM $table " . self::addWhere($where, $values);
     }
 
     public function filterString($value)

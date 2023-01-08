@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace mmvc\core;
 
@@ -12,9 +13,9 @@ class Config
     /**
      * @var array
      */
-    private $raw;
+    private array $raw;
 
-    public function __construct($raw) {
+    public function __construct(array $raw) {
         $this->raw = $raw;
     }
 

@@ -87,8 +87,7 @@ class RDBRecord extends StoredObject
      */
     protected function getQueryHelper()
     {
-        $obj = $this->dbHelper->getQueryHelper();
-        return $obj;
+        return $this->dbHelper->getQueryHelper();
     }
 
     /**

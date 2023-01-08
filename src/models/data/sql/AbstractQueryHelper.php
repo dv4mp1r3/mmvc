@@ -1,4 +1,8 @@
-<?php namespace mmvc\models\data\sql;
+<?php
+
+declare(strict_types=1);
+
+namespace mmvc\models\data\sql;
 
 use mmvc\models\BaseModel;
 use mmvc\models\data\StoredObject;
@@ -11,13 +15,13 @@ abstract class AbstractQueryHelper extends BaseModel
      * Массив ключ-значение для вставки параметров в PDO
      * @var array 
      */
-    private $queryValues;
+    private array $queryValues;
 
     /**
      * Имя используемого классом драйвера для генерации запросов
      * @var string 
      */
-    protected $driverName;
+    protected string $driverName;
 
     const JOIN_TYPE_RIGHT = 'RIGHT';
     const JOIN_TYPE_LEFT = 'LEFT';
