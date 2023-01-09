@@ -178,7 +178,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
         }
     }
 
-    public function buildSelect($fields = '*', $from, $where = null)
+    public function buildSelect($fields = '*', $from, $where = null, $values = null)
     {
         if (!is_array($fields)) {
             $query = "SELECT * ";
@@ -192,7 +192,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
 
         $query .= " FROM $from ";
         if ($where !== null) {
-            $query .= self::addWhere($where);
+            $query .= self::addWhere($where, $values);
         }
 
         return $query;

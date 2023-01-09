@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace  tests\controllers;
+
 use PHPUnit\Framework\TestCase;
 use mmvc\controllers\CliController;
 use \mmvc\core\Config;
