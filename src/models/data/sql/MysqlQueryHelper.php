@@ -95,9 +95,12 @@ class MysqlQueryHelper extends AbstractQueryHelper
     /**
      * Создание запроса для добавления записи в базу
      * Вызывается при сохранении (метод save())
+     * @param string $table
+     * @param array $properties
      * @return string готовый запрос INSERT INTO $tablename ($columns) VALUES ($values);
+     * @throws \Exception
      */
-    public function buildInsert($table, &$properties)
+    public function buildInsert($table, &$properties): string
     {
         $props = '';
         $values = '';
@@ -168,7 +171,9 @@ class MysqlQueryHelper extends AbstractQueryHelper
                 }
                 throw new \Exception("Variable 'value' is not array.");
             case 'datetime':
+                return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_DATETIME_FORMAT.'\' )';
             case 'date':
+                return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_DATE_FORMAT.'\' )';
             case 'time':
                 return 'STR_TO_DATE(:'.$key.', \''.self::DEFAULT_TIME_FORMAT.'\' )';
             case 'bit':
