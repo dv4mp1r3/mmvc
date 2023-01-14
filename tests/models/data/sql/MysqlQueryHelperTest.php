@@ -185,4 +185,24 @@ class MysqlQueryHelperTest extends TestCase
         );
     }
 
+    public function testAddJoin() : void {
+        $join = $this->helper->addJoin('', 'LEFT', self::TABLE_NAME, 'field=field');
+        $this->assertEquals(' LEFT JOIN '.self::TABLE_NAME.' ON field=field', $join);
+    }
+
+    public function testIsPrimaryKey() : void {
+        $properties = [
+            'field1' => [
+
+            ],
+            'field2' => [
+
+            ],
+        ];
+    }
+
+    public function testGetPrimaryColumn() : void {
+
+    }
+
 }
