@@ -161,7 +161,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'text':
             case 'mediumtext':
             case 'varchar':
-                return self::filterString($value);
+                return $value;
             case 'double':
             case 'float':
                 return (string) floatval($value);
@@ -188,9 +188,6 @@ class MysqlQueryHelper extends AbstractQueryHelper
         if (!is_array($fields)) {
             $query = "SELECT * ";
         } else {
-            foreach ($fields as &$field) {
-                $field = self::filterString($field);
-            }
             $fields = implode(", ", $fields);
             $query = "SELECT $fields ";
         }
@@ -206,11 +203,6 @@ class MysqlQueryHelper extends AbstractQueryHelper
     public function buildDelete($table, $where, $values = null)
     {
         return "DELETE FROM $table " . self::addWhere($where, $values);
-    }
-
-    public function filterString($value)
-    {
-        return $value;
     }
 
     public function getPropertyType($dbPropertyType)
