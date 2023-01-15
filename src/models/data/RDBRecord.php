@@ -6,6 +6,7 @@ namespace mmvc\models\data;
 
 use mmvc\models\data\sql\QueryHelper;
 use \PDO;
+use \PDOStatement;
 use mmvc\models\data\sql\AbstractQueryHelper;
 
 /**
@@ -241,7 +242,7 @@ class RDBRecord extends StoredObject
          */
         $obj = new $classname(null, $from, $dbConfig);
 
-        $obj->sqlQuery = $obj->queryHelper->buildSelect($from, $values, $obj->objectName);
+        $obj->sqlQuery = $obj->queryHelper->buildSelect($from, $values);
         return $obj;
     }
 
