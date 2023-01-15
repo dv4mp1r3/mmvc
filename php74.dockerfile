@@ -5,7 +5,7 @@ RUN apk add --no-cache $PHPIZE_DEPS git \
     && docker-php-ext-enable xdebug redis \
     && docker-php-ext-configure pcntl --enable-pcntl \
     && docker-php-ext-configure sockets --enable-sockets \
-    && docker-php-ext-install pcntl sockets pdo pdo_mysql \
+    && docker-php-ext-install pcntl sockets pdo pdo_mysql mysqli \
     && docker-php-ext-configure ffi --with-ffi \
     && docker-php-ext-install ffi
 RUN apk add --no-cache \

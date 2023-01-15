@@ -44,6 +44,17 @@ class MysqlQueryHelperTest extends TestCase
         );
     }
 
+    private function genFlagProreprties(): array {
+        return [
+            'id' => [
+                MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS => 0 | MYSQLI_PRI_KEY_FLAG
+            ],
+            'field1' => [
+                MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS => 0,
+            ],
+        ];
+    }
+
     public function setUp(): void
     {
         $this->helper = new MysqlQueryHelper();
@@ -191,18 +202,13 @@ class MysqlQueryHelperTest extends TestCase
     }
 
     public function testIsPrimaryKey() : void {
-        $properties = [
-            'field1' => [
-
-            ],
-            'field2' => [
-
-            ],
-        ];
+        $properties = $this->genFlagProreprties();
+        $this->assertEquals(true, $this->helper->isPrimaryKey($properties['id']));
+        $this->assertEquals(false, $this->helper->isPrimaryKey($properties['field1']));
     }
 
     public function testGetPrimaryColumn() : void {
-
+        $this->assertEquals('id', $this->helper->getPrimaryColumn($this->genFlagProreprties()));
     }
 
 }
