@@ -1,4 +1,6 @@
-<?php namespace mmvc\core;
+<?php
+
+namespace mmvc\core;
 
 use mmvc\controllers\ErrorController;
 use mmvc\controllers\CliController;
@@ -9,10 +11,8 @@ class ExceptionHandler {
      * Функция обработки исключений для веб-приложения
      * @param \Exception $ex
      */
-    public static function doWebAppException($ex) {
-        // todo: rewrite
-        global $config;
-        $err_ctrl = new ErrorController(new Config($config));
+    public static function doWebAppException(\Exception $ex) {
+        $err_ctrl = new ErrorController(Config::getInstance());
         if (!defined('MMVC_DEBUG') || MMVC_DEBUG === false) {
             $err_ctrl->actionBase();
         } else {
@@ -21,14 +21,14 @@ class ExceptionHandler {
 
         self::log($ex);
     }
-    
+
     /**
      * Функция обработки исключений для cli-приложения
      * @param \Exception $ex
      */
-    public static function doCliAppException($ex)
+    public static function doCliAppException(\Exception $ex)
     {
-        $err_ctrl = new CliController();
+        $err_ctrl = new CliController(Config::getInstance());
         $err_ctrl->printExceptionData($ex);
         
         self::log($ex);
@@ -36,8 +36,10 @@ class ExceptionHandler {
 
     /**
      * Функция обработки ошибок
-     * @param int $errLevel тип ошибки
-     * @param string $errMsg текст ошибки
+     * @param $errno
+     * @param $errstr
+     * @param $errfile
+     * @param $errline
      */
     public static function doError($errno, $errstr, $errfile, $errline) {
         self::log(null, [
