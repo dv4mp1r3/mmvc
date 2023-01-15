@@ -17,7 +17,7 @@ class CliControllerTest extends TestCase
 
     public function setUp() : void
     {
-        $this->cliController = new CliController(new Config([]));
+        $this->cliController = new CliController(Config::getInstance());
     }
 
     protected function tearDown() : void
