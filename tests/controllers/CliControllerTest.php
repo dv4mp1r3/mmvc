@@ -2,20 +2,22 @@
 
 declare(strict_types=1);
 
+namespace  tests\controllers;
+
 use PHPUnit\Framework\TestCase;
-use mmvc\controllers\BaseController;
 use mmvc\controllers\CliController;
+use \mmvc\core\Config;
 
 class CliControllerTest extends TestCase
 {
     /**
      * @var CliController $cliController
      */
-    protected $cliController;
+    protected CliController $cliController;
 
     public function setUp() : void
     {
-        $this->cliController = new CliController();
+        $this->cliController = new CliController(new Config([]));
     }
 
     protected function tearDown() : void
@@ -47,7 +49,7 @@ class CliControllerTest extends TestCase
      * @return mixed
      * @throws ReflectionException
      */
-    public static function callMethod($obj, $name, $args)
+    public static function callMethod(object $obj, string $name, array $args)
     {
         $class = new \ReflectionClass($obj);
         $method = $class->getMethod($name);

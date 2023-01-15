@@ -1,9 +1,13 @@
-<?php namespace mmvc\models\data;
+<?php
 
+declare(strict_types=1);
+
+namespace mmvc\models\data;
+
+use mmvc\models\data\sql\QueryHelper;
 use \PDO;
-use mmvc\models\BaseModel;
+use \PDOStatement;
 use mmvc\models\data\sql\AbstractQueryHelper;
-use mmvc\models\data\RDBHelper;
 
 /**
  * @todo реализация one2many / many2many отношений
@@ -12,19 +16,14 @@ use mmvc\models\data\RDBHelper;
 class RDBRecord extends StoredObject
 {
 
-    const JOIN_TYPE_RIGHT = 'RIGHT';
-    const JOIN_TYPE_LEFT = 'LEFT';
-    const JOIN_TYPE_INNER = 'INNER';
-    const JOIN_TYPE_OUTER = 'OUTER';
-    const JOIN_TYPE_FULL = 'FULL';
     const PROPERTY_ATTRIBUTE_SCHEMA = 'schema';
     const PROPERTY_ATTRIBUTE_TYPE = 'type';
 
     /**
      * Инстанс объекта для работы с БД
-     * @var \mmvc\models\data\RDBHelper 
+     * @var \mmvc\models\data\RDBHelper
      */
-    protected $dbHelper;
+    protected RDBHelper $dbHelper;
 
     /**
      * Хелпер для генерации запросов в СУБД
@@ -37,29 +36,31 @@ class RDBRecord extends StoredObject
      * затирается после выполнения запроса
      * @var string
      */
-    private $sqlQuery;
+    private string $sqlQuery;
 
     /* присутствует ли join с таблицей внутри запроса $sql_query
      * устанавливается в true при вызове join
      * затирается после выполнения запроса
      * @var boolean
      */
-    private $sqlIsJoin;
+    private bool $sqlIsJoin;
 
     /**
      * Схема данных для таблицы (одна для всех существующих объектов каждой таблицы)
      * schema[tablename] = ['type' => string, 'size' => integer, 'default' => mixed]
      * Заполняется при первом обращении к таблице запросом DESCRIBE $tablename
-     * @var array 
+     * @var array
      * @see RDBRecord::parseSchema
      */
-    protected static $schema;
+    protected static array $schema;
 
     /**
      * Создание новой записи либо выбор существующей из таблицы
-     * @param integer $id PK записи для выгрузки существующий (опционально)
+     * @param int|null $id PK записи для выгрузки существующий (опционально)
+     * @param string|null $table
+     * @param array|null $dbConfig
      */
-    public function __construct($id = null, $table = null, $dbConfig = null)
+    public function __construct(?int $id = null, ?string $table = null, ?array $dbConfig = null)
     {
 
         parent::__construct();
@@ -83,38 +84,37 @@ class RDBRecord extends StoredObject
 
     /**
      *
-     * @return AbstractQueryHelper
+     * @return QueryHelper
      */
-    protected function getQueryHelper()
+    protected function getQueryHelper(): QueryHelper
     {
-        $obj = $this->dbHelper->getQueryHelper();
-        return $obj;
+        return $this->dbHelper->getQueryHelper();
     }
 
     /**
      * Загрузка существующего в БД объекта по первичному ключу
      * @param integer $id
      */
-    protected function initStored($id)
+    protected function initStored(int $id)
     {
         if (!self::isSchemaExists($this->objectName)) {
             $this->parseSchema($this->objectName);
         }
 
-        $sql = $this->queryHelper->buildSelect('*', $this->objectName, "id=$id");
+        $sql = $this->queryHelper->buildSelect($this->objectName, ['*'], "id=$id");
         $st = $this->dbHelper->execute($sql);
 
-        $this->fillProperties($st->fetch(PDO::FETCH_ASSOC));
+        $this->fillProperties((array)$st->fetch(PDO::FETCH_ASSOC));
     }
 
     /**
      * Заполнение свойств объекта из результатов запроса
      * @param array $props результат выполнения запроса
-     * @see mmvc\models\data\RDBRecord::execute()
      * @param boolean $ignore_schema нужно ли игнорировать схему при заполнении свойств
      * Например, при выполнении join и помещении результатов в один объект
+     * @see mmvc\models\data\RDBRecord::execute()
      */
-    protected function fillProperties($props, $ignore_schema = false)
+    protected function fillProperties(array $props, $ignore_schema = false)
     {
         foreach ($props as $key => $value) {
             if (self::isPropertyExists($this->objectName, $key) || $ignore_schema === true) {
@@ -127,11 +127,11 @@ class RDBRecord extends StoredObject
     /**
      * Перегрузка метода присваивания значения свойству
      * При изменении значения id ему не выставляется свойство is_dirty в true
-     * @see mmvc\models\data\StoredObject::__set()
      * @param string $name
      * @param mixed $value
+     * @see mmvc\models\data\StoredObject::__set()
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value)
     {
         $this->properties[$name][StoredObject::PROPERTY_ATTRIBUTE_VALUE] = $value;
         if (!$this->firstLoad && $name !== 'id') {
@@ -143,12 +143,12 @@ class RDBRecord extends StoredObject
      * Получение схемы таблицы для записи
      * @return array
      */
-    public function getObjectSchema()
+    public function getObjectSchema(): ?array
     {
         return self::getSchema($this->objectName);
     }
 
-    protected function isPrimaryKey($name)
+    protected function isPrimaryKey($name): bool
     {
         $data = $this->properties[$name];
         return isset($data['flags']) && ($data['flags'] & MYSQLI_PRI_KEY_FLAG);
@@ -158,7 +158,7 @@ class RDBRecord extends StoredObject
      * Возвращает название колонки Primary key
      * @return string
      */
-    protected function getPrimaryColumn()
+    protected function getPrimaryColumn(): string
     {
         return $this->queryHelper->getPrimaryColumn($this->properties);
     }
@@ -179,20 +179,17 @@ class RDBRecord extends StoredObject
             $query = $this->queryHelper->buildInsert($this->objectName, $this->properties);
         } else {
             $values = [];
-            foreach ($this->properties as $key => &$property) 
-            {
-                if  (
-                        $property[StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] == false || 
-                        $this->queryHelper->isPrimaryKey($property)
-                    )
-                {
+            foreach ($this->properties as $key => &$property) {
+                if ($property[StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] == false
+                    || $this->queryHelper->isPrimaryKey($property)
+                ) {
                     continue;
                 }
                 $values[$key] = $property[StoredObject::PROPERTY_ATTRIBUTE_VALUE];
             }
             $query = $this->queryHelper->buildUpdate($this->objectName, $values, "id = $this->id");
         }
-        
+
         $st = $this->dbHelper->execute($query, $this->queryHelper->getQueryValues());
         $this->queryHelper->clearQueryValues();
 
@@ -205,22 +202,21 @@ class RDBRecord extends StoredObject
 
     /**
      * Удаление записи из таблицы
-     * @return boolean
+     * @return string
      * @throws Exception выбрасывается если невозможно удалить запись из таблицы
      */
-    public function delete()
+    public function delete(): string
     {
         $query = $this->queryHelper->buildDelete($this->objectName, "id=$this->id");
         $st = $this->dbHelper->execute($query);
-        $errCode = $st->errorCode();
-        return $errCode;
+        return $st->errorCode();
     }
 
     /**
      * Сериализация объекта
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->objectName . ' ' . json_encode($this->properties);
     }
@@ -228,32 +224,35 @@ class RDBRecord extends StoredObject
     /**
      * Инициализация процедуры выборки объектов из БД
      * Начало генерации запроса SELECT
-     * @param array $values массив с именами полей
+     * @param string $from переопределить выборку из таблицы
+     * например, если для таблицы нужно указать алиас
+     * @param string[] $values массив с именами полей
      * например ['field_1', field_2]
      * или ['tableName.field_1', 'tableName.field_2']
      * или ['field_1 f1', 'field_2 f2']
-     * @param string $from переопределить выборку из таблицы
-     * например, если для таблицы нужно указать алиас
-     * @return \mmvc\models\data\RDBRecord объект, в рамках которого вызывался метод select
+     * @param array|null $dbConfig
+     * @return RDBRecord объект, в рамках которого вызывался метод select
      * со сгенерированным началом запроса
      */
-    public static function select($values = "*", $from = null, $dbConfig = null)
+    public static function select(string $from, $values = ["*"], ?array $dbConfig = null): RDBRecord
     {
         $classname = get_called_class();
+        /**
+         * @var $obj RDBRecord
+         */
         $obj = new $classname(null, $from, $dbConfig);
 
-        $obj->sqlQuery = $obj->queryHelper->buildSelect(
-            $values, $obj->objectName
-        );
+        $obj->sqlQuery = $obj->queryHelper->buildSelect($from, $values);
         return $obj;
     }
 
     /**
      * Указание критерия для запроса (используется при вызове select или update)
      * @param string $where критерий запроса, который описывает блок WHERE
+     * @param array|null $values
      * @return RDBRecord объект, в рамках которого был дополнен запрос
      */
-    public function where($where, $values = null)
+    public function where(string $where, ?array $values = null): RDBRecord
     {
         $this->sqlQuery .= $this->queryHelper->addWhere($where, $values);
         return $this;
@@ -262,10 +261,11 @@ class RDBRecord extends StoredObject
     /**
      * Инициализация процедуры обновления данных в БД
      * @param array $values массив key=>value [string=>mixed]
-     * @param string $table Имя таблицы, для которой необходимо выполнить запрос
-     * @return \mmvc\models\data\RDBRecord
+     * @param string|null $table Имя таблицы, для которой необходимо выполнить запрос
+     * @param array|null $dbConfig
+     * @return RDBRecord
      */
-    public static function update($values, $table = null, $dbConfig = null)
+    public static function update(array $values, ?string $table = null, ?array $dbConfig = null): RDBRecord
     {
         $classname = get_called_class();
         $obj = new $classname(null, $table, $dbConfig);
@@ -287,14 +287,12 @@ class RDBRecord extends StoredObject
      * @param string $on критерий объединения
      * используется только для объединений с типами DBTable::JOIN_TYPE_LEFT и
      * DBTable::JOIN_TYPE_RIGHT
-     * @return \mmvc\models\data\RDBRecord
+     * @return RDBRecord
      */
-    public function join($type, $tableName, $on = null)
+    public function join(string $type, string $tableName, string $on = ''): RDBRecord
     {
         $this->sqlIsJoin = true;
-        $this->sqlQuery = $this->queryHelper->addJoin(
-            $this->sqlQuery, $type, $tableName, $on
-        );
+        $this->sqlQuery = $this->queryHelper->addJoin($this->sqlQuery, $type, $tableName, $on);
         return $this;
     }
 
@@ -302,28 +300,26 @@ class RDBRecord extends StoredObject
      * Установка лимита на выборку
      * @param integer $limit сколько
      * @param integer $offset смещение
-     * @return \mmvc\models\data\RDBRecord
+     * @return RDBRecord
      */
-    public function limit($limit, $offset = 0)
+    public function limit(int $limit, $offset = 0): RDBRecord
     {
-        $this->sqlQuery = $this->queryHelper->addLimit(
-            $this->sqlQuery, $limit, $offset
-        );
+        $this->sqlQuery = $this->queryHelper->addLimit($this->sqlQuery, $limit, $offset);
         return $this;
     }
 
     /**
      * Выполнение запроса, сгенерированного ранее для объекта
      * через вызовы методов select, update, where, join
-     * @return mixed если данные есть то ArrayObject 
-     * или \mmvc\models\data\RDBTable в зависимости от количества найденных объектов или null 
+     * @return mixed если данные есть то ArrayObject
+     * или \mmvc\models\data\RDBTable в зависимости от количества найденных объектов или null
      */
     public function execute()
     {
         if ($this->sqlIsJoin !== false && RDBRecord::getSchema($this->objectName) === null) {
             $this->parseSchema($this->objectName);
         }
-        //$this->sqlQuery .= ";";
+
         /**
          * Получаем схему, если ее нет в скрипте
          */
@@ -339,11 +335,13 @@ class RDBRecord extends StoredObject
     }
 
     /**
-     * 
-     * @param \PDOStatement $st
+     *
+     * @param PDOStatement|null $st
+     * @param $classname
+     * @param $tableName
      * @return \ArrayObject|string
      */
-    protected function postExecute($st, $classname, $tableName)
+    protected function postExecute(?PDOStatement $st, string $classname, string $tableName)
     {
         $queryType = substr($this->sqlQuery, 0, strpos($this->sqlQuery, ' '));
         $result = null;
@@ -375,21 +373,21 @@ class RDBRecord extends StoredObject
         return $result;
     }
 
-    public static function isPropertyExists($tableName, $propertyName)
+    public static function isPropertyExists($tableName, $propertyName): bool
     {
         return isset(self::$schema[$tableName][$propertyName]);
     }
 
-    public static function getSchema($tableName)
+    public static function getSchema($tableName): ?array
     {
         if (self::isSchemaExists($tableName)) {
             return self::$schema[$tableName];
         }
-        
+
         return null;
     }
 
-    public static function isSchemaExists($tableName)
+    public static function isSchemaExists($tableName): bool
     {
         return empty(self::$schema) ? false : !empty(self::$schema[$tableName]);
     }
@@ -398,8 +396,10 @@ class RDBRecord extends StoredObject
      * Получение имени типа из загруженной ранее схемы
      * @param string $tableName
      * @param string $field
+     * @return mixed
+     * @throws \Exception
      */
-    public static function getTypeName($tableName, $field)
+    public static function getTypeName(string $tableName, string $field): string
     {
         if (!isset(self::$schema[$tableName])) {
             throw new \Exception("Schema for table $tableName is not loaded yet");
@@ -413,7 +413,7 @@ class RDBRecord extends StoredObject
      * @param string $type
      * @return string
      */
-    protected function getType($type)
+    protected function getType(string $type): string
     {
         $pos = strpos($type, '(');
         if ($pos > 0) {
@@ -427,22 +427,23 @@ class RDBRecord extends StoredObject
      * @param string $type
      * @return int
      */
-    protected function getTypeSize($type)
+    protected function getTypeSize(string $type): int
     {
         $begin = strpos($type, '(');
-        return (int) substr($type, $begin + 1, strlen($type) - $begin - 2);
+        return (int)substr($type, $begin + 1, strlen($type) - $begin - 2);
     }
 
     // mssql sp_help "[SchemaName].[TableName]" 
     // firebird show table "table_name"
     /**
      * Обработка схемы таблицы и занесение в массив self::$schema
-     * @param string $table_name
+     * @param string|null $table
      */
-    public function parseSchema($table = null)
+    public function parseSchema(?string $table = null)
     {
-        if ($table === null)
+        if ($table === null) {
             $table = $this->objectName;
+        }
 
         if (RDBRecord::isSchemaExists($table)) {
             return;
@@ -459,23 +460,22 @@ class RDBRecord extends StoredObject
             ];
         }
     }
-    
+
     /**
      * Получение типа данных PHP для свойства по его имени
      * с учетом схемы данных СУБД
      * @param string $propertyName
      * @return string
-     * @throws \Exception выбрасывается если нет схемы 
+     * @throws \Exception выбрасывается если нет схемы
      */
-    public function getPropertyType($propertyName)
+    public function getPropertyType(string $propertyName): string
     {
         $table = $this->objectName;
-        if (!self::isSchemaExists($table))
-        {
-            throw new \Exception('Empty schema for table '.$table);
+        if (!self::isSchemaExists($table)) {
+            throw new \Exception('Empty schema for table ' . $table);
         }
         $propType = self::$schema[$table][$propertyName][RDBRecord::PROPERTY_ATTRIBUTE_TYPE];
-        
+
         return $this->queryHelper->getPropertyType($propType);
     }
 }

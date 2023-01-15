@@ -1,29 +1,25 @@
-<?php namespace mmvc\models\data\sql;
+<?php
+
+declare(strict_types=1);
+
+namespace mmvc\models\data\sql;
 
 use mmvc\models\BaseModel;
-use mmvc\models\data\StoredObject;
-use mmvc\models\data\RDBHelper;
 
-abstract class AbstractQueryHelper extends BaseModel
+abstract class AbstractQueryHelper extends BaseModel implements QueryHelper, QueryValuesStore
 {
 
     /**
      * Массив ключ-значение для вставки параметров в PDO
      * @var array 
      */
-    private $queryValues;
+    private array $queryValues;
 
     /**
      * Имя используемого классом драйвера для генерации запросов
      * @var string 
      */
-    protected $driverName;
-
-    const JOIN_TYPE_RIGHT = 'RIGHT';
-    const JOIN_TYPE_LEFT = 'LEFT';
-    const JOIN_TYPE_INNER = 'INNER';
-    const JOIN_TYPE_OUTER = 'OUTER';
-    const JOIN_TYPE_FULL = 'FULL';
+    protected string $driverName;
 
     public function __construct()
     {
@@ -31,17 +27,17 @@ abstract class AbstractQueryHelper extends BaseModel
         $this->driverName = $this->findDriverName();
     }
 
-    public function getQueryValues()
+    public function getQueryValues(): array
     {
         return $this->queryValues;
     }
 
-    public function clearQueryValues()
+    public function clearQueryValues(): void
     {
         $this->queryValues = [];
     }
 
-    public function addQueryValue($name, $value)
+    public function addQueryValue(string $name, $value): void
     {
         $this->queryValues[":$name"] = $value;
     }
@@ -51,7 +47,7 @@ abstract class AbstractQueryHelper extends BaseModel
      * Например, MysqlQueryHelper -> mysql
      * @return string
      */
-    private function findDriverName()
+    private function findDriverName(): string
     {
         $matches = [];
         preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $this->getName(), $matches);
@@ -64,33 +60,10 @@ abstract class AbstractQueryHelper extends BaseModel
      * Возвращает используемое хелпером имя драйвера
      * @return string
      */
-    public function getDriverName()
+    public function getDriverName(): string
     {
         return $this->driverName;
     }
-
-    public abstract function buildDelete($table, $where);
-
-    public abstract function buildSelect($fields = '*', $from, $where = null);
-
-    public abstract function buildDescribe($table);
-
-    public abstract function buildInsert($table, &$properties);
-
-    public abstract function buildUpdate($table, $values, $where = null);
-
-    public abstract function addLimit($query, $limit, $offset = 0);
-
-    public abstract function addWhere($where, $values = null);
-
-    public abstract function addJoin($query, $type, $table, $on);
-
-    /**
-     * Фильтрация строки, используемая для работы с БД
-     * @param string $value
-     * @return string
-     */
-    public abstract function filterString($value);
     
     /**
      * Соотвествие между типами данных в СУБД и типами данных в PHP
@@ -99,5 +72,5 @@ abstract class AbstractQueryHelper extends BaseModel
      * @param string $dbPropertyType Тип данных СУБД
      * @return string Тип данных в PHP
      */
-    public abstract function getPropertyType($dbPropertyType);
+    public abstract function getPropertyType(string $dbPropertyType): string;
 }

@@ -1,12 +1,14 @@
-<?php namespace mmvc\models\data;
+<?php
 
+declare(strict_types=1);
+
+namespace mmvc\models\data;
+
+use mmvc\models\data\sql\AbstractQueryHelper;
+use mmvc\models\data\sql\QueryHelper;
 use \PDO;
+use PDOStatement;
 
-/**
- * TODO 
- * вынести конфиг в класс-приложение чтобы убрать использование глобальной переменной
- * 
- */
 class RDBHelper extends AbstractDataStorage implements Transactional
 {
 
@@ -19,23 +21,22 @@ class RDBHelper extends AbstractDataStorage implements Transactional
      *
      * @var \PDO 
      */
-    protected $connection;
+    protected PDO $connection;
 
     /**
      * Загруженные хелперы для работы с запросами
      * @var array каждый элемент - наследник 
      * \mmvc\models\data\sql\AbstractQueryHelper
      */
-    protected static $queryHelpers;
+    protected static array $queryHelpers;
 
-    // sqlite - diff
+
     /**
      * Создание нового соединения к базе
+     * @param array|null $dbConfig
      * @global array $config
-     * @return boolean
-     * @throws \PDOException
      */
-    public function __construct($dbConfig = null)
+    public function __construct(?array $dbConfig = null)
     {
         $db_opt = $dbConfig;
         if ($dbConfig === null) {
@@ -66,9 +67,9 @@ class RDBHelper extends AbstractDataStorage implements Transactional
      * Добавление хелпера запросов для driverName
      * Имя класс помещается в RDBHelper::$queryHelpers
      * @param string $driverName
-     * @return \mmvc\models\data\sql\AbstractQueryHelper 
+     * @return AbstractQueryHelper
      */
-    protected function addQueryHelper($driverName)
+    protected function addQueryHelper(string $driverName): sql\AbstractQueryHelper
     {
         $classname = 'mmvc\\models\\data\\sql\\' . ucfirst($driverName) . 'QueryHelper';
         $obj = new $classname();
@@ -81,12 +82,15 @@ class RDBHelper extends AbstractDataStorage implements Transactional
      * Проверка соединения с базой
      * @return boolean
      */
-    public function isConnected()
+    public function isConnected(): bool
     {
         return isset($this->connection) && $this->connection instanceof \PDO;
     }
 
-    private function dropQueryExecuteException($statement, $statementValues = null)
+    /**
+     * @param PDOStatement $statement
+     */
+    private function dropQueryExecuteException(PDOStatement $statement)
     {
         $errCode = $statement->errorCode();
         $errInfo = $statement->errorInfo();
@@ -98,14 +102,13 @@ class RDBHelper extends AbstractDataStorage implements Transactional
 
     /**
      * Выполнение произвольного sql-запроса
-     * @param string $sql_query
-     * @param array $values
-     * @throws \PDOException если не удалось успешно выполнить запрос
-     * @return \PDOStatement в случае успеха
+     * @param string $sqlQuery
+     * @param array|null $values
+     * @return PDOStatement в случае успеха
      */
-    public function execute($sql_query, $values = null)
+    public function execute(string $sqlQuery, ?array $values = null): ?PDOStatement
     {
-        $st = $this->connection->prepare($sql_query);
+        $st = $this->connection->prepare($sqlQuery);
         $res = is_array($values) && count($values) > 0 ? $st->execute($values) : $st->execute();
         if ($res !== false) {
             return $st;
@@ -113,21 +116,21 @@ class RDBHelper extends AbstractDataStorage implements Transactional
         $this->dropQueryExecuteException($st, $values);
     }
 
-    public function lastInsertId()
+    public function lastInsertId(): string
     {
         return $this->connection->lastInsertId();
     }
 
-    public function getDriverName()
+    public function getDriverName(): string
     {
         return $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
     }
 
     /**
-     * 
-     * @return mmvc\models\data\sql\AbstractQueryHelper
+     *
+     * @return QueryHelper
      */
-    public function getQueryHelper()
+    public function getQueryHelper(): QueryHelper
     {
         return self::$queryHelpers[$this->getDriverName()];
     }
