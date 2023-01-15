@@ -1,4 +1,8 @@
-<?php namespace mmvc\models\data;
+<?php
+
+declare(strict_types=1);
+
+namespace mmvc\models\data;
 
 use mmvc\models\BaseModel;
 
@@ -9,7 +13,7 @@ class StoredObject extends BaseModel
     const PROPERTY_ATTRIBUTE_VALUE = 'value';
 
     // prop = ['name' => ['is_dirty' => false, 'schema' => 'integer', 'value' => 1]]
-    protected $properties;
+    protected array $properties;
 
     /**
      * Новая ли это запись?
@@ -17,31 +21,27 @@ class StoredObject extends BaseModel
      * необходимо выставить в false после помещения в хранилище
      * @var boolean 
      */
-    protected $isNew;
+    protected bool $isNew;
 
     /**
      * Название сущности, с которой ассоциируется объект
      * Для RDBMS это чаще всего имя таблицы
      * @var string 
      */
-    protected $objectName;
-    protected $firstLoad = true;
+    protected string $objectName;
+    protected bool $firstLoad = true;
 
-    public function __construct($objectName = null)
+    public function __construct(?string $objectName = null)
     {
         parent::__construct();
-
-        if ($objectName !== null)
-            $this->objectName = $objectName;
-        else
-            $this->objectName = $this->modelName;
+        $this->objectName = $objectName !== null ? $objectName : $this->modelName;
     }
 
     /**
      * Представление объекта в виде массива $object['attribute'] = $value
      * @return array
      */
-    public function asArray()
+    public function asArray(): ?array
     {
         $data = array();
         foreach ($this->properties as $key => $property) {
@@ -55,7 +55,7 @@ class StoredObject extends BaseModel
      * Представление массива в виде json строки
      * @return string
      */
-    public function asJson()
+    public function asJson(): string
     {
         return json_encode(self::asArray());
     }
@@ -71,7 +71,7 @@ class StoredObject extends BaseModel
         return $this->properties[$name][StoredObject::PROPERTY_ATTRIBUTE_VALUE];
     }
 
-    public function __set($name, $value)
+    public function __set(string $name, $value)
     {
         $this->properties[$name][StoredObject::PROPERTY_ATTRIBUTE_VALUE] = $value;
         if (!$this->firstLoad) {
@@ -84,7 +84,7 @@ class StoredObject extends BaseModel
      * @param string $name
      * @return boolean true если свойство было модифицировано, но не сохранено в БД
      */
-    protected function isDirtyProperty($name)
+    protected function isDirtyProperty($name): bool
     {
         $data = $this->properties[$name];
         return isset($data[StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY]) && $data[StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] === true;
@@ -98,7 +98,7 @@ class StoredObject extends BaseModel
     /**
      * @return bool
      */
-    public function isNew()
+    public function isNew(): bool
     {
         return $this->isNew;
     }

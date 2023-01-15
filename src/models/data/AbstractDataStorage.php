@@ -7,7 +7,7 @@ abstract class AbstractDataStorage extends \mmvc\models\BaseModel
      *
      * @var mixed
      */
-    protected $connection;
+    protected \PDO $connection;
 
     /**
      * @var mixed 
