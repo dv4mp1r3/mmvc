@@ -6,7 +6,6 @@ namespace mmvc\models\data\sql;
 
 use mmvc\models\data\StoredObject;
 use mmvc\models\data\RDBRecord;
-use mmvc\models\data\RDBHelper;
 
 class MysqlQueryHelper extends AbstractQueryHelper
 {
@@ -17,7 +16,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
     const DEFAULT_TIME_FORMAT = '%H:%i:%s';
     const DEFAULT_DATE_FORMAT = '%d-%m-%Y';
 
-    public function isPrimaryKey($data)
+    public function isPrimaryKey($data): bool
     {
         return isset($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS]) && ($data[MysqlQueryHelper::PROPERTY_ATTRIBUTE_FLAGS] & MYSQLI_PRI_KEY_FLAG);
     }
@@ -31,12 +30,12 @@ class MysqlQueryHelper extends AbstractQueryHelper
         }
     }
 
-    public function addJoin($query, $type, $table, $on)
+    public function addJoin(string $query, string $type, string $table, string $on): string
     {
         return $query . " $type JOIN $table ON $on";
     }
 
-    public function addLimit($query, $limit, $offset = 0)
+    public function addLimit(string $query, int $limit, int $offset = 0) : string
     {
         $limit = intval($limit);
         $offset = intval($offset);
@@ -47,7 +46,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
         return $query . " LIMIT :offset, :limit ";
     }
 
-    public function addWhere($where, $values = null)
+    public function addWhere(string $where, ?array $values = null): string
     {
         if (is_array($values))
         {
@@ -60,12 +59,12 @@ class MysqlQueryHelper extends AbstractQueryHelper
         return " WHERE " . $where;
     }
 
-    public function buildDescribe($table)
+    public function buildDescribe(string $table) : string
     {
         return "DESCRIBE $table";
     }
 
-    public function buildUpdate($table, $values, $where = null)
+    public function buildUpdate(string $table, array $values, ?string $where = null, ?array $whereValues = null) : string
     {
         $set = '';
         $dateTypes = ['datetime', 'time', 'date'];
@@ -87,7 +86,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
 
         $query = "UPDATE $table SET $set ";
         if ($where !== null) {
-            $query .= self::addWhere($where);
+            $query .= self::addWhere($where, $whereValues);
         }
         return $query;
     }
@@ -100,7 +99,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
      * @return string готовый запрос INSERT INTO $tablename ($columns) VALUES ($values);
      * @throws \Exception
      */
-    public function buildInsert($table, &$properties): string
+    public function buildInsert(string $table, array &$properties) : string
     {
         $props = '';
         $values = '';
@@ -142,11 +141,11 @@ class MysqlQueryHelper extends AbstractQueryHelper
      * Приведение свойства объекта к строке для записи в БД
      * @param mixed $value значение объекта
      * @param string $type название типа данных в строковом представлении
+     * @param string $key название поля
      * @return string строковое представление типа данных
-     * @throws Exception генерируется если передаваемый тип неизвестен
-     * Или если передан тип set, но $variable не массив
+     * @throws \Exception
      */
-    private function serializeProperty($value, $type, $key)
+    private function serializeProperty($value, string $type, string $key) : string
     {
         $type = strtolower($type);
         switch ($type) {
@@ -161,7 +160,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             case 'text':
             case 'mediumtext':
             case 'varchar':
-                return $value;
+                return (string)$value;
             case 'double':
             case 'float':
                 return (string) floatval($value);
@@ -183,14 +182,10 @@ class MysqlQueryHelper extends AbstractQueryHelper
         }
     }
 
-    public function buildSelect($fields = '*', $from, $where = null, $values = null)
+    public function buildSelect(string $from, array $fields = ['*'], ?string $where = null, ?array $values = null): string
     {
-        if (!is_array($fields)) {
-            $query = "SELECT * ";
-        } else {
-            $fields = implode(", ", $fields);
-            $query = "SELECT $fields ";
-        }
+        $fields = implode(", ", $fields);
+        $query = "SELECT $fields ";
 
         $query .= " FROM $from ";
         if ($where !== null) {
@@ -200,12 +195,12 @@ class MysqlQueryHelper extends AbstractQueryHelper
         return $query;
     }
 
-    public function buildDelete($table, $where, $values = null)
+    public function buildDelete(string $table, string $where, ?array $values = null): string
     {
         return "DELETE FROM $table " . self::addWhere($where, $values);
     }
 
-    public function getPropertyType($dbPropertyType)
+    public function getPropertyType($dbPropertyType): string
     {
         switch ($dbPropertyType) {
             case 'tinyint':

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace tests\models\data\sql;
 
 use mmvc\models\data\sql\MysqlQueryHelper;
+use mmvc\models\data\sql\QueryHelper;
 use mmvc\models\data\StoredObject;
 use tests\models\data\RDBRecordMock;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 class MysqlQueryHelperTest extends TestCase
 {
     const TABLE_NAME = 'test';
-    const FIELDS_ALL = '*';
+    const FIELDS_ALL = ['*'];
     const FIELDS = ['field1', 'field2'];
 
     private MysqlQueryHelper $helper;
@@ -77,15 +78,15 @@ class MysqlQueryHelperTest extends TestCase
     }
 
     public function testBuildSelectAll(): void {
-        $query = $this->helper->buildSelect(self::FIELDS_ALL, self::TABLE_NAME, '1=1');
+        $query = $this->helper->buildSelect( self::TABLE_NAME, self::FIELDS_ALL, '1=1');
         $this->assertEquals(
             $this->removeSpaces("SELECT *  FROM  ".self::TABLE_NAME."  WHERE 1=1"),
             $this->removeSpaces($query)
         );
 
         $query = $this->helper->buildSelect(
-            self::FIELDS_ALL,
             self::TABLE_NAME,
+            self::FIELDS_ALL,
             "1=:val",
             ['val' => 1]
         );
@@ -95,7 +96,7 @@ class MysqlQueryHelperTest extends TestCase
         );
         $this->assertEquals([':val' => 1], $this->helper->getQueryValues());
 
-        $query = $this->helper->buildSelect(self::FIELDS, self::TABLE_NAME);
+        $query = $this->helper->buildSelect( self::TABLE_NAME, self::FIELDS);
         $this->assertEquals(
             $this->removeSpaces("SELECT ".self::fieldsAsString()." FROM ".self::TABLE_NAME." "),
             $this->removeSpaces($query)
@@ -174,7 +175,7 @@ class MysqlQueryHelperTest extends TestCase
         );
 
         $allPropsAreNotDirty = true;
-        foreach ($properties as $key => $val) {
+        foreach ($properties as $val) {
             if ($val[StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY]) {
                 $allPropsAreNotDirty = false;
                 break;
@@ -197,7 +198,7 @@ class MysqlQueryHelperTest extends TestCase
     }
 
     public function testAddJoin() : void {
-        $join = $this->helper->addJoin('', 'LEFT', self::TABLE_NAME, 'field=field');
+        $join = $this->helper->addJoin('', QueryHelper::JOIN_TYPE_LEFT, self::TABLE_NAME, 'field=field');
         $this->assertEquals(' LEFT JOIN '.self::TABLE_NAME.' ON field=field', $join);
     }
 
