@@ -291,14 +291,10 @@ class RDBRecord extends StoredObject
      */
     public function execute()
     {
-        if ($this->sqlIsJoin !== false && RDBSchemaRecord::getSchema($this->objectName) === null) {
-            $this->parseSchema($this->objectName);
-        }
-
         /**
          * Получаем схему, если ее нет в скрипте
          */
-        if (RDBSchemaRecord::getSchema($this->objectName) === null) {
+        if ($this->sqlIsJoin !== false || RDBSchemaRecord::getSchema($this->objectName) === null) {
             $this->parseSchema($this->objectName);
         }
 
