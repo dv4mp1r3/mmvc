@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace mmvc\models\data;
 
 use mmvc\models\data\sql\QueryHelper;
-use mmvc\models\RDBSchemaRecord;
 use \PDO;
 use \PDOStatement;
 use mmvc\models\data\sql\AbstractQueryHelper;
