@@ -7,7 +7,7 @@ namespace tests\models\data\sql;
 use mmvc\models\data\sql\MysqlQueryHelper;
 use mmvc\models\data\sql\QueryHelper;
 use mmvc\models\data\StoredObject;
-use tests\models\data\RDBRecordMock;
+use tests\models\data\RDBSchemaMock;
 use PHPUnit\Framework\TestCase;
 
 class MysqlQueryHelperTest extends TestCase
@@ -35,7 +35,7 @@ class MysqlQueryHelperTest extends TestCase
     }
 
     private function addTestSchema(array $additional = []): void {
-        RDBRecordMock::addTableSchema(
+        RDBSchemaMock::addTableSchema(
             self::TABLE_NAME,
             array_merge([
                 'field1'=>['type'=>'int', 'size'=>'11', 'default'=>'0'],

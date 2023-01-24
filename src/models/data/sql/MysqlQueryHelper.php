@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace mmvc\models\data\sql;
 
+use mmvc\models\data\RDBSchemaRecord;
 use mmvc\models\data\StoredObject;
 use mmvc\models\data\RDBRecord;
 
@@ -72,7 +73,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
             if (strlen($set) > 0) {
                 $set .= ', ';
             }
-            $type = RDBRecord::getTypeName($table, $key);
+            $type = RDBSchemaRecord::getTypeName($table, $key);
             $serializedValue = self::serializeProperty($value, $type, $key);
             if (in_array($type, $dateTypes)) {
                 $set .= "`$key`= $serializedValue";
@@ -118,7 +119,7 @@ class MysqlQueryHelper extends AbstractQueryHelper
                 $values .= $delemiter;
             }
             $properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = false;
-            $type = RDBRecord::getTypeName($table, $key);
+            $type = RDBSchemaRecord::getTypeName($table, $key);
             $value = self::serializeProperty(
                 $data[StoredObject::PROPERTY_ATTRIBUTE_VALUE],
                 $type,

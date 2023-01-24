@@ -16,8 +16,6 @@ use mmvc\models\data\sql\AbstractQueryHelper;
 class RDBRecord extends StoredObject
 {
 
-    const PROPERTY_ATTRIBUTE_SCHEMA = 'schema';
-    const PROPERTY_ATTRIBUTE_TYPE = 'type';
 
     /**
      * Инстанс объекта для работы с БД
@@ -44,15 +42,6 @@ class RDBRecord extends StoredObject
      * @var boolean
      */
     private bool $sqlIsJoin;
-
-    /**
-     * Схема данных для таблицы (одна для всех существующих объектов каждой таблицы)
-     * schema[tablename] = ['type' => string, 'size' => integer, 'default' => mixed]
-     * Заполняется при первом обращении к таблице запросом DESCRIBE $tablename
-     * @var array
-     * @see RDBRecord::parseSchema
-     */
-    protected static array $schema;
 
     /**
      * Создание новой записи либо выбор существующей из таблицы
@@ -97,7 +86,7 @@ class RDBRecord extends StoredObject
      */
     protected function initStored(int $id)
     {
-        if (!self::isSchemaExists($this->objectName)) {
+        if (!RDBSchemaRecord::isSchemaExists($this->objectName)) {
             $this->parseSchema($this->objectName);
         }
 
@@ -117,7 +106,7 @@ class RDBRecord extends StoredObject
     protected function fillProperties(array $props, $ignore_schema = false)
     {
         foreach ($props as $key => $value) {
-            if (self::isPropertyExists($this->objectName, $key) || $ignore_schema === true) {
+            if (RDBSchemaRecord::isPropertyExists($this->objectName, $key) || $ignore_schema === true) {
                 $this->__set($key, $value);
                 $this->properties[$key][StoredObject::PROPERTY_ATTRIBUTE_IS_DIRTY] = false;
             }
@@ -145,22 +134,7 @@ class RDBRecord extends StoredObject
      */
     public function getObjectSchema(): ?array
     {
-        return self::getSchema($this->objectName);
-    }
-
-    protected function isPrimaryKey($name): bool
-    {
-        $data = $this->properties[$name];
-        return isset($data['flags']) && ($data['flags'] & MYSQLI_PRI_KEY_FLAG);
-    }
-
-    /**
-     * Возвращает название колонки Primary key
-     * @return string
-     */
-    protected function getPrimaryColumn(): string
-    {
-        return $this->queryHelper->getPrimaryColumn($this->properties);
+        return RDBSchemaRecord::getSchema($this->objectName);
     }
 
     /**
@@ -270,7 +244,7 @@ class RDBRecord extends StoredObject
         $classname = get_called_class();
         $obj = new $classname(null, $table, $dbConfig);
 
-        if (!self::isSchemaExists($obj->objectName)) {
+        if (!RDBSchemaRecord::isSchemaExists($obj->objectName)) {
             $obj->parseSchema($obj->objectName);
         }
 
@@ -316,14 +290,10 @@ class RDBRecord extends StoredObject
      */
     public function execute()
     {
-        if ($this->sqlIsJoin !== false && RDBRecord::getSchema($this->objectName) === null) {
-            $this->parseSchema($this->objectName);
-        }
-
         /**
          * Получаем схему, если ее нет в скрипте
          */
-        if (RDBRecord::getSchema($this->objectName) === null) {
+        if ($this->sqlIsJoin !== false || RDBSchemaRecord::getSchema($this->objectName) === null) {
             $this->parseSchema($this->objectName);
         }
 
@@ -373,65 +343,6 @@ class RDBRecord extends StoredObject
         return $result;
     }
 
-    public static function isPropertyExists($tableName, $propertyName): bool
-    {
-        return isset(self::$schema[$tableName][$propertyName]);
-    }
-
-    public static function getSchema($tableName): ?array
-    {
-        if (self::isSchemaExists($tableName)) {
-            return self::$schema[$tableName];
-        }
-
-        return null;
-    }
-
-    public static function isSchemaExists($tableName): bool
-    {
-        return empty(self::$schema) ? false : !empty(self::$schema[$tableName]);
-    }
-
-    /**
-     * Получение имени типа из загруженной ранее схемы
-     * @param string $tableName
-     * @param string $field
-     * @return mixed
-     * @throws \Exception
-     */
-    public static function getTypeName(string $tableName, string $field): string
-    {
-        if (!isset(self::$schema[$tableName])) {
-            throw new \Exception("Schema for table $tableName is not loaded yet");
-        }
-
-        return self::$schema[$tableName][$field]['type'];
-    }
-
-    /**
-     * Получение типа данных из строки вида type(size), полученной из запроса DESCRIBE
-     * @param string $type
-     * @return string
-     */
-    protected function getType(string $type): string
-    {
-        $pos = strpos($type, '(');
-        if ($pos > 0) {
-            return substr($type, 0, $pos);
-        }
-        return $type;
-    }
-
-    /**
-     * Получение размера данных из строки вида type(size), полученной из запроса DESCRIBE
-     * @param string $type
-     * @return int
-     */
-    protected function getTypeSize(string $type): int
-    {
-        $begin = strpos($type, '(');
-        return (int)substr($type, $begin + 1, strlen($type) - $begin - 2);
-    }
 
     // mssql sp_help "[SchemaName].[TableName]" 
     // firebird show table "table_name"
@@ -445,37 +356,18 @@ class RDBRecord extends StoredObject
             $table = $this->objectName;
         }
 
-        if (RDBRecord::isSchemaExists($table)) {
+        if (RDBSchemaRecord::isSchemaExists($table)) {
             return;
         }
 
         $query = $this->queryHelper->buildDescribe($table);
         $st = $this->dbHelper->execute($query);
 
+        $schema = new RDBSchemaRecord();
         while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
-            self::$schema[$table][$row['Field']] = [
-                'type' => self::getType($row['Type']),
-                'size' => self::getTypeSize($row['Type']),
-                'default' => $row['Default'],
-            ];
+            $schema->addColumn($table, $row);
         }
     }
 
-    /**
-     * Получение типа данных PHP для свойства по его имени
-     * с учетом схемы данных СУБД
-     * @param string $propertyName
-     * @return string
-     * @throws \Exception выбрасывается если нет схемы
-     */
-    public function getPropertyType(string $propertyName): string
-    {
-        $table = $this->objectName;
-        if (!self::isSchemaExists($table)) {
-            throw new \Exception('Empty schema for table ' . $table);
-        }
-        $propType = self::$schema[$table][$propertyName][RDBRecord::PROPERTY_ATTRIBUTE_TYPE];
 
-        return $this->queryHelper->getPropertyType($propType);
-    }
 }
