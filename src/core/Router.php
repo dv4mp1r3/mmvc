@@ -2,6 +2,8 @@
 namespace mmvc\core;
 
 use mmvc\controllers\BaseController;
+use mmvc\controllers\events\ActionEventAfter;
+use mmvc\controllers\events\ActionEventBefore;
 use mmvc\controllers\WebController;
 use mmvc\controllers\CliController;
 
@@ -164,11 +166,20 @@ class Router
             !($this->controller instanceof \mmvc\controllers\BaseController)) {
             throw new \Exception('Router->controller is null or not instance of BaseController');
         }
-        $method = 'action' . ucfirst($this->action);
+        $action = ucfirst($this->action);
+        $method = 'action' . $action;
         if (!method_exists($this->controller, $method)) {
             throw new \Exception("Method $method in $this->ctrlName is undefined");
         }
-        return call_user_func(array($this->controller, $method));
+
+        if ($this->controller instanceof ActionEventBefore) {
+            $this->controller->beforeAction($action);
+        }
+        $actionResult = call_user_func(array($this->controller, $method));
+        if ($this->controller instanceof ActionEventAfter) {
+            $this->controller->afterAction($action, $actionResult);
+        }
+        return $actionResult;
     }
 
     /**
