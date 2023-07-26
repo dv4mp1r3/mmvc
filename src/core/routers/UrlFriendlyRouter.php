@@ -19,12 +19,15 @@ class UrlFriendlyRouter extends BaseAbstractRouter
 
     private array $params = [];
 
+    /**
+     * @throws \Exception
+     */
     public function __construct(Config $config)
     {
         parent::__construct($config);
 
         $dir = str_replace(DIRECTORY_SEPARATOR, '/', MMVC_ROOT_DIR);
-        $url = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['REQUEST_URI']);
+        $url = $this->getUrl();
 
         $dirArr = explode('/', $dir);
         $urlArr = explode('/', $url);
@@ -39,35 +42,66 @@ class UrlFriendlyRouter extends BaseAbstractRouter
         }
 
         $count = count($result);
-
         if ($count == 0) {
             return;
         }
 
-        switch ($result[0]) {
+        $this->setProperties($url, $result, $count);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function setProperties(string $url, array $explodedUrl, int $count) : void
+    {
+        $this->setControllerName($url, $explodedUrl);
+        $this->setAction($url, $explodedUrl);
+        $this->setParams($url, $explodedUrl, $count);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function setControllerName(string $url, array $explodedUrl) : void
+    {
+        switch ($explodedUrl[0]) {
             case 'error':
             case 'gen':
             case 'cli':
-                $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($result[0]) . 'Controller';
+                $this->ctrlName = 'mmvc\\controllers\\' . ucfirst($explodedUrl[0]) . 'Controller';
                 break;
             default:
                 if (!defined('MMVC_PROJECT_NAMESPACE')) {
-                    throw new \Exception("constant MMVC_PROJECT_NAMESPACE undefined. Can not route {$result[0]}->{$result[1]}");
+                    throw new \Exception("constant MMVC_PROJECT_NAMESPACE undefined. Can not to route {$explodedUrl[0]}->{$explodedUrl[1]}");
                 }
-                $this->ctrlName = MMVC_PROJECT_NAMESPACE . '\\controllers\\' . ucfirst($result[0]) . 'Controller';
+                $this->ctrlName = MMVC_PROJECT_NAMESPACE . '\\controllers\\' . ucfirst($explodedUrl[0]) . 'Controller';
                 break;
         }
-        $this->action = $result[1];
+    }
 
-        if ($count > 2) {
-            for ($i = 2; $i < $count; $i++) {
-                if (isset($result[$i]) && isset($result[$i + 1])) {
-                    $this->params[$result[$i]] = $result[$i + 1];
-                    $i++;
-                }
+    protected function setAction(string $url, array $explodedUrl) : void
+    {
+        $this->action = $explodedUrl[1] ?? null;
+    }
+
+    protected function setParams(string $url, array $explodedUrl, int $count) : void
+    {
+        if ($count <= 2) {
+            return;
+        }
+        for ($i = 2; $i < $count; $i++) {
+            if (isset($explodedUrl[$i]) && isset($explodedUrl[$i + 1])) {
+                $this->params[$explodedUrl[$i]] = $explodedUrl[$i + 1];
+                $i++;
             }
         }
     }
+
+    protected function getUrl(): string
+    {
+        return str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['REQUEST_URI']);
+    }
+
 
     public function getActionName(): ?string
     {
