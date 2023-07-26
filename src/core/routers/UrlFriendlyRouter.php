@@ -41,22 +41,21 @@ class UrlFriendlyRouter extends BaseAbstractRouter
             $result[] = $param;
         }
 
-        $count = count($result);
-        if ($count == 0) {
+        if (count($result) == 0) {
             return;
         }
 
-        $this->setProperties($url, $result, $count);
+        $this->setProperties($url, $result);
     }
 
     /**
      * @throws \Exception
      */
-    protected function setProperties(string $url, array $explodedUrl, int $count) : void
+    protected function setProperties(string $url, array $explodedUrl) : void
     {
         $this->setControllerName($url, $explodedUrl);
         $this->setAction($url, $explodedUrl);
-        $this->setParams($url, $explodedUrl, $count);
+        $this->setParams($url, $explodedUrl);
     }
 
     /**
@@ -84,8 +83,9 @@ class UrlFriendlyRouter extends BaseAbstractRouter
         $this->action = $explodedUrl[1] ?? null;
     }
 
-    protected function setParams(string $url, array $explodedUrl, int $count) : void
+    protected function setParams(string $url, array $explodedUrl) : void
     {
+        $count = count($explodedUrl);
         if ($count <= 2) {
             return;
         }
