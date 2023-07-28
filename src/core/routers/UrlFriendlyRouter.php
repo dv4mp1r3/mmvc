@@ -17,7 +17,7 @@ class UrlFriendlyRouter extends BaseAbstractRouter
 
     private ?string $action = null;
 
-    private array $params = [];
+    private array $args = [];
 
     /**
      * @throws \Exception
@@ -55,7 +55,7 @@ class UrlFriendlyRouter extends BaseAbstractRouter
     {
         $this->setControllerName($url, $explodedUrl);
         $this->setAction($url, $explodedUrl);
-        $this->setParams($url, $explodedUrl);
+        $this->setArgs($url, $explodedUrl);
     }
 
     /**
@@ -83,7 +83,7 @@ class UrlFriendlyRouter extends BaseAbstractRouter
         $this->action = $explodedUrl[1] ?? null;
     }
 
-    protected function setParams(string $url, array $explodedUrl) : void
+    protected function setArgs(string $url, array $explodedUrl) : void
     {
         $count = count($explodedUrl);
         if ($count <= 2) {
@@ -91,7 +91,7 @@ class UrlFriendlyRouter extends BaseAbstractRouter
         }
         for ($i = 2; $i < $count; $i++) {
             if (isset($explodedUrl[$i]) && isset($explodedUrl[$i + 1])) {
-                $this->params[$explodedUrl[$i]] = $explodedUrl[$i + 1];
+                $this->args[$explodedUrl[$i]] = $explodedUrl[$i + 1];
                 $i++;
             }
         }
@@ -115,6 +115,6 @@ class UrlFriendlyRouter extends BaseAbstractRouter
 
     public function getArgs(): array
     {
-        return $this->params;
+        return $this->args;
     }
 }

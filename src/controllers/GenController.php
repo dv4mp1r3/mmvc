@@ -11,13 +11,6 @@ class GenController extends CliController
     const PARAM_VALUE_MODELNAME = 2;
     const PARAM_VALUE_TABLENAME = 3;
     
-    
-    public function __construct()
-    {       
-        parent::__construct();
-        
-    }
-    
     /**
      * Генерация класса потомка от RDBRecord по имеющейся таблице
      * Пример использования

@@ -62,7 +62,7 @@ abstract class BaseAbstractRouter implements RouterInterface, RequestParserInter
             $action = $defaultAction['action'];
             $ctrlName = $defaultAction['controller'];
         }
-        $ctrl = new $ctrlName($this->config);
+        $ctrl = new $ctrlName($this->config, $this->getArgs());
 
         if (AccessChecker::checkAccess($ctrl, $action)) {
             echo $this->callAction($ctrl, $action);

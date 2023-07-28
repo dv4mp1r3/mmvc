@@ -50,10 +50,17 @@ abstract class BaseController
      * @var Config
      */
     private $config;
+
+    /**
+     * key->value массив, полученный от роутера при обработке ссылки/значения
+     * @var array
+     */
+    private array $rawInputArgs;
    
-    public function __construct(Config $config)
+    public function __construct(Config $config, array $args = [])
     {
         $this->config = $config;
+        $this->rawInputArgs = $args;
         $classname = get_called_class();
         $tmp = substr($classname, strrpos($classname, '\\') + 1);
         $this->name = substr($tmp, 0, strpos($tmp, 'Controller'));        
@@ -70,6 +77,11 @@ abstract class BaseController
 
     protected function getConfig() : Config {
         return $this->config;
+    }
+
+    public function getArg(string $key) : string
+    {
+        return $this->rawInputArgs[$key] ?? '';
     }
     
     /**
