@@ -5,9 +5,9 @@ use mmvc\core\Config;
 class ErrorController extends WebController
 {
 
-    public function __construct(Config $config)
+    public function __construct(Config $config, array $args = [])
     {
-        parent::__construct($config);
+        parent::__construct($config, $args);
         $this->rules = [
             'base' => [
                 'granted' => '*',
