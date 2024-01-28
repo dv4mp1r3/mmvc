@@ -79,14 +79,14 @@ $config = [
     // временная зона по умолчанию
     'timezone' => 'Etc/GMT-3',
     // тип ссылок
-    'route' => Router::ROUTE_TYPE_FRIENDLY,
+    'route' => \mmvc\core\routers\UrlFriendlyRouter::class,
     // дефолтный маршрут
     // используется, например, при обращении к корневому каталогу без передачи параметров
     'defaultAction' => [
-        // название контроллера (для генерации неймспейса и подгрузки нужного класса)
-        'controller' => 'test',
+        // название контроллера
+        'controller' => \al\controllers\IndexController::class,
         // название метода для вызова после подгрузки
-        'action' => 'test'
+        'action' => 'actionTest'
     ],
 ];
 ```

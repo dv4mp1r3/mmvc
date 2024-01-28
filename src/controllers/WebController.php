@@ -16,9 +16,9 @@ class WebController extends BaseController
      */
     protected $view;
     
-    public function __construct(Config $config)
+    public function __construct(Config $config, array $args = [])
     {
-        parent::__construct($config);
+        parent::__construct($config, $args);
         $this->view = new BaseView(lcfirst($this->name));
     }
     
