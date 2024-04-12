@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace mmvc\core;
 
-use mmvc\core\Router;
+use mmvc\core\routers\CliRouter;
+use mmvc\core\routers\RouterInterface;
 
 class Application
 {
@@ -82,26 +83,23 @@ class Application
     }
 
     /**
-     * @return \mmvc\core\Router
+     * @return RouterInterface
      */
-    protected function initRouter() : Router
+    protected function initRouter() : RouterInterface
     {
         if (php_sapi_name() === 'cli') {
             $handler = $this->getHandler(
                 self::CONFIG_KEY_EXCEPTION_HANDLER_CLI,
                 self::DEFAULT_EXCEPTION_HANDLER_CLI);
             set_exception_handler($handler);
-            return new Router(Router::ROUTE_TYPE_CLI, $this->config);
+            return new CliRouter($this->config);
         } else {
             $handler = $this->getHandler(
                 self::CONFIG_KEY_EXCEPTION_HANDLER_WEB,
                 self::DEFAULT_EXCEPTION_HANDLER_WEB);
             set_exception_handler($handler);
-            $routeKey = $this->config->getValueByKey(self::CONFIG_KEY_ROUTE);
-            return new Router(
-                empty($routeKey) ? Router::ROUTE_TYPE_DEFAULT : $routeKey,
-                $this->config
-            );
+            $parserClassname = $this->config->getValueByKey(self::CONFIG_KEY_ROUTE);
+            return new $parserClassname($this->config);
         }
     }
 }
